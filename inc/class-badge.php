@@ -10,7 +10,7 @@ class Directorist_Badge
 {
     public $atts;
 
-    public function __construct( $atts = [] )
+    public function __construct($atts = [])
     {
         $this->atts = $atts;
         $this->render();
@@ -18,80 +18,77 @@ class Directorist_Badge
 
     public function render()
     {
-        add_filter( 'atbdp_listing_type_settings_field_list', [ $this, 'atbdp_listing_type_settings_field_list' ] );
-        add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template' ] );
+        add_filter('atbdp_listing_type_settings_field_list', [$this, 'atbdp_listing_type_settings_field_list']);
+        add_action('atbdp_all_listings_badge_template', [$this, 'atbdp_all_listings_badge_template']);
     }
 
-    public function atbdp_listing_type_settings_field_list( $fields )
+    public function atbdp_listing_type_settings_field_list($fields)
     {
-        foreach ( $fields as $key => $value ) {
+        foreach ($fields as $key => $value) {
             // setup widgets
             $widget = [
                 'type'    => "badge",
-                'id'      => $this->atts[ 'id' ],
-                'label'   => $this->atts[ 'label' ],
-                'icon'    => $this->atts[ 'icon' ] ? $this->atts[ 'icon' ]: "uil uil-text-fields",
-                'hook'    => $this->atts[ 'hook' ],
+                'id'      => $this->atts['id'],
+                'label'   => $this->atts['label'],
+                'icon'    => $this->atts['icon'] ? $this->atts['icon'] : "uil uil-text-fields",
+                'hook'    => $this->atts['hook'],
                 'options' => [],
             ];
-    
-            if ( 'listings_card_grid_view' === $key ) {
+
+            if ('listings_card_grid_view' === $key) {
                 // register widget
-                $fields[$key]['card_templates']['grid_view_with_thumbnail']['widgets'][$this->atts[ 'id' ]] = $widget;
-                $fields[$key]['card_templates']['grid_view_without_thumbnail']['widgets'][$this->atts[ 'id' ]] = $widget;
-    
+                $fields[$key]['card_templates']['grid_view_with_thumbnail']['widgets'][$this->atts['id']] = $widget;
+                $fields[$key]['card_templates']['grid_view_without_thumbnail']['widgets'][$this->atts['id']] = $widget;
+
                 // grid with preview image
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['top_right']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['top_left']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['bottom_right']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['bottom_left']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts[ 'id' ] );
-    
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['footer']['right']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['footer']['left']['acceptedWidgets'], $this->atts[ 'id' ] );
-    
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['top_right']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['top_left']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['bottom_right']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['thumbnail']['bottom_left']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts['id']);
+
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['footer']['right']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['grid_view_with_thumbnail']['layout']['footer']['left']['acceptedWidgets'], $this->atts['id']);
+
                 // grid without preview image
-                array_push( $fields[$key]['card_templates']['grid_view_without_thumbnail']['layout']['body']['quick_info']['acceptedWidgets'], $this->atts[ 'id' ] );
+                array_push($fields[$key]['card_templates']['grid_view_without_thumbnail']['layout']['body']['quick_info']['acceptedWidgets'], $this->atts['id']);
             }
-    
-            if ( 'listings_card_list_view' === $key ) {
+
+            if ('listings_card_list_view' === $key) {
                 // register widget
-                $fields[$key]['card_templates']['list_view_with_thumbnail']['widgets'][$this->atts[ 'id' ]] = $widget;
-                $fields[$key]['card_templates']['list_view_without_thumbnail']['widgets'][$this->atts[ 'id' ]] = $widget;
-    
+                $fields[$key]['card_templates']['list_view_with_thumbnail']['widgets'][$this->atts['id']] = $widget;
+                $fields[$key]['card_templates']['list_view_without_thumbnail']['widgets'][$this->atts['id']] = $widget;
+
                 // grid with preview image
-                array_push( $fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['thumbnail']['top_right']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['body']['right']['acceptedWidgets'], $this->atts[ 'id' ] );
-    
+                array_push($fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['thumbnail']['top_right']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['list_view_with_thumbnail']['layout']['body']['right']['acceptedWidgets'], $this->atts['id']);
+
                 // grid without preview image
-                array_push( $fields[$key]['card_templates']['list_view_without_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts[ 'id' ] );
-                array_push( $fields[$key]['card_templates']['list_view_without_thumbnail']['layout']['body']['right']['acceptedWidgets'], $this->atts[ 'id' ] );
+                array_push($fields[$key]['card_templates']['list_view_without_thumbnail']['layout']['body']['top']['acceptedWidgets'], $this->atts['id']);
+                array_push($fields[$key]['card_templates']['list_view_without_thumbnail']['layout']['body']['right']['acceptedWidgets'], $this->atts['id']);
             }
-    
         }
 
         return $fields;
-
     }
 
-    public function atbdp_all_listings_badge_template( $field )
+    public function atbdp_all_listings_badge_template($field)
     {
-        switch ( $field['widget_key'] ) {
-            case $this->atts[ 'id' ]:
-    
-                $free_trial = get_post_meta( get_the_ID(), $this->atts[ 'meta_key' ], true );
-    
-                if ( $free_trial == $this->atts[ 'meta_value' ] ):
-                ?>
-                    <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
-                        <?php echo $this->atts[ 'title' ]; ?>
+        switch ($field['widget_key']) {
+            case $this->atts['id']:
+
+                $badge_value = get_post_meta(get_the_ID(), $this->atts['meta_key'], true);
+
+                if ($badge_value == $this->atts['meta_value']):
+?>
+                    <span id="<?php echo $this->atts['id']; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $this->atts['class']; ?>">
+                        <?php echo $this->atts['title']; ?>
                     </span>
-                <?php
+<?php
                 endif;
-    
-            break;
+
+                break;
         }
     }
-
 }

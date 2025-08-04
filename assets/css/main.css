@@ -1,6 +1,9 @@
 /* Add you custom css here */
 
-.directorist-custom-badge
+.directorist-custom-badge.my-badge-partenaire
 {
-    background-color: #47d6a5;
+    width: fit-content !important;
+    padding: 6px 8px !important;
+    border-radius: 5px !important;
+    background-color: green !important;
 }
