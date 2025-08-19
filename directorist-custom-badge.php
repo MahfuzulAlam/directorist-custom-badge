@@ -8,7 +8,7 @@
  * Plugin Name:       Directorist - Custom Badge
  * Plugin URI:        https://wpwax.com
  * Description:       Best way to creat a custom badge for directorist
- * Version:           1.0.0
+ * Version:           2.0.0
  * Requires at least: 5.2
  * Author:            wpWax
  * Author URI:        https://wpwax.com
