@@ -1,6 +1,21 @@
 /* Add you custom css here */
 
-.directorist-custom-badge
+.directorist-custom-badge.verified-badge
 {
-    background-color: #47d6a5;
+    background-color: silver;
+}
+
+.directorist-custom-badge.featured-provider-badge
+{
+    background-color: goldenrod;
+}
+
+.directorist-custom-badge.best-overall-badge
+{
+    background-color: goldenrod;
+}
+
+.directorist-custom-badge.best-in-category-badge
+{
+    background-color: goldenrod;
 }
