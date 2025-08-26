@@ -84,9 +84,9 @@ class Directorist_Badge
     
                 if ( $free_trial == $this->atts[ 'meta_value' ] ):
                 ?>
-                    <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
+                    <a href="#" id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
                         <?php echo $this->atts[ 'title' ]; ?>
-                    </span>
+                    </a>
                 <?php
                 endif;
     
