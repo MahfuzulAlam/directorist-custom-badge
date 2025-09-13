@@ -148,3 +148,20 @@ function get_qualified_badges_info(){
         ],
     ];
 }
+
+/**
+ * Limit the logged-out users from accessing the single listing page
+ */
+add_action('template_redirect', function(){
+    if( is_singular( ATBDP_POST_TYPE ) && !is_user_logged_in() ){
+        wp_redirect( get_permalink( get_directorist_option( 'signin_signup_page' ) ) . '?reason=logged_out' );
+        exit;
+    }
+});
+
+add_filter( 'directorist_archive_single_listing_url', function($url){
+    if( !is_user_logged_in() ){
+        return get_permalink( get_directorist_option( 'signin_signup_page' ) )  . '?reason=logged_out';
+    }
+    return $url;
+});
