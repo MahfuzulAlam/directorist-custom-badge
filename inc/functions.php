@@ -1,10 +1,4 @@
 <?php
-
-/**
- * Add your custom php code here
- */
-
-
 /**
  * Enable the Custom Field Meta Key
  */

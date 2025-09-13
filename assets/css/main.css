@@ -46,7 +46,7 @@
 .directorist-listing-single__info
 .directorist-badge.certified-professional-badge
 {
-    background-color: #007bff !important;
+    background-color: #3366CC !important;
 }
 
 .conference-speaker-badge,
@@ -132,18 +132,65 @@
 
 .publishing-directory-dashboard-csv-download
 {
-    background-color: #28a745;
+    background: #007cba;
     color: #ffffff;
-    padding: 5px 8px;
-    border-radius: 5px;
+    padding: 8px 16px;
+    border-radius: 4px;
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .publishing-directory-dashboard-csv-download:hover
 {
-    background-color: #218838;
+    background: #005a87;
     color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 124, 186, 0.3);
+}
+
+.publishing-directory-dashboard-csv-download:active
+{
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 124, 186, 0.3);
+}
+
+.publishing-directory-dashboard-csv-download:disabled
+{
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.publishing-directory-dashboard-csv-download:disabled:hover
+{
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+
+.publishing-directory-dashboard-csv-download.downloading
+{
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    position: relative;
+}
+
+.publishing-directory-dashboard-csv-download.downloading:hover
+{
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Mobile Styles */
@@ -152,12 +199,14 @@
     .publishing-directory-dashboard-listing-nav
     {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        align-items: stretch;
+        gap: 15px;
     }
 
     .publishing-directory-dashboard-csv-download
     {
-        font-size: 12px;
+        text-align: center;
+        justify-content: center;
+        font-size: 14px;
     }
 }

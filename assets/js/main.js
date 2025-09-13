@@ -20,4 +20,5 @@ jQuery(document).ready(function ($) {
   
   // Handle checkbox changes
   $checkboxes.on('change', toggleFields);
+
 });

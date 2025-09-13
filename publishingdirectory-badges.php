@@ -80,6 +80,7 @@ if (!class_exists('Publishingdirectory_Badges')) {
         public function includes()
         {
             include_once( PUBLISHINGDIRECTORY_BADGES_DIR . '/inc/class-badge.php' );
+            include_once( PUBLISHINGDIRECTORY_BADGES_DIR . '/inc/class-csv-export.php' );
             include_once( PUBLISHINGDIRECTORY_BADGES_DIR . '/inc/functions.php' );
         }
 
@@ -105,8 +106,22 @@ if (!class_exists('Publishingdirectory_Badges')) {
          */
         public function enqueue_scripts()
         {
-            // Replace 'your-plugin-name' with the actual name of your plugin's folder.
-            wp_enqueue_script('publishingdirectory-script', PUBLISHINGDIRECTORY_BADGES_URI . 'assets/js/main.js', array('jquery'), '1.0', true);
+            // Enqueue main script for badge functionality
+            if( is_page( get_directorist_option( 'add_listing_page' ) ) ) {
+                wp_enqueue_script('publishingdirectory-script', PUBLISHINGDIRECTORY_BADGES_URI . 'assets/js/main.js', array('jquery'), '1.0', true);
+            }
+
+            // Only enqueue on dashboard pages
+            if ( is_page( get_directorist_option( 'user_dashboard' ) ) ) {
+                // Enqueue CSV export script
+                wp_enqueue_script('publishingdirectory-csv-export', PUBLISHINGDIRECTORY_BADGES_URI . 'assets/js/csv-export.js', array('jquery'), '1.0', true);
+                
+                // Localize CSV export script with AJAX data
+                wp_localize_script( 'publishingdirectory-csv-export', 'publishing_directory_ajax', [
+                    'ajax_url' => admin_url( 'admin-ajax.php' ),
+                    'nonce'    => wp_create_nonce( 'publishing_directory_csv_download' )
+                ]);
+            }
         }
 
         /**
@@ -114,7 +129,6 @@ if (!class_exists('Publishingdirectory_Badges')) {
          */
         public function enqueue_styles()
         {
-            // Replace 'your-plugin-name' with the actual name of your plugin's folder.
             wp_enqueue_style('publishingdirectory-style', PUBLISHINGDIRECTORY_BADGES_URI . 'assets/css/main.css', array(), '1.0');
         }
 

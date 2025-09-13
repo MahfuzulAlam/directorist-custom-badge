@@ -10,9 +10,8 @@ use \Directorist\Helper;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( ! $listing->has_badge( $data ) ) {
-    return;
+    //return;
 }
-
 
 $qualified_badges = get_post_meta( get_the_ID(), '_qualified_badges', true );
 
