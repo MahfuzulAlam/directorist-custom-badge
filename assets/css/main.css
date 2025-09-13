@@ -1,6 +1,33 @@
 /* Add you custom css here */
 
+#add-listing-content-user-requests-badges
+.directorist-custom-field-textarea,
+#add-listing-content-user-requests-badges
+.directorist-custom-field-file-upload
+{
+    display: none;
+}
+
+
 .directorist-custom-badge
 {
-    background-color: #47d6a5;
+    width: auto !important;
+    border-radius: 5px !important;
+    padding: 10px 8px !important;
+    color: #ffffff !important;
+}
+
+.award-winning-badge
+{
+    background-color: #FFD700;
+}
+
+.bestselling-author-badge
+{
+    background-color: #28a745;
+}
+
+.certified-professional-badge
+{
+    background-color: #007bff;
 }
