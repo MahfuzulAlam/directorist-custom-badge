@@ -33,7 +33,9 @@ add_action( 'init', function(){
     ] );
 } );
 
-
+/**
+ * Get the qualified badges info
+ */
 function get_qualified_badges_info(){
     return [
         'award' => [
@@ -164,4 +166,25 @@ add_filter( 'directorist_archive_single_listing_url', function($url){
         return get_permalink( get_directorist_option( 'signin_signup_page' ) )  . '?reason=logged_out';
     }
     return $url;
+});
+
+/**
+ * Template Redirect
+ * If dashboard page and current user type is not author, redirect to the all listing page
+ * user type is the user meta _user_type
+ * check if any GET parameter rand isset and not empty
+ */
+add_action('template_redirect', function(){
+    if( isset( $_GET['rand'] ) && !empty( $_GET['rand'] ) ){
+        if( is_user_logged_in() ):
+            if( is_page( get_directorist_option( 'user_dashboard' ) ) && get_user_meta( get_current_user_id(), '_user_type', true ) == 'general' ){
+                wp_redirect( get_permalink( get_directorist_option( 'all_listing_page' ) ) );
+                exit;
+            }
+            if( is_page( get_directorist_option( 'signin_signup_page' ) ) && get_user_meta( get_current_user_id(), '_user_type', true ) !== 'general' ){
+                wp_redirect( get_permalink( get_directorist_option( 'all_listing_page' ) ) );
+                exit;
+            }
+        endif;
+    }
 });

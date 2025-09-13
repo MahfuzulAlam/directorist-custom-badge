@@ -106,7 +106,7 @@ if ( ! class_exists( 'Publishing_Directory_Dashboard_CSV_Export' ) ) {
             $listings = new WP_Query([
                 'post_type'      => ATBDP_POST_TYPE,
                 'posts_per_page' => -1,
-                'post_status'    => ['publish', 'pending', 'draft', 'private'],
+                'post_status'    => ['publish', 'pending', 'draft', 'private', 'expired'],
                 'author'         => $user_id,
             ]);
 
