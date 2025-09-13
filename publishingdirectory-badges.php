@@ -140,7 +140,7 @@ if (!class_exists('Publishingdirectory_Badges')) {
             if (is_array($args)) {
                 extract($args);
             }
-            $data = $args;
+            //$data = $args;
 
             if (isset($args['form'])) $listing_form = $args['form'];
 

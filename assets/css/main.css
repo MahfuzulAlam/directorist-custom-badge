@@ -9,7 +9,7 @@
 }
 
 
-.directorist-custom-badge
+.directorist-custom-badge-archive
 {
     width: auto !important;
     border-radius: 5px !important;
@@ -17,17 +17,106 @@
     color: #ffffff !important;
 }
 
-.award-winning-badge
+.directorist-custom-badge
 {
-    background-color: #FFD700;
+    margin-bottom: 5px !important;
 }
 
-.bestselling-author-badge
+.award-winning-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.award-winning-badge
 {
-    background-color: #28a745;
+    background-color: #FFD700 !important;
 }
 
-.certified-professional-badge
+.bestselling-author-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.bestselling-author-badge
 {
-    background-color: #007bff;
+    background-color: #28a745 !important;
+}
+
+.certified-professional-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.certified-professional-badge
+{
+    background-color: #007bff !important;
+}
+
+.conference-speaker-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.conference-speaker-badge
+{
+    background-color: #6f42c1 !important;
+}
+
+.traditionally-published-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.traditionally-published-badge
+{
+    background-color: #fd7e14 !important;
+}
+
+.portfolio-available-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.portfolio-available-badge
+{
+    background-color: #e83e8c !important;
+}
+
+.team-professionals-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.team-professionals-badge
+{
+    background-color: #20c997 !important;
+}
+
+.media-coverage-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.media-coverage-badge
+{
+    background-color: #dc3545 !important;
+}
+
+.media-interviews-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.media-interviews-badge
+{
+    background-color: #6c757d !important;
+}
+
+.ghostwriter-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.ghostwriter-badge
+{
+    background-color: #17a2b8 !important;
+}
+
+.verified-nonprofit-badge,
+.directorist-content-active 
+.directorist-single-listing-header__left 
+.directorist-listing-single__info
+.directorist-badge.verified-nonprofit-badge
+{
+    background-color: #28a745 !important;
 }

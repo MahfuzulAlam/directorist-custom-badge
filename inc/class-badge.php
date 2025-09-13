@@ -21,7 +21,8 @@ if(!class_exists('Publishing_Directory_Badge')):
         public function render()
         {
             add_filter( 'atbdp_listing_type_settings_field_list', [ $this, 'atbdp_listing_type_settings_field_list' ] );
-            add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template' ] );
+            //add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template' ] );
+            add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template_qualified' ] );
         }
 
         public function atbdp_listing_type_settings_field_list( $fields )
@@ -91,6 +92,36 @@ if(!class_exists('Publishing_Directory_Badge')):
                     <?php
                     endif;
         
+                break;
+            }
+        }
+
+        public function atbdp_all_listings_badge_template_qualified( $field )
+        {
+            switch ( $field['widget_key'] ) {
+                case $this->atts[ 'id' ]:
+                    if ($this->atts[ 'id' ] == 'qualified-badges'):
+                        // Loop all the badges under the qualified badges
+                        $qualified_badges = get_post_meta( get_the_ID(), '_qualified_badges', true );
+                        $badges_limit = 3;
+                        
+                        if ( is_array($qualified_badges) && count($qualified_badges) > 0 ):
+                            $all_badges = get_qualified_badges_info();
+                            foreach ( $all_badges as $badge_key => $badge_atts ) {
+                                if ( is_array($qualified_badges) && in_array($badge_key, $qualified_badges) ):
+                                    ?>
+                                        <span id="<?php echo $badge_atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-custom-badge-archive <?php echo $badge_atts[ 'class' ]; ?>">
+                                            <?php echo $badge_atts[ 'title' ]; ?>
+                                        </span>
+                                    <?php
+                                    $badges_limit--;
+                                    if ( $badges_limit == 0 ) {
+                                        break;
+                                    }
+                                endif;
+                            }
+                        endif;
+                    endif;
                 break;
             }
         }
