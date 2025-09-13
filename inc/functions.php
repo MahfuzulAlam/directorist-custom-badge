@@ -181,7 +181,7 @@ add_action('template_redirect', function(){
                 wp_redirect( get_permalink( get_directorist_option( 'all_listing_page' ) ) );
                 exit;
             }
-            if( is_page( get_directorist_option( 'signin_signup_page' ) ) && get_user_meta( get_current_user_id(), '_user_type', true ) !== 'general' ){
+            if( is_page( get_directorist_option( 'signin_signup_page' ) ) && get_user_meta( get_current_user_id(), '_user_type', true ) == 'general' ){
                 wp_redirect( get_permalink( get_directorist_option( 'all_listing_page' ) ) );
                 exit;
             }
