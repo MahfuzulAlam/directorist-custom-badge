@@ -188,3 +188,51 @@ add_action('template_redirect', function(){
         endif;
     }
 });
+
+/**
+ * Add user type custom column in users management table - Provider or User
+ */
+add_filter( 'manage_users_custom_column', function( $column_value, $column_name, $user_id ){
+
+    if( $column_name == 'user_type' ){
+        $user_type = (string) get_user_meta( $user_id, '_user_type', true );
+        if ( 'author' === $user_type ) {
+            return esc_html__( 'Provider', 'directorist' );
+        } elseif ( 'general' === $user_type ) {
+            return esc_html__( 'User', 'directorist' );
+        } elseif ( 'become_author' === $user_type ) {
+            $author_pending =  "<p>Provider <span style='color:red;'>( " . esc_html__( 'Pending', 'directorist' ) . " )</span></p>";
+            $approve        =  "<a href='' id='atbdp-user-type-approve' style='color: #388E3C' data-userId={$user_id} data-nonce=" . wp_create_nonce( 'atbdp_user_type_approve' ) . "><span>" . esc_html__( 'Approve', 'directorist' ) . " </span></a> | ";
+            $deny           =  "<a href='' id='atbdp-user-type-deny' style='color: red' data-userId={$user_id} data-nonce=" . wp_create_nonce( 'atbdp_user_type_deny' ) . "><span>" . esc_html__( 'Deny', 'directorist' ) . "</span></a>";
+            return "<div class='atbdp-user-type' id='user-type-" . $user_id . "'>" . $author_pending . $approve . $deny . "</div>";
+        }
+    }
+
+    return $column_value;
+}, 11, 3 );
+
+add_action( 'wp_head', function(){
+    if( ! is_user_logged_in() ):
+    ?>
+    <style>
+        .directorist-listing-single__info__list > li 
+        {
+            filter: blur(3px);
+        }
+    </style>
+    <?php
+    endif;
+});
+
+add_action( 'wp_footer', function(){
+    if( ! is_user_logged_in() ):
+    ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('.browse-provider-button a').attr('href', '<?php echo ATBDP_Permalink::get_login_page_link(); ?>?type=registration&user_type=provider');
+            $('.list-services-button a').attr('href', '<?php echo ATBDP_Permalink::get_login_page_link(); ?>?type=registration&user_type=user');
+        });
+    </script>
+    <?php
+    endif;
+});
