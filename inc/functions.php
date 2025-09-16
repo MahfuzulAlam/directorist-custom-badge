@@ -217,15 +217,21 @@ add_action( 'wp_head', function(){
     <style>
         .directorist-listing-single__info__list > li 
         {
-            filter: blur(3px);
+            filter: blur(3px) !important;
+			user-select: none !important;
         }
+		.directorist-listing-single__info__list > li a 
+		{
+		  	pointer-events: none !important;
+			user-select: none !important;
+		}
     </style>
     <?php
     endif;
 });
 
 add_action( 'wp_footer', function(){
-    if( ! is_user_logged_in() ):
+    if( ! is_user_logged_in() && ( is_home() || is_front_page() ) ):
     ?>
     <script type="text/javascript">
         jQuery(document).ready(function($) {
