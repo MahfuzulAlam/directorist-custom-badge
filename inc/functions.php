@@ -242,3 +242,43 @@ add_action( 'wp_footer', function(){
     <?php
     endif;
 });
+
+add_action( 'wp_footer', function(){
+    if( is_page( get_directorist_option( 'add_listing_page' ) ) ):
+    ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Append go back to Dashboard Button on multistep-wizard__nav class
+            $('.multistep-wizard__nav').append('<a href="<?php echo ATBDP_Permalink::get_dashboard_page_link(); ?>" class="multistep-wizard__nav__btn multistep-wizard__nav__btn--dashboard  add-listing-nav-999"><?php directorist_icon( 'fa fa-arrow-left' ); ?> Go Back to Dashboard</a>');
+
+            // On click navigate to the href value
+            $('.multistep-wizard__nav__btn--dashboard').on('click', function() {
+                window.location.href = $(this).attr('href');
+            });
+        });
+    </script>
+    <?php
+    endif;
+});
+
+
+/**
+ * Add a new tab in the dashboard page
+ */
+// add_filter( 'directorist_dashboard_tabs', function( $tabs ){
+//     $tabs['tutorials'] = [
+//         'title'     => __( 'Tutorials', 'publishingdirectory-badges' ),
+//         'content'   => '<iframe width="560" height="315" src="https://www.youtube.com/embed/opQJU2_VZDo?si=Gx-5Fxze4wdPgzqq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+//         'icon'      => 'fa fa-play-circle',
+//     ];
+//     return $tabs;
+// });
+
+add_filter( 'directorist_dashboard_tabs', function( $tabs ){
+    $tabs['tutorials'] = [
+        'title'     => __( 'Tutorials', 'publishingdirectory-badges' ),
+        'content'   => '<div>Instruction Video</div>',
+        'icon'      => 'fa fa-play-circle',
+    ];
+    return $tabs;
+});

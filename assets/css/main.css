@@ -195,6 +195,11 @@
     box-shadow: none;
 }
 
+.multistep-wizard__nav__btn.multistep-wizard__nav__btn--dashboard::before
+{
+    display: none;
+}
+
 /* Mobile Styles */
 @media (max-width: 768px)
 {
