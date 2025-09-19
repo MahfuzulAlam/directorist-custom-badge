@@ -209,6 +209,81 @@
     padding: 20px 10px;
 }
 
+/* Container */
+.publishingdirectory-tutorials .tutorials-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Title & Subtitle */
+.publishingdirectory-tutorials .tutorials-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.publishingdirectory-tutorials .tutorials-subtitle {
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 25px;
+}
+
+/* Tutorial Card (Single Link) */
+.publishingdirectory-tutorials .tutorial-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.publishingdirectory-tutorials .tutorial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    border-color: #0abab5; /* theme accent color */
+}
+
+/* Icon */
+.publishingdirectory-tutorials .tutorial-icon {
+    font-size: 36px;
+    margin-right: 15px;
+}
+
+/* Content */
+.publishingdirectory-tutorials .tutorial-content {
+    flex: 1;
+    text-align: left;
+}
+
+.publishingdirectory-tutorials .tutorial-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #1e3a8a; /* deep blue accent */ 
+}
+
+.publishingdirectory-tutorials .tutorial-content p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Arrow */
+.publishingdirectory-tutorials .tutorial-arrow {
+    font-size: 20px;
+    color: #0abab5;
+    margin-left: 10px;
+}
+  
 /* Mobile Styles */
 @media (max-width: 768px)
 {

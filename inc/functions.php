@@ -274,10 +274,46 @@ add_action( 'wp_footer', function(){
 //     return $tabs;
 // });
 
-add_filter( 'directorist_dashboard_tabs', function( $tabs ){
+/**
+ * Get tutorials tab content
+ */
+function publishing_directory_get_tutorials_tab_content() {
+    ob_start();
+    ?>
+    <div class="publishingdirectory-tutorials">
+        <div class="tutorials-container">
+            <header class="tutorials-header">
+                <h2 class="tutorials-title"><?php echo esc_html__( '📚 Tutorials', 'publishingdirectory-badges' ); ?></h2>
+                <p class="tutorials-subtitle">
+                    <?php echo esc_html__( 'Learn how to use the platform with our step-by-step guides and videos.', 'publishingdirectory-badges' ); ?>
+                </p>
+            </header>
+            <div class="tutorials-content">
+                <a href="<?php echo esc_url( 'https://publishingdirectory.org/tutorials/' ); ?>" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="tutorial-card">
+                    <div class="tutorial-icon" aria-hidden="true">🎬</div>
+                    <div class="tutorial-content">
+                        <h3><?php echo esc_html__( 'Watch Tutorials', 'publishingdirectory-badges' ); ?></h3>
+                        <p><?php echo esc_html__( 'Explore all tutorials and learn how everything works.', 'publishingdirectory-badges' ); ?></p>
+                    </div>
+                    <span class="tutorial-arrow" aria-hidden="true">➜</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Add tutorials tab to directorist dashboard
+ */
+add_filter( 'directorist_dashboard_tabs', function( $tabs ) {
     $tabs['tutorials'] = [
-        'title'     => __( 'Tutorials', 'publishingdirectory-badges' ),
-        'content'   => '<div class="publishingdirectory-tutorials">Instruction Video</div>',
+        'title'     => esc_html__( 'Tutorials', 'publishingdirectory-badges' ),
+        'content'   => publishing_directory_get_tutorials_tab_content(),
         'icon'      => 'fa fa-play-circle',
     ];
     return $tabs;
