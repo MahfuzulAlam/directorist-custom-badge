@@ -200,6 +200,15 @@
     display: none;
 }
 
+.publishingdirectory-tutorials
+{
+    border-radius: 8px;
+    border: 1px solid #EFF1F6;
+    box-shadow: 0 3px 5px rgba(132, 142, 159, 0.05);
+    background-color: #ffffff;
+    padding: 20px 10px;
+}
+
 /* Mobile Styles */
 @media (max-width: 768px)
 {

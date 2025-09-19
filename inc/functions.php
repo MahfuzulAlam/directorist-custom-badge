@@ -268,7 +268,7 @@ add_action( 'wp_footer', function(){
 // add_filter( 'directorist_dashboard_tabs', function( $tabs ){
 //     $tabs['tutorials'] = [
 //         'title'     => __( 'Tutorials', 'publishingdirectory-badges' ),
-//         'content'   => '<iframe width="560" height="315" src="https://www.youtube.com/embed/opQJU2_VZDo?si=Gx-5Fxze4wdPgzqq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+//         'content'   => '<div class="publishingdirectory-tutorials"><iframe width="560" height="315" src="https://www.youtube.com/embed/opQJU2_VZDo?si=Gx-5Fxze4wdPgzqq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>',
 //         'icon'      => 'fa fa-play-circle',
 //     ];
 //     return $tabs;
@@ -277,7 +277,7 @@ add_action( 'wp_footer', function(){
 add_filter( 'directorist_dashboard_tabs', function( $tabs ){
     $tabs['tutorials'] = [
         'title'     => __( 'Tutorials', 'publishingdirectory-badges' ),
-        'content'   => '<div>Instruction Video</div>',
+        'content'   => '<div class="publishingdirectory-tutorials">Instruction Video</div>',
         'icon'      => 'fa fa-play-circle',
     ];
     return $tabs;
