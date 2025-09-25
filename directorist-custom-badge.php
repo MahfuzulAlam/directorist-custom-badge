@@ -89,7 +89,7 @@ if (!class_exists('Directorist_Custom_Badge')) {
         public function enqueues()
         {
             add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
-            add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+            //add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         }
 
         /**
@@ -106,7 +106,7 @@ if (!class_exists('Directorist_Custom_Badge')) {
         public function enqueue_scripts()
         {
             // Replace 'your-plugin-name' with the actual name of your plugin's folder.
-            wp_enqueue_script('directorist-custom-script', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js', array('jquery'), '1.0', true);
+            wp_enqueue_script('directorist-custom-badge-script', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js', array('jquery'), '1.0', true);
         }
 
         /**
@@ -115,7 +115,7 @@ if (!class_exists('Directorist_Custom_Badge')) {
         public function enqueue_styles()
         {
             // Replace 'your-plugin-name' with the actual name of your plugin's folder.
-            wp_enqueue_style('directorist-custom-style', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css', array(), '1.0');
+            wp_enqueue_style('directorist-custom-badge-style', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css', array(), '1.0');
         }
 
         /**

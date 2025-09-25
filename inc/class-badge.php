@@ -79,17 +79,28 @@ class Directorist_Badge
     {
         switch ( $field['widget_key'] ) {
             case $this->atts[ 'id' ]:
-    
-                $free_trial = get_post_meta( get_the_ID(), $this->atts[ 'meta_key' ], true );
-    
-                if ( $free_trial == $this->atts[ 'meta_value' ] ):
-                ?>
-                    <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
-                        <?php echo $this->atts[ 'title' ]; ?>
-                    </span>
-                <?php
-                endif;
-    
+                switch ( $this->atts[ 'id' ] ) {
+                    case 'claim-listing-badge':
+                        $claimed = get_post_meta( get_the_ID(), '_claimed_by_admin', true );
+                        if(!$claimed) {
+                    ?>
+                        <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
+                            <?php echo $this->atts[ 'title' ]; ?>
+                        </span>
+                    <?php
+                        }
+                    break;
+                    default:
+                        $value = get_post_meta( get_the_ID(), $this->atts[ 'meta_key' ], true );
+                        if ( $value == $this->atts[ 'meta_value' ] ) {
+                    ?>
+                            <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
+                                <?php echo $this->atts[ 'title' ]; ?>
+                            </span>
+                    <?php
+                        }
+                    break;
+                }
             break;
         }
     }

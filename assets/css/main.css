@@ -1,5 +1,25 @@
 /* Add you custom css here */
 
+.directorist-custom-badge
+{
+    padding: 0px 5px !important;
+}
+
+.directorist-custom-badge.claimed-badge
+{
+    background-color: green;
+}
+
+.directorist-custom-badge.claimed-badge::after
+{
+    display: none !important;
+}
+
+.directorist-custom-badge.claim-listing-badge
+{
+    background-color: red;
+}
+
 .directorist-custom-badge.verified-badge
 {
     background-color: silver;
@@ -18,4 +38,9 @@
 .directorist-custom-badge.best-in-category-badge
 {
     background-color: goldenrod;
+}
+
+.directorist-claimed.directorist-info-item
+{
+    display: none !important;
 }

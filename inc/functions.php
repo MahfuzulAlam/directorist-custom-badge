@@ -22,13 +22,42 @@ add_action( 'init', function(){
      * Verified Badge
      */
     $verified_badge_atts = [
+        'id'         => 'claimed-badge',
+        'label'      => 'Claimed',
+        'icon'       => 'uil uil-text-fields',
+        'hook'       => 'atbdp-claimed-badge',
+        'title'      => 'Claimed',
+        'meta_key'   => '_claimed_by_admin',
+        'meta_value' => 1,
+        'class'      => 'claimed-badge'
+    ];
+    new Directorist_Badge( $verified_badge_atts );
+
+    /**
+     * Verified Badge
+     */
+    $verified_badge_atts = [
+        'id'         => 'claim-listing-badge',
+        'label'      => 'Claim This Listing',
+        'icon'       => 'uil uil-text-fields',
+        'hook'       => 'atbdp-verified-badge',
+        'title'      => 'Claim This Listing',
+        'meta_key'   => '_claim_by_admin',
+        'meta_value' => false,
+        'class'      => 'claim-listing-badge'
+    ];
+    new Directorist_Badge( $verified_badge_atts );
+    /**
+     * Verified Badge
+     */
+    $verified_badge_atts = [
         'id'         => 'verified-badge',
-        'label'      => 'Verified',
+        'label'      => 'Verified by',
         'icon'       => 'uil uil-text-fields',
         'hook'       => 'atbdp-verified-badge',
         'title'      => 'Verified',
         'meta_key'   => '_fm_plans',
-        'meta_value' => 252,
+        'meta_value' => 240,
         'class'      => 'verified-badge'
     ];
     new Directorist_Badge( $verified_badge_atts );
@@ -43,7 +72,7 @@ add_action( 'init', function(){
         'hook'       => 'atbdp-featured-provider-badge',
         'title'      => 'Featured Provider',
         'meta_key'   => '_fm_plans',
-        'meta_value' => 252,
+        'meta_value' => 239,
         'class'      => 'featured-provider-badge'
     ];
     new Directorist_Badge( $featured_provider_atts );
