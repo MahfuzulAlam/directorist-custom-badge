@@ -1,5 +1,7 @@
 # Directorist - Custom Badge
 
+Version 1
+
 ```
 add_action( 'init', function(){
     $my_badge_atts = [
