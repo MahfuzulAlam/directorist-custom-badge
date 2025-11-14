@@ -1,20 +1,20 @@
 <?php
 
 /** 
- * @package  Directorist - Custom Badge
+ * @package  Directorist - Custom Badges
  */
 
 /**
- * Plugin Name:       Directorist - Custom Badge
- * Plugin URI:        https://wpwax.com
+ * Plugin Name:       Directorist - Custom Badges
+ * Plugin URI:        https://wpxplore.com/tools/directorist-custom-badges/
  * Description:       Best way to creat a custom badge for directorist
- * Version:           2.0.0
+ * Version:           3.0.0
  * Requires at least: 5.2
  * Author:            wpWax
- * Author URI:        https://wpwax.com
+ * Author URI:        https://wpxplore.com
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       directorist-custom-badge
+ * Text Domain:       directorist-custom-badges
  * Domain Path:       /languages
  */
 
@@ -28,9 +28,9 @@ if (!defined('ABSPATH')) {
 }
 
 
-if (!class_exists('Directorist_Custom_Badge')) {
+if (!class_exists('Directorist_Custom_Badges')) {
 
-    final class Directorist_Custom_Badge
+    final class Directorist_Custom_Badges
     {
         /**
          * Instance
@@ -42,8 +42,8 @@ if (!class_exists('Directorist_Custom_Badge')) {
          */
         public static function instance()
         {
-            if (!isset(self::$instance) && !(self::$instance instanceof Directorist_Custom_Badge)) {
-                self::$instance = new Directorist_Custom_Badge;
+            if (!isset(self::$instance) && !(self::$instance instanceof Directorist_Custom_Badges)) {
+                self::$instance = new Directorist_Custom_Badges;
                 self::$instance->init();
             }
             return self::$instance;
@@ -65,7 +65,7 @@ if (!class_exists('Directorist_Custom_Badge')) {
          */
         public function define_constant()
         {
-            if ( !defined( 'DIRECTORIST_CUSTOM_BADGE_URI' ) ) {
+            if ( !defined( 'DIRECTORIST_CUSTOM_BADGES_URI' ) ) {
                 define( 'DIRECTORIST_CUSTOM_BADGE_URI', plugin_dir_url( __FILE__ ) );
             }
 
@@ -80,6 +80,7 @@ if (!class_exists('Directorist_Custom_Badge')) {
         public function includes()
         {
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-badge.php' );
+            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-admin.php' );
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/functions.php' );
         }
 
@@ -90,14 +91,6 @@ if (!class_exists('Directorist_Custom_Badge')) {
         {
             add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
             add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
-        }
-
-        /**
-         * Hooks
-         */
-        public function hooks()
-        {
-            add_filter('directorist_template', array($this, 'directorist_template'), 10, 2);
         }
 
         /**
@@ -119,46 +112,16 @@ if (!class_exists('Directorist_Custom_Badge')) {
         }
 
         /**
-         * Template Exists
+         * Hooks
          */
-        public function template_exists($template_file)
+        public function hooks()
         {
-            $file = DIRECTORIST_CUSTOM_BADGE_DIR . '/templates/' . $template_file . '.php';
-
-            if (file_exists($file)) {
-                return true;
-            } else {
-                return false;
+            // Initialize admin class
+            if (is_admin()) {
+                new Directorist_Custom_Badges_Admin();
             }
         }
 
-        /**
-         * Get Template
-         */
-        public function get_template($template_file, $args = array())
-        {
-            if (is_array($args)) {
-                extract($args);
-            }
-            $data = $args;
-
-            if (isset($args['form'])) $listing_form = $args['form'];
-
-            $file = DIRECTORIST_CUSTOM_BADGE_DIR . '/templates/' . $template_file . '.php';
-
-            if ($this->template_exists($template_file)) {
-                include $file;
-            }
-        }
-
-        /**
-         * Directorist Template
-         */
-        public function directorist_template($template, $field_data)
-        {
-            if ($this->template_exists($template)) $template = $this->get_template($template, $field_data);
-            return $template;
-        }
     }
 
     if (!function_exists('directorist_is_plugin_active')) {
@@ -184,13 +147,13 @@ if (!class_exists('Directorist_Custom_Badge')) {
         }
     }
 
-    function Directorist_Custom_Badge()
+    function Directorist_Custom_Badges()
     {
-        return Directorist_Custom_Badge::instance();
+        return Directorist_Custom_Badges::instance();
     }
 
     if (directorist_is_plugin_active('directorist/directorist-base.php')) {
-        Directorist_Custom_Badge(); // get the plugin running
+        Directorist_Custom_Badges(); // get the plugin running
     }
 }
 

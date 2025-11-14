@@ -6,14 +6,59 @@
  * @version 1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
 class Directorist_Badge
 {
     public $atts;
+    private static $badges_initialized = false;
 
     public function __construct( $atts = [] )
     {
         $this->atts = $atts;
         $this->render();
+    }
+
+    /**
+     * Initialize badges from options
+     */
+    public static function init_badges_from_options()
+    {
+        if (self::$badges_initialized) {
+            return;
+        }
+
+        // Get badges from options
+        $badges = Directorist_Custom_Badges_Admin::get_badges();
+        
+        if (empty($badges)) {
+            self::$badges_initialized = true;
+            return;
+        }
+
+        // Initialize each active badge
+        foreach ($badges as $badge) {
+            if (!isset($badge['is_active']) || !$badge['is_active']) {
+                continue;
+            }
+
+            // Prepare attributes for Directorist_Badge
+            $atts = array(
+                'id' => $badge['badge_id'],
+                'label' => $badge['badge_label'],
+                'icon' => !empty($badge['badge_icon']) ? $badge['badge_icon'] : 'uil uil-text-fields',
+                'hook' => 'atbdp-' . $badge['badge_id'],
+                'title' => $badge['badge_label'],
+                'class' => !empty($badge['badge_class']) ? $badge['badge_class'] : '',
+                'badge_data' => $badge, // Store full badge data for condition checking
+            );
+
+            new Directorist_Badge($atts);
+        }
+
+        self::$badges_initialized = true;
     }
 
     public function render()
@@ -77,21 +122,200 @@ class Directorist_Badge
 
     public function atbdp_all_listings_badge_template( $field )
     {
-        switch ( $field['widget_key'] ) {
-            case $this->atts[ 'id' ]:
-    
-                $free_trial = get_post_meta( get_the_ID(), $this->atts[ 'meta_key' ], true );
-    
-                if ( $free_trial == $this->atts[ 'meta_value' ] ):
-                ?>
-                    <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
-                        <?php echo $this->atts[ 'title' ]; ?>
-                    </span>
-                <?php
-                endif;
-    
-            break;
+        // Check if this badge matches the widget_key
+        if (!isset($field['widget_key']) || $field['widget_key'] !== $this->atts['id']) {
+            return;
         }
+
+        // Get badge data
+        $badge_data = isset($this->atts['badge_data']) ? $this->atts['badge_data'] : null;
+        
+        if (!$badge_data) {
+            // Fallback to old method if badge_data is not available
+            if (isset($this->atts['meta_key']) && isset($this->atts['meta_value'])) {
+                $meta_value = get_post_meta(get_the_ID(), $this->atts['meta_key'], true);
+                if ($meta_value == $this->atts['meta_value']) {
+                    $this->render_badge();
+                }
+            }
+            return;
+        }
+
+        // Check conditions
+        if ($this->check_conditions($badge_data, get_the_ID())) {
+            $this->render_badge();
+        }
+    }
+
+    /**
+     * Check if badge conditions are met
+     */
+    private function check_conditions($badge_data, $listing_id)
+    {
+        if (empty($badge_data['conditions']) || !is_array($badge_data['conditions'])) {
+            return false;
+        }
+
+        $conditions = $badge_data['conditions'];
+        $relation = isset($badge_data['condition_relation']) ? $badge_data['condition_relation'] : 'AND';
+        
+        if (empty($conditions)) {
+            return false;
+        }
+
+        $results = array();
+
+        foreach ($conditions as $condition) {
+            if (!isset($condition['type'])) {
+                continue;
+            }
+
+            $result = false;
+
+            if ($condition['type'] === 'meta') {
+                $result = $this->check_meta_condition($condition, $listing_id);
+            } elseif ($condition['type'] === 'pricing_plan') {
+                $result = $this->check_pricing_plan_condition($condition, $listing_id);
+            }
+
+            $results[] = $result;
+        }
+
+        // Evaluate results based on relation
+        if ($relation === 'OR') {
+            return in_array(true, $results, true);
+        } else {
+            // AND relation - all must be true
+            return !in_array(false, $results, true) && !empty($results);
+        }
+    }
+
+    /**
+     * Check meta condition
+     */
+    private function check_meta_condition($condition, $listing_id)
+    {
+        if (empty($condition['meta_key'])) {
+            return false;
+        }
+
+        $meta_value = get_post_meta($listing_id, $condition['meta_key'], true);
+        $compare_value = isset($condition['meta_value']) ? $condition['meta_value'] : '';
+        $compare = isset($condition['compare']) ? $condition['compare'] : '=';
+        $type_cast = isset($condition['type_cast']) ? $condition['type_cast'] : 'CHAR';
+
+        // Handle EXISTS and NOT EXISTS first (don't need compare_value)
+        if ($compare === 'EXISTS') {
+            return !empty($meta_value) || $meta_value === '0' || $meta_value === 0;
+        }
+        if ($compare === 'NOT EXISTS') {
+            return empty($meta_value) && $meta_value !== '0' && $meta_value !== 0;
+        }
+
+        // Cast meta value based on type for comparison operations
+        if ($type_cast === 'NUMERIC' || $type_cast === 'DECIMAL') {
+            $meta_value = floatval($meta_value);
+            $compare_value = floatval($compare_value);
+        } elseif ($type_cast === 'DATE' || $type_cast === 'DATETIME') {
+            $meta_value = strtotime($meta_value);
+            $compare_value = strtotime($compare_value);
+        } else {
+            // CHAR - ensure strings for string operations
+            $meta_value = strval($meta_value);
+            $compare_value = strval($compare_value);
+        }
+
+        switch ($compare) {
+            case '=':
+                return $meta_value == $compare_value;
+            case '!=':
+                return $meta_value != $compare_value;
+            case '>':
+                return $meta_value > $compare_value;
+            case '>=':
+                return $meta_value >= $compare_value;
+            case '<':
+                return $meta_value < $compare_value;
+            case '<=':
+                return $meta_value <= $compare_value;
+            case 'LIKE':
+                // Ensure strings for LIKE operations
+                $meta_value = strval($meta_value);
+                $compare_value = strval($compare_value);
+                return strpos($meta_value, $compare_value) !== false;
+            case 'NOT LIKE':
+                // Ensure strings for NOT LIKE operations
+                $meta_value = strval($meta_value);
+                $compare_value = strval($compare_value);
+                return strpos($meta_value, $compare_value) === false;
+            case 'IN':
+                $values = array_map('trim', explode(',', strval($compare_value)));
+                return in_array(strval($meta_value), $values, true);
+            case 'NOT IN':
+                $values = array_map('trim', explode(',', strval($compare_value)));
+                return !in_array(strval($meta_value), $values, true);
+            default:
+                return $meta_value == $compare_value;
+        }
+    }
+
+    /**
+     * Check pricing plan condition
+     */
+    private function check_pricing_plan_condition($condition, $listing_id)
+    {
+        if (empty($condition['plan_id'])) {
+            return false;
+        }
+
+        $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
+        $listing_plan_id = intval($listing_plan_id);
+        $compare = isset($condition['compare']) ? $condition['compare'] : '=';
+
+        switch ($compare) {
+            case '=':
+                $plan_id = intval($condition['plan_id']);
+                return $listing_plan_id === $plan_id;
+            case '!=':
+                $plan_id = intval($condition['plan_id']);
+                return $listing_plan_id !== $plan_id;
+            case 'IN':
+                // Handle comma-separated plan IDs or single value
+                $plan_ids = is_array($condition['plan_id']) 
+                    ? $condition['plan_id'] 
+                    : explode(',', strval($condition['plan_id']));
+                $plan_ids = array_map('intval', array_map('trim', $plan_ids));
+                return in_array($listing_plan_id, $plan_ids);
+            case 'NOT IN':
+                // Handle comma-separated plan IDs or single value
+                $plan_ids = is_array($condition['plan_id']) 
+                    ? $condition['plan_id'] 
+                    : explode(',', strval($condition['plan_id']));
+                $plan_ids = array_map('intval', array_map('trim', $plan_ids));
+                return !in_array($listing_plan_id, $plan_ids);
+            default:
+                $plan_id = intval($condition['plan_id']);
+                return $listing_plan_id === $plan_id;
+        }
+    }
+
+    /**
+     * Render badge HTML
+     */
+    private function render_badge()
+    {
+        $badge_id = esc_attr($this->atts['id']);
+        $badge_class = esc_attr($this->atts['class']);
+        $badge_title = esc_html($this->atts['title']);
+        $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
+        ?>
+        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $badge_class; ?>">
+            <?php if ($badge_icon): ?>
+                <i class="<?php echo $badge_icon; ?>"></i>
+            <?php endif; ?>
+            <?php echo $badge_title; ?>
+        </span>
+        <?php
     }
 
 }

@@ -14,19 +14,11 @@ add_filter('directorist_custom_field_meta_key_field_args', function ($args) {
 });
 
 /**
- * Add a custom badge
+ * Initialize badges from options table
  */
-
 add_action( 'init', function(){
-    $my_badge_atts = [
-        'id'         => 'my-badge',
-        'label'      => 'Badge',
-        'icon'       => 'uil uil-text-fields',
-        'hook'       => 'atbdp-my-badge',
-        'title'      => 'My Badge',
-        'meta_key'   => '_custom-select',
-        'meta_value' => 'Free',
-        'class'      => 'my-custom-badge'
-    ];
-    new Directorist_Badge( $my_badge_atts );
+    // Initialize badges from wp_options table
+    if (class_exists('Directorist_Custom_Badges_Admin') && class_exists('Directorist_Badge')) {
+        Directorist_Badge::init_badges_from_options();
+    }
 } );
