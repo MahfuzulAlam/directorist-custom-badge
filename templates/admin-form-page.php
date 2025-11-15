@@ -127,107 +127,11 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                 <!-- Conditions will be added here dynamically -->
                                 <?php if ($is_edit && !empty($badge['conditions']) && is_array($badge['conditions'])): ?>
                                     <?php foreach ($badge['conditions'] as $idx => $condition): ?>
-                                        <div class="dcb-condition-item" data-condition-index="<?php echo esc_attr($idx); ?>">
-                                            <div class="dcb-condition-header">
-                                                <span class="dcb-condition-title"><?php echo esc_html__('Condition', 'directorist-custom-badges'); ?> #<?php echo esc_html($idx + 1); ?></span>
-                                                <button type="button" class="button-link dcb-remove-condition"><?php echo esc_html__('Remove', 'directorist-custom-badges'); ?></button>
-                                            </div>
-                                            <div class="dcb-condition-body">
-                                                <div class="dcb-form-row">
-                                                    <div class="dcb-form-field">
-                                                        <label><?php echo esc_html__('Condition Type', 'directorist-custom-badges'); ?></label>
-                                                        <select name="badge[conditions][<?php echo esc_attr($idx); ?>][type]" class="dcb-condition-type dcb-select">
-                                                            <option value="meta" <?php selected($condition['type'] ?? 'meta', 'meta'); ?>><?php echo esc_html__('Meta', 'directorist-custom-badges'); ?></option>
-                                                            <option value="pricing_plan" <?php selected($condition['type'] ?? '', 'pricing_plan'); ?>><?php echo esc_html__('Pricing Plan', 'directorist-custom-badges'); ?></option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Meta Condition Fields -->
-                                                <div class="dcb-condition-fields dcb-meta-fields" style="<?php echo (isset($condition['type']) && $condition['type'] === 'pricing_plan') ? 'display: none;' : ''; ?>">
-                                                    <div class="dcb-form-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Meta Key', 'directorist-custom-badges'); ?></label>
-                                                            <input type="text" name="badge[conditions][<?php echo esc_attr($idx); ?>][meta_key]" class="dcb-input" placeholder="<?php echo esc_attr__('meta_key', 'directorist-custom-badges'); ?>" value="<?php echo isset($condition['meta_key']) ? esc_attr($condition['meta_key']) : ''; ?>">
-                                                        </div>
-                                                    </div>
-                                                    <div class="dcb-form-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Meta Value', 'directorist-custom-badges'); ?></label>
-                                                            <input type="text" name="badge[conditions][<?php echo esc_attr($idx); ?>][meta_value]" class="dcb-input" placeholder="<?php echo esc_attr__('meta_value', 'directorist-custom-badges'); ?>" value="<?php echo isset($condition['meta_value']) ? esc_attr($condition['meta_value']) : ''; ?>">
-                                                        </div>
-                                                    </div>
-                                                    <div class="dcb-form-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
-                                                            <select name="badge[conditions][<?php echo esc_attr($idx); ?>][compare]" class="dcb-select">
-                                                                <option value="=" <?php selected($condition['compare'] ?? '=', '='); ?>>=</option>
-                                                                <option value="!=" <?php selected($condition['compare'] ?? '', '!='); ?>>!=</option>
-                                                                <option value=">" <?php selected($condition['compare'] ?? '', '>'); ?>>&gt;</option>
-                                                                <option value=">=" <?php selected($condition['compare'] ?? '', '>='); ?>>&gt;=</option>
-                                                                <option value="<" <?php selected($condition['compare'] ?? '', '<'); ?>>&lt;</option>
-                                                                <option value="<=" <?php selected($condition['compare'] ?? '', '<='); ?>>&lt;=</option>
-                                                                <option value="LIKE" <?php selected($condition['compare'] ?? '', 'LIKE'); ?>>LIKE</option>
-                                                                <option value="NOT LIKE" <?php selected($condition['compare'] ?? '', 'NOT LIKE'); ?>>NOT LIKE</option>
-                                                                <option value="IN" <?php selected($condition['compare'] ?? '', 'IN'); ?>>IN</option>
-                                                                <option value="NOT IN" <?php selected($condition['compare'] ?? '', 'NOT IN'); ?>>NOT IN</option>
-                                                                <option value="EXISTS" <?php selected($condition['compare'] ?? '', 'EXISTS'); ?>>EXISTS</option>
-                                                                <option value="NOT EXISTS" <?php selected($condition['compare'] ?? '', 'NOT EXISTS'); ?>>NOT EXISTS</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="dcb-form-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Type', 'directorist-custom-badges'); ?></label>
-                                                            <select name="badge[conditions][<?php echo esc_attr($idx); ?>][type_cast]" class="dcb-select">
-                                                                <option value="CHAR" <?php selected($condition['type_cast'] ?? 'CHAR', 'CHAR'); ?>>CHAR</option>
-                                                                <option value="NUMERIC" <?php selected($condition['type_cast'] ?? '', 'NUMERIC'); ?>>NUMERIC</option>
-                                                                <option value="DECIMAL" <?php selected($condition['type_cast'] ?? '', 'DECIMAL'); ?>>DECIMAL</option>
-                                                                <option value="DATE" <?php selected($condition['type_cast'] ?? '', 'DATE'); ?>>DATE</option>
-                                                                <option value="DATETIME" <?php selected($condition['type_cast'] ?? '', 'DATETIME'); ?>>DATETIME</option>
-                                                                <option value="BOOLEAN" <?php selected($condition['type_cast'] ?? '', 'BOOLEAN'); ?>>BOOLEAN</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Pricing Plan Condition Fields -->
-                                                <div class="dcb-condition-fields dcb-pricing-plan-fields" style="<?php echo (isset($condition['type']) && $condition['type'] === 'pricing_plan') ? '' : 'display: none;'; ?>">
-                                                    <div class="dcb-form-row">
-                                                        <div class="dcb-form-field">
-                                                            <label for="dcb-plan-status-condition-<?php echo esc_attr($idx); ?>">
-                                                                <?php echo esc_html__('Plan Status Condition', 'directorist-custom-badges'); ?>
-                                                            </label>
-                                                            <select id="dcb-plan-status-condition-<?php echo esc_attr($idx); ?>" name="badge[conditions][<?php echo esc_attr($idx); ?>][plan_status_condition]" class="dcb-select dcb-plan-status-condition">
-                                                                <option value="user_active_plan" <?php selected($condition['plan_status_condition'] ?? '', 'user_active_plan'); ?>><?php echo esc_html__('User has an active subscription', 'directorist-custom-badges'); ?></option>
-                                                                <option value="listing_has_plan" <?php selected($condition['plan_status_condition'] ?? '', 'listing_has_plan'); ?>><?php echo esc_html__('Listing is assigned to a plan', 'directorist-custom-badges'); ?></option>
-                                                            </select>
-                                                            <p class="description">
-                                                                <?php echo esc_html__('Choose how plan status should be checked for this badge. "User has an active subscription" applies the badge only if the listing owner currently has an active pricing plan. "Listing is assigned to a plan" applies the badge only if this specific listing is linked to a pricing plan.', 'directorist-custom-badges'); ?>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="dcb-form-row dcb-plan-id-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
-                                                            <input type="number" name="badge[conditions][<?php echo esc_attr($idx); ?>][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0" value="<?php echo isset($condition['plan_id']) ? esc_attr($condition['plan_id']) : ''; ?>">
-                                                            <p class="description"><?php echo esc_html__('Leave empty when using Plan Status Condition.', 'directorist-custom-badges'); ?></p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="dcb-form-row dcb-plan-compare-row">
-                                                        <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
-                                                            <select name="badge[conditions][<?php echo esc_attr($idx); ?>][compare]" class="dcb-select">
-                                                                <option value="=" <?php selected($condition['compare'] ?? '=', '='); ?>>=</option>
-                                                                <option value="!=" <?php selected($condition['compare'] ?? '', '!='); ?>>!=</option>
-                                                                <option value="IN" <?php selected($condition['compare'] ?? '', 'IN'); ?>>IN</option>
-                                                                <option value="NOT IN" <?php selected($condition['compare'] ?? '', 'NOT IN'); ?>>NOT IN</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <?php
+                                        // Include condition item template
+                                        $index = $idx;
+                                        include DIRECTORIST_CUSTOM_BADGE_DIR . 'templates/condition-item.php';
+                                        ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -259,105 +163,15 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
 
 <!-- Condition Template (Hidden) -->
 <script type="text/template" id="dcb-condition-template">
-    <div class="dcb-condition-item" data-condition-index="{{index}}">
-        <div class="dcb-condition-header">
-            <span class="dcb-condition-title"><?php echo esc_html__('Condition', 'directorist-custom-badges'); ?> #{{index}}</span>
-            <button type="button" class="button-link dcb-remove-condition"><?php echo esc_html__('Remove', 'directorist-custom-badges'); ?></button>
-        </div>
-        <div class="dcb-condition-body">
-            <div class="dcb-form-row">
-                <div class="dcb-form-field">
-                    <label><?php echo esc_html__('Condition Type', 'directorist-custom-badges'); ?></label>
-                    <select name="badge[conditions][{{index}}][type]" class="dcb-condition-type dcb-select">
-                        <option value="meta"><?php echo esc_html__('Meta', 'directorist-custom-badges'); ?></option>
-                        <option value="pricing_plan"><?php echo esc_html__('Pricing Plan', 'directorist-custom-badges'); ?></option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Meta Condition Fields -->
-            <div class="dcb-condition-fields dcb-meta-fields">
-                <div class="dcb-form-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Meta Key', 'directorist-custom-badges'); ?></label>
-                        <input type="text" name="badge[conditions][{{index}}][meta_key]" class="dcb-input" placeholder="<?php echo esc_attr__('meta_key', 'directorist-custom-badges'); ?>">
-                    </div>
-                </div>
-                <div class="dcb-form-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Meta Value', 'directorist-custom-badges'); ?></label>
-                        <input type="text" name="badge[conditions][{{index}}][meta_value]" class="dcb-input" placeholder="<?php echo esc_attr__('meta_value', 'directorist-custom-badges'); ?>">
-                    </div>
-                </div>
-                <div class="dcb-form-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
-                        <select name="badge[conditions][{{index}}][compare]" class="dcb-select">
-                            <option value="=">=</option>
-                            <option value="!=">!=</option>
-                            <option value=">">&gt;</option>
-                            <option value=">=">&gt;=</option>
-                            <option value="<">&lt;</option>
-                            <option value="<=">&lt;=</option>
-                            <option value="LIKE">LIKE</option>
-                            <option value="NOT LIKE">NOT LIKE</option>
-                            <option value="IN">IN</option>
-                            <option value="NOT IN">NOT IN</option>
-                            <option value="EXISTS">EXISTS</option>
-                            <option value="NOT EXISTS">NOT EXISTS</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="dcb-form-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Type', 'directorist-custom-badges'); ?></label>
-                        <select name="badge[conditions][{{index}}][type_cast]" class="dcb-select">
-                            <option value="CHAR">CHAR</option>
-                            <option value="NUMERIC">NUMERIC</option>
-                            <option value="DECIMAL">DECIMAL</option>
-                            <option value="DATE">DATE</option>
-                            <option value="DATETIME">DATETIME</option>
-                            <option value="BOOLEAN">BOOLEAN</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pricing Plan Condition Fields -->
-            <div class="dcb-condition-fields dcb-pricing-plan-fields" style="display: none;">
-                <div class="dcb-form-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Plan Status Condition', 'directorist-custom-badges'); ?></label>
-                        <select name="badge[conditions][{{index}}][plan_status_condition]" class="dcb-select dcb-plan-status-condition">
-                            <option value="user_active_plan"><?php echo esc_html__('User has an active subscription', 'directorist-custom-badges'); ?></option>
-                            <option value="listing_has_plan"><?php echo esc_html__('Listing is assigned to a plan', 'directorist-custom-badges'); ?></option>
-                        </select>
-                        <p class="description">
-                            <?php echo esc_html__('Choose how plan status should be checked for this badge. "User has an active subscription" applies the badge only if the listing owner currently has an active pricing plan. "Listing is assigned to a plan" applies the badge only if this specific listing is linked to a pricing plan.', 'directorist-custom-badges'); ?>
-                        </p>
-                    </div>
-                </div>
-                <div class="dcb-form-row dcb-plan-id-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
-                        <input type="number" name="badge[conditions][{{index}}][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0">
-                        <p class="description"><?php echo esc_html__('Leave empty when using Plan Status Condition.', 'directorist-custom-badges'); ?></p>
-                    </div>
-                </div>
-                <div class="dcb-form-row dcb-plan-compare-row">
-                    <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
-                        <select name="badge[conditions][{{index}}][compare]" class="dcb-select">
-                            <option value="=">=</option>
-                            <option value="!=">!=</option>
-                            <option value="IN">IN</option>
-                            <option value="NOT IN">NOT IN</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<?php
+// Generate template for JavaScript using placeholders
+$index = '{{index}}';
+$condition = array(); // Empty for template
+ob_start();
+include DIRECTORIST_CUSTOM_BADGE_DIR . 'templates/condition-item.php';
+$template_output = ob_get_clean();
+echo $template_output;
+?>
 </script>
 
 <script type="text/javascript">
