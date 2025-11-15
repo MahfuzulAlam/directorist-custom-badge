@@ -442,7 +442,19 @@ class Directorist_Custom_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
         }
 
+        // Get badge data from POST
         $badge_data = isset($_POST['badge']) ? $_POST['badge'] : array();
+        
+        // Ensure conditions is an array
+        if (isset($badge_data['conditions']) && !is_array($badge_data['conditions'])) {
+            $badge_data['conditions'] = array();
+        }
+        
+        // Re-index conditions array to ensure proper structure
+        if (isset($badge_data['conditions']) && is_array($badge_data['conditions'])) {
+            $badge_data['conditions'] = array_values($badge_data['conditions']);
+        }
+        
         $result = self::save_badge($badge_data);
 
         if (is_wp_error($result)) {

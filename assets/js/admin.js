@@ -168,6 +168,7 @@
         populateForm: function(badge) {
             this.currentBadge = badge;
             
+            // Populate basic fields
             $('#dcb-badge-id').val(badge.id || '');
             $('#dcb-badge-order').val(badge.order || '');
             $('#dcb-badge-title').val(badge.badge_title || '');
@@ -176,7 +177,7 @@
             $('#dcb-badge-label').val(badge.badge_label || '');
             $('#dcb-badge-class').val(badge.badge_class || '');
             $('#dcb-condition-relation').val(badge.condition_relation || 'AND');
-            $('#dcb-badge-active').prop('checked', badge.is_active !== false);
+            $('#dcb-badge-active').prop('checked', badge.is_active === true || badge.is_active === '1' || badge.is_active === 1);
 
             // Populate conditions
             $('#dcb-conditions-list').empty();
@@ -185,33 +186,42 @@
             if (badge.conditions && badge.conditions.length > 0) {
                 var self = this;
                 badge.conditions.forEach(function(condition, idx) {
-                    var template = $('#dcb-condition-template').html();
-                    var index = self.conditionIndex++;
-                    var html = template.replace(/\{\{index\}\}/g, index);
+                    // Add condition using the addCondition method to ensure proper structure
+                    self.addCondition();
                     
-                    $('#dcb-conditions-list').append(html);
-                    
+                    // Get the last added condition
                     var $condition = $('#dcb-conditions-list .dcb-condition-item').last();
+                    var index = self.conditionIndex - 1; // Get the index that was just used
                     
-                    $condition.find('.dcb-condition-type').val(condition.type);
-                    self.handleConditionTypeChange($condition.find('.dcb-condition-type'));
+                    // Set condition type first
+                    var $conditionType = $condition.find('.dcb-condition-type');
+                    $conditionType.val(condition.type || 'meta');
                     
-                    if (condition.type === 'meta') {
-                        $condition.find('input[name="badge[conditions][' + index + '][meta_key]"]').val(condition.meta_key || '');
-                        $condition.find('input[name="badge[conditions][' + index + '][meta_value]"]').val(condition.meta_value || '');
-                        $condition.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
-                        $condition.find('select[name="badge[conditions][' + index + '][type_cast]"]').val(condition.type_cast || 'CHAR');
-                    } else if (condition.type === 'pricing_plan') {
-                        $condition.find('input[name="badge[conditions][' + index + '][plan_id]"]').val(condition.plan_id || '');
-                        $condition.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
-                    }
+                    // Trigger change to show/hide appropriate fields
+                    $conditionType.trigger('change');
+                    
+                    // Use setTimeout to ensure fields are visible before setting values
+                    setTimeout(function() {
+                        if (condition.type === 'meta') {
+                            // Set meta condition values - use more specific selectors
+                            var $metaFields = $condition.find('.dcb-meta-fields');
+                            $metaFields.find('input[name="badge[conditions][' + index + '][meta_key]"]').val(condition.meta_key || '');
+                            $metaFields.find('input[name="badge[conditions][' + index + '][meta_value]"]').val(condition.meta_value || '');
+                            $metaFields.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
+                            $metaFields.find('select[name="badge[conditions][' + index + '][type_cast]"]').val(condition.type_cast || 'CHAR');
+                        } else if (condition.type === 'pricing_plan') {
+                            // Set pricing plan condition values - use more specific selectors
+                            var $planFields = $condition.find('.dcb-pricing-plan-fields');
+                            $planFields.find('input[name="badge[conditions][' + index + '][plan_id]"]').val(condition.plan_id || '');
+                            $planFields.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
+                        }
+                    }, 50);
                 });
             }
         },
 
         saveBadge: function() {
             var self = this;
-            var formData = $('#dcb-badge-form').serialize();
             var $saveBtn = $('.dcb-save-badge');
             var originalText = $saveBtn.text();
 
@@ -220,12 +230,106 @@
                 return;
             }
 
+            // Build form data object manually to ensure proper nesting
+            var formData = {
+                badge: {
+                    id: $('#dcb-badge-id').val() || '',
+                    order: $('#dcb-badge-order').val() || '',
+                    badge_title: $('#dcb-badge-title').val() || '',
+                    badge_icon: $('#dcb-badge-icon').val() || '',
+                    badge_id: $('#dcb-badge-id-field').val() || '',
+                    badge_label: $('#dcb-badge-label').val() || '',
+                    badge_class: $('#dcb-badge-class').val() || '',
+                    condition_relation: $('#dcb-condition-relation').val() || 'AND',
+                    is_active: $('#dcb-badge-active').is(':checked') ? 1 : 0,
+                    conditions: []
+                },
+                action: 'dcb_save_badge',
+                nonce: dcbAdmin.nonce
+            };
+
+            // Collect conditions - loop through all condition items
+            $('#dcb-conditions-list .dcb-condition-item').each(function() {
+                var $condition = $(this);
+                var conditionType = $condition.find('.dcb-condition-type').val();
+                
+                if (!conditionType) {
+                    return; // Skip if no type selected
+                }
+
+                var condition = {
+                    type: conditionType
+                };
+
+                if (conditionType === 'meta') {
+                    var $metaFields = $condition.find('.dcb-meta-fields');
+                    if ($metaFields.length) {
+                        condition.meta_key = $metaFields.find('input[name*="[meta_key]"]').val() || '';
+                        condition.meta_value = $metaFields.find('input[name*="[meta_value]"]').val() || '';
+                        condition.compare = $metaFields.find('select[name*="[compare]"]').val() || '=';
+                        condition.type_cast = $metaFields.find('select[name*="[type_cast]"]').val() || 'CHAR';
+                    } else {
+                        // Fallback: try direct selectors if meta-fields wrapper not found
+                        condition.meta_key = $condition.find('input[name*="[meta_key]"]').val() || '';
+                        condition.meta_value = $condition.find('input[name*="[meta_value]"]').val() || '';
+                        condition.compare = $condition.find('select[name*="[compare]"]').not('.dcb-pricing-plan-fields select').val() || '=';
+                        condition.type_cast = $condition.find('select[name*="[type_cast]"]').val() || 'CHAR';
+                    }
+                } else if (conditionType === 'pricing_plan') {
+                    var $planFields = $condition.find('.dcb-pricing-plan-fields');
+                    if ($planFields.length) {
+                        condition.plan_id = $planFields.find('input[name*="[plan_id]"]').val() || '';
+                        condition.compare = $planFields.find('select[name*="[compare]"]').val() || '=';
+                    } else {
+                        // Fallback: try direct selectors if pricing-plan-fields wrapper not found
+                        condition.plan_id = $condition.find('input[name*="[plan_id]"]').val() || '';
+                        condition.compare = $condition.find('.dcb-pricing-plan-fields select[name*="[compare]"]').val() || '=';
+                    }
+                }
+
+                // Add condition - validation happens server-side
+                // EXISTS and NOT EXISTS don't require meta_key, so we add all conditions
+                formData.badge.conditions.push(condition);
+            });
+
             $saveBtn.prop('disabled', true).text(dcbAdmin.strings.saving);
+
+            // Convert to format WordPress expects (nested arrays)
+            var postData = {
+                action: 'dcb_save_badge',
+                nonce: dcbAdmin.nonce
+            };
+
+            // Add badge data with proper nesting
+            postData['badge[id]'] = formData.badge.id;
+            postData['badge[order]'] = formData.badge.order;
+            postData['badge[badge_title]'] = formData.badge.badge_title;
+            postData['badge[badge_icon]'] = formData.badge.badge_icon;
+            postData['badge[badge_id]'] = formData.badge.badge_id;
+            postData['badge[badge_label]'] = formData.badge.badge_label;
+            postData['badge[badge_class]'] = formData.badge.badge_class;
+            postData['badge[condition_relation]'] = formData.badge.condition_relation;
+            postData['badge[is_active]'] = formData.badge.is_active;
+
+            // Add conditions with proper array indexing
+            formData.badge.conditions.forEach(function(condition, index) {
+                postData['badge[conditions][' + index + '][type]'] = condition.type;
+                
+                if (condition.type === 'meta') {
+                    postData['badge[conditions][' + index + '][meta_key]'] = condition.meta_key || '';
+                    postData['badge[conditions][' + index + '][meta_value]'] = condition.meta_value || '';
+                    postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
+                    postData['badge[conditions][' + index + '][type_cast]'] = condition.type_cast || 'CHAR';
+                } else if (condition.type === 'pricing_plan') {
+                    postData['badge[conditions][' + index + '][plan_id]'] = condition.plan_id || '';
+                    postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
+                }
+            });
 
             $.ajax({
                 url: dcbAdmin.ajaxUrl,
                 type: 'POST',
-                data: formData + '&action=dcb_save_badge&nonce=' + dcbAdmin.nonce,
+                data: postData,
                 success: function(response) {
                     $saveBtn.prop('disabled', false).text(originalText);
                     
