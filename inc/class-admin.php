@@ -105,9 +105,11 @@ class Directorist_Custom_Badges_Admin
      */
     public function add_admin_submenu()
     {
+        $parent_slug = 'edit.php?post_type=at_biz_dir';
+        
         // Main badges list page
         add_submenu_page(
-            'edit.php?post_type=at_biz_dir',
+            $parent_slug,
             __('Custom Badges', 'directorist-custom-badges'),
             __('Custom Badges', 'directorist-custom-badges'),
             'manage_options',
@@ -115,15 +117,36 @@ class Directorist_Custom_Badges_Admin
             array($this, 'render_admin_page')
         );
 
-        // Add/Edit badge form page (hidden from menu)
+        // Add/Edit badge form page (will be hidden from menu using CSS)
         add_submenu_page(
-            'edit.php?post_type=at_biz_dir', // Hidden from menu
+            $parent_slug,
             __('Badge Configuration', 'directorist-custom-badges'),
             __('Badge Configuration', 'directorist-custom-badges'),
             'manage_options',
             'directorist-custom-badges-form',
             array($this, 'render_form_page')
         );
+
+        // Hide the form page from the menu using CSS
+        add_action('admin_head', array($this, 'hide_form_page_from_menu_css'));
+    }
+
+    /**
+     * Hide form page from admin menu using CSS
+     */
+    public function hide_form_page_from_menu_css()
+    {
+        ?>
+        <style type="text/css">
+            /* Hide the form page from submenu - multiple selectors for compatibility */
+            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li a[href*="directorist-custom-badges-form"],
+            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li:has(a[href*="directorist-custom-badges-form"]),
+            #toplevel_page_edit-post_type-at_biz_dir .wp-submenu li a[href*="directorist-custom-badges-form"],
+            .wp-submenu li a[href*="page=directorist-custom-badges-form"] {
+                display: none !important;
+            }
+        </style>
+        <?php
     }
 
     /**
