@@ -369,7 +369,7 @@ class Directorist_Custom_Badges_Admin
         $sanitized = array();
         $allowed_types = array('meta', 'pricing_plan');
         $allowed_compares = array('=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'EXISTS', 'NOT EXISTS');
-        $allowed_meta_types = array('CHAR', 'NUMERIC', 'DECIMAL', 'DATE', 'DATETIME');
+        $allowed_meta_types = array('CHAR', 'NUMERIC', 'DECIMAL', 'DATE', 'DATETIME', 'BOOLEAN');
 
         foreach ($conditions as $condition) {
             if (!isset($condition['type']) || !in_array($condition['type'], $allowed_types)) {

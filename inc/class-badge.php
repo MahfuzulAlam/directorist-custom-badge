@@ -223,6 +223,10 @@ class Directorist_Badge
         } elseif ($type_cast === 'DATE' || $type_cast === 'DATETIME') {
             $meta_value = !empty($meta_value) ? strtotime($meta_value) : 0;
             $compare_value = !empty($compare_value) ? strtotime($compare_value) : 0;
+        } elseif ($type_cast === 'BOOLEAN') {
+            // Convert to boolean - WordPress common truthy values: '1', 'yes', 'true', 'on', 1, true
+            $meta_value = $this->convert_to_boolean($meta_value);
+            $compare_value = $this->convert_to_boolean($compare_value);
         } else {
             // CHAR - ensure strings for string operations
             $meta_value = strval($meta_value);
@@ -271,6 +275,38 @@ class Directorist_Badge
             default:
                 return $meta_value == $compare_value;
         }
+    }
+
+    /**
+     * Convert value to boolean
+     * Handles WordPress common boolean representations
+     */
+    private function convert_to_boolean($value)
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+        
+        if (is_numeric($value)) {
+            return (bool) intval($value);
+        }
+        
+        $value = strtolower(trim(strval($value)));
+        
+        // Truthy values
+        $truthy = array('1', 'yes', 'true', 'on', 'enabled');
+        if (in_array($value, $truthy, true)) {
+            return true;
+        }
+        
+        // Falsy values
+        $falsy = array('0', 'no', 'false', 'off', 'disabled', '');
+        if (in_array($value, $falsy, true)) {
+            return false;
+        }
+        
+        // Default: convert to boolean
+        return (bool) $value;
     }
 
     /**
@@ -323,9 +359,9 @@ class Directorist_Badge
         $badge_title = esc_html($this->atts['title']);
         $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
         ?>
-        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $badge_class; ?>">
+        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $badge_class; ?>">
             <?php if ($badge_icon): ?>
-                <i class="<?php echo $badge_icon; ?>"></i>
+                <?php echo directorist_icon($badge_icon); ?>
             <?php endif; ?>
             <?php echo $badge_title; ?>
         </span>

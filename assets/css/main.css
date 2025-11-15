@@ -3,4 +3,10 @@
 .directorist-custom-badge
 {
     background-color: #47d6a5;
+
+}
+
+.directorist-badge .directorist-icon-mask:after
+{
+    background-color: #fff;
 }

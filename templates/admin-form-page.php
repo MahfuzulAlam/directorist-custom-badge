@@ -175,6 +175,7 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                                                 <option value="DECIMAL" <?php selected($condition['type_cast'] ?? '', 'DECIMAL'); ?>>DECIMAL</option>
                                                                 <option value="DATE" <?php selected($condition['type_cast'] ?? '', 'DATE'); ?>>DATE</option>
                                                                 <option value="DATETIME" <?php selected($condition['type_cast'] ?? '', 'DATETIME'); ?>>DATETIME</option>
+                                                                <option value="BOOLEAN" <?php selected($condition['type_cast'] ?? '', 'BOOLEAN'); ?>>BOOLEAN</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -291,6 +292,7 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                             <option value="DECIMAL">DECIMAL</option>
                             <option value="DATE">DATE</option>
                             <option value="DATETIME">DATETIME</option>
+                            <option value="BOOLEAN">BOOLEAN</option>
                         </select>
                     </div>
                 </div>
