@@ -57,8 +57,8 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                 <label for="dcb-badge-icon">
                                     <?php echo esc_html__('Badge Icon', 'directorist-custom-badges'); ?>
                                 </label>
-                                <input type="text" id="dcb-badge-icon" name="badge[badge_icon]" class="dcb-input" placeholder="<?php echo esc_attr__('uil uil-text-fields', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_icon']) ? esc_attr($badge['badge_icon']) : ''; ?>">
-                                <p class="description"><?php echo esc_html__('Icon class name (e.g., uil uil-text-fields).', 'directorist-custom-badges'); ?></p>
+                                <input type="text" id="dcb-badge-icon" name="badge[badge_icon]" class="dcb-input" placeholder="<?php echo esc_attr__('las la-check-circle', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_icon']) ? esc_attr($badge['badge_icon']) : ''; ?>">
+                                <p class="description"><?php echo esc_html__('Icon class name (e.g., las la-check-circle).', 'directorist-custom-badges'); ?></p>
                             </div>
                         </div>
 

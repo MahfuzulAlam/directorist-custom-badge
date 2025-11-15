@@ -48,7 +48,7 @@ class Directorist_Badge
             $atts = array(
                 'id' => $badge['badge_id'],
                 'label' => $badge['badge_label'],
-                'icon' => !empty($badge['badge_icon']) ? $badge['badge_icon'] : 'uil uil-text-fields',
+                'icon' => !empty($badge['badge_icon']) ? $badge['badge_icon'] : '',
                 'hook' => 'atbdp-' . $badge['badge_id'],
                 'title' => $badge['badge_label'],
                 'class' => !empty($badge['badge_class']) ? $badge['badge_class'] : '',
@@ -75,7 +75,7 @@ class Directorist_Badge
                 'type'    => "badge",
                 'id'      => $this->atts[ 'id' ],
                 'label'   => $this->atts[ 'label' ],
-                'icon'    => $this->atts[ 'icon' ] ? $this->atts[ 'icon' ]: "uil uil-text-fields",
+                'icon'    => $this->atts[ 'icon' ] ? $this->atts[ 'icon' ]: "",
                 'hook'    => $this->atts[ 'hook' ],
                 'options' => [],
             ];

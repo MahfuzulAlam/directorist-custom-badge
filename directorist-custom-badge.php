@@ -79,9 +79,9 @@ if (!class_exists('Directorist_Custom_Badges')) {
          */
         public function includes()
         {
-            //include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-badge.php' );
+            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-badge.php' );
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-admin.php' );
-            //include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/functions.php' );
+            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/functions.php' );
         }
 
         /**

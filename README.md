@@ -5,7 +5,7 @@ add_action( 'init', function(){
     $my_badge_atts = [
         'id'         => 'my-badge',
         'label'      => 'Badge',
-        'icon'       => 'uil uil-text-fields',
+        'icon'       => 'las la-check-circle',
         'hook'       => 'atbdp-my-badge',
         'title'      => 'My Badge',
         'meta_key'   => '_custom-select',
