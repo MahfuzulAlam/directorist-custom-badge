@@ -74,6 +74,12 @@
                 self.handleConditionTypeChange($(this));
             });
 
+            // Plan status condition change
+            // Note: Fields remain visible, no special handling needed
+            // $(document).on('change', '.dcb-plan-status-condition', function() {
+            //     self.handlePlanStatusConditionChange($(this));
+            // });
+
             // Badge ID validation
             $(document).on('blur', '#dcb-badge-id-field', function() {
                 self.validateBadgeId($(this).val());
@@ -170,6 +176,11 @@
             }
         },
 
+        handlePlanStatusConditionChange: function($select) {
+            // Function kept for potential future use, but no longer hides fields
+            // Plan ID and Compare fields remain visible regardless of plan_status_condition selection
+        },
+
         loadBadgeData: function() {
             // Load existing badges data if needed
             // This is handled server-side in the template
@@ -232,6 +243,7 @@
                         } else if (condition.type === 'pricing_plan') {
                             // Set pricing plan condition values - use more specific selectors
                             var $planFields = $condition.find('.dcb-pricing-plan-fields');
+                            $planFields.find('select[name="badge[conditions][' + index + '][plan_status_condition]"]').val(condition.plan_status_condition || '');
                             $planFields.find('input[name="badge[conditions][' + index + '][plan_id]"]').val(condition.plan_id || '');
                             $planFields.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
                         }
@@ -299,10 +311,12 @@
                 } else if (conditionType === 'pricing_plan') {
                     var $planFields = $condition.find('.dcb-pricing-plan-fields');
                     if ($planFields.length) {
+                        condition.plan_status_condition = $planFields.find('select[name*="[plan_status_condition]"]').val() || '';
                         condition.plan_id = $planFields.find('input[name*="[plan_id]"]').val() || '';
                         condition.compare = $planFields.find('select[name*="[compare]"]').val() || '=';
                     } else {
                         // Fallback: try direct selectors if pricing-plan-fields wrapper not found
+                        condition.plan_status_condition = $condition.find('select[name*="[plan_status_condition]"]').val() || '';
                         condition.plan_id = $condition.find('input[name*="[plan_id]"]').val() || '';
                         condition.compare = $condition.find('.dcb-pricing-plan-fields select[name*="[compare]"]').val() || '=';
                     }
@@ -343,6 +357,7 @@
                     postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
                     postData['badge[conditions][' + index + '][type_cast]'] = condition.type_cast || 'CHAR';
                 } else if (condition.type === 'pricing_plan') {
+                    postData['badge[conditions][' + index + '][plan_status_condition]'] = condition.plan_status_condition || '';
                     postData['badge[conditions][' + index + '][plan_id]'] = condition.plan_id || '';
                     postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
                 }

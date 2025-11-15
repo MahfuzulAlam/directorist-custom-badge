@@ -315,39 +315,128 @@ class Directorist_Badge
      */
     private function check_pricing_plan_condition($condition, $listing_id)
     {
-        if (empty($condition['plan_id'])) {
-            return false;
+        $plan_status_result = null;
+        $plan_id_result = null;
+        
+        // Check plan_status_condition if set (new feature)
+        if (!empty($condition['plan_status_condition'])) {
+            $plan_status_result = $this->check_plan_status_condition($condition['plan_status_condition'], $listing_id);
         }
 
-        $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
-        $listing_plan_id = intval($listing_plan_id);
-        $compare = isset($condition['compare']) ? $condition['compare'] : '=';
+        // Check plan_id if set (backward compatibility and can work alongside plan_status_condition)
+        if (!empty($condition['plan_id']) && intval($condition['plan_id']) > 0) {
+            $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
+            $listing_plan_id = intval($listing_plan_id);
+            $compare = isset($condition['compare']) ? $condition['compare'] : '=';
 
-        switch ($compare) {
-            case '=':
-                $plan_id = intval($condition['plan_id']);
-                return $listing_plan_id === $plan_id;
-            case '!=':
-                $plan_id = intval($condition['plan_id']);
-                return $listing_plan_id !== $plan_id;
-            case 'IN':
-                // Handle comma-separated plan IDs or single value
-                $plan_ids = is_array($condition['plan_id']) 
-                    ? $condition['plan_id'] 
-                    : explode(',', strval($condition['plan_id']));
-                $plan_ids = array_map('intval', array_map('trim', $plan_ids));
-                return in_array($listing_plan_id, $plan_ids);
-            case 'NOT IN':
-                // Handle comma-separated plan IDs or single value
-                $plan_ids = is_array($condition['plan_id']) 
-                    ? $condition['plan_id'] 
-                    : explode(',', strval($condition['plan_id']));
-                $plan_ids = array_map('intval', array_map('trim', $plan_ids));
-                return !in_array($listing_plan_id, $plan_ids);
-            default:
-                $plan_id = intval($condition['plan_id']);
-                return $listing_plan_id === $plan_id;
+            switch ($compare) {
+                case '=':
+                    $plan_id = intval($condition['plan_id']);
+                    $plan_id_result = ($listing_plan_id === $plan_id);
+                    break;
+                case '!=':
+                    $plan_id = intval($condition['plan_id']);
+                    $plan_id_result = ($listing_plan_id !== $plan_id);
+                    break;
+                case 'IN':
+                    // Handle comma-separated plan IDs or single value
+                    $plan_ids = is_array($condition['plan_id']) 
+                        ? $condition['plan_id'] 
+                        : explode(',', strval($condition['plan_id']));
+                    $plan_ids = array_map('intval', array_map('trim', $plan_ids));
+                    $plan_id_result = in_array($listing_plan_id, $plan_ids);
+                    break;
+                case 'NOT IN':
+                    // Handle comma-separated plan IDs or single value
+                    $plan_ids = is_array($condition['plan_id']) 
+                        ? $condition['plan_id'] 
+                        : explode(',', strval($condition['plan_id']));
+                    $plan_ids = array_map('intval', array_map('trim', $plan_ids));
+                    $plan_id_result = !in_array($listing_plan_id, $plan_ids);
+                    break;
+                default:
+                    $plan_id = intval($condition['plan_id']);
+                    $plan_id_result = ($listing_plan_id === $plan_id);
+                    break;
+            }
         }
+
+        // If both conditions are set, both must be true (AND logic)
+        if ($plan_status_result !== null && $plan_id_result !== null) {
+            return $plan_status_result && $plan_id_result;
+        }
+        
+        // If only plan_status_condition is set, use that result
+        if ($plan_status_result !== null) {
+            return $plan_status_result;
+        }
+        
+        // If only plan_id is set, use that result
+        if ($plan_id_result !== null) {
+            return $plan_id_result;
+        }
+
+        // If neither is set, return false
+        return false;
+    }
+
+    /**
+     * Check plan status condition
+     * 
+     * @param string $plan_status_condition The plan status condition type (user_active_plan or listing_has_plan)
+     * @param int $listing_id The listing ID
+     * @return bool
+     */
+    private function check_plan_status_condition($plan_status_condition, $listing_id)
+    {
+        if ($plan_status_condition === 'user_active_plan') {
+            // Check if listing owner has at least one active plan
+            $listing = get_post($listing_id);
+            if (!$listing || !$listing->post_author) {
+                return false;
+            }
+
+            $user_id = $listing->post_author;
+
+            // Check if user has any active orders (completed payment, not exited)
+            $args = array(
+                'post_type'      => 'atbdp_orders',
+                'posts_per_page' => 1,
+                'post_status'    => 'publish',
+                'author'         => $user_id,
+                'fields'         => 'ids',
+                'meta_query'     => array(
+                    'relation' => 'AND',
+                    array(
+                        'key'     => '_payment_status',
+                        'value'   => 'completed',
+                        'compare' => '=',
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array(
+                            'key'     => '_order_status',
+                            'value'   => 'exit',
+                            'compare' => '!=',
+                        ),
+                        array(
+                            'key'     => '_order_status',
+                            'compare' => 'NOT EXISTS',
+                        ),
+                    ),
+                ),
+            );
+
+            $active_orders = new WP_Query($args);
+            return $active_orders->have_posts();
+
+        } elseif ($plan_status_condition === 'listing_has_plan') {
+            // Check if listing is assigned to a plan
+            $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
+            return !empty($listing_plan_id) && intval($listing_plan_id) > 0;
+        }
+
+        return false;
     }
 
     /**

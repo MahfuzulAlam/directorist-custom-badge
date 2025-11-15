@@ -195,11 +195,26 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                                 <div class="dcb-condition-fields dcb-pricing-plan-fields" style="<?php echo (isset($condition['type']) && $condition['type'] === 'pricing_plan') ? '' : 'display: none;'; ?>">
                                                     <div class="dcb-form-row">
                                                         <div class="dcb-form-field">
-                                                            <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
-                                                            <input type="number" name="badge[conditions][<?php echo esc_attr($idx); ?>][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0" value="<?php echo isset($condition['plan_id']) ? esc_attr($condition['plan_id']) : ''; ?>">
+                                                            <label for="dcb-plan-status-condition-<?php echo esc_attr($idx); ?>">
+                                                                <?php echo esc_html__('Plan Status Condition', 'directorist-custom-badges'); ?>
+                                                            </label>
+                                                            <select id="dcb-plan-status-condition-<?php echo esc_attr($idx); ?>" name="badge[conditions][<?php echo esc_attr($idx); ?>][plan_status_condition]" class="dcb-select dcb-plan-status-condition">
+                                                                <option value="user_active_plan" <?php selected($condition['plan_status_condition'] ?? '', 'user_active_plan'); ?>><?php echo esc_html__('User has an active subscription', 'directorist-custom-badges'); ?></option>
+                                                                <option value="listing_has_plan" <?php selected($condition['plan_status_condition'] ?? '', 'listing_has_plan'); ?>><?php echo esc_html__('Listing is assigned to a plan', 'directorist-custom-badges'); ?></option>
+                                                            </select>
+                                                            <p class="description">
+                                                                <?php echo esc_html__('Choose how plan status should be checked for this badge. "User has an active subscription" applies the badge only if the listing owner currently has an active pricing plan. "Listing is assigned to a plan" applies the badge only if this specific listing is linked to a pricing plan.', 'directorist-custom-badges'); ?>
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <div class="dcb-form-row">
+                                                    <div class="dcb-form-row dcb-plan-id-row">
+                                                        <div class="dcb-form-field">
+                                                            <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
+                                                            <input type="number" name="badge[conditions][<?php echo esc_attr($idx); ?>][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0" value="<?php echo isset($condition['plan_id']) ? esc_attr($condition['plan_id']) : ''; ?>">
+                                                            <p class="description"><?php echo esc_html__('Leave empty when using Plan Status Condition.', 'directorist-custom-badges'); ?></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="dcb-form-row dcb-plan-compare-row">
                                                         <div class="dcb-form-field">
                                                             <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
                                                             <select name="badge[conditions][<?php echo esc_attr($idx); ?>][compare]" class="dcb-select">
@@ -312,11 +327,24 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
             <div class="dcb-condition-fields dcb-pricing-plan-fields" style="display: none;">
                 <div class="dcb-form-row">
                     <div class="dcb-form-field">
-                        <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
-                        <input type="number" name="badge[conditions][{{index}}][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0">
+                        <label><?php echo esc_html__('Plan Status Condition', 'directorist-custom-badges'); ?></label>
+                        <select name="badge[conditions][{{index}}][plan_status_condition]" class="dcb-select dcb-plan-status-condition">
+                            <option value="user_active_plan"><?php echo esc_html__('User has an active subscription', 'directorist-custom-badges'); ?></option>
+                            <option value="listing_has_plan"><?php echo esc_html__('Listing is assigned to a plan', 'directorist-custom-badges'); ?></option>
+                        </select>
+                        <p class="description">
+                            <?php echo esc_html__('Choose how plan status should be checked for this badge. "User has an active subscription" applies the badge only if the listing owner currently has an active pricing plan. "Listing is assigned to a plan" applies the badge only if this specific listing is linked to a pricing plan.', 'directorist-custom-badges'); ?>
+                        </p>
                     </div>
                 </div>
-                <div class="dcb-form-row">
+                <div class="dcb-form-row dcb-plan-id-row">
+                    <div class="dcb-form-field">
+                        <label><?php echo esc_html__('Plan ID', 'directorist-custom-badges'); ?></label>
+                        <input type="number" name="badge[conditions][{{index}}][plan_id]" class="dcb-input" placeholder="<?php echo esc_attr__('897', 'directorist-custom-badges'); ?>" min="0">
+                        <p class="description"><?php echo esc_html__('Leave empty when using Plan Status Condition.', 'directorist-custom-badges'); ?></p>
+                    </div>
+                </div>
+                <div class="dcb-form-row dcb-plan-compare-row">
                     <div class="dcb-form-field">
                         <label><?php echo esc_html__('Compare', 'directorist-custom-badges'); ?></label>
                         <select name="badge[conditions][{{index}}][compare]" class="dcb-select">

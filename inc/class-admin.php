@@ -394,6 +394,13 @@ class Directorist_Custom_Badges_Admin
                 $sanitized_condition['compare'] = in_array($condition['compare'] ?? '=', $allowed_compares) ? $condition['compare'] : '=';
                 $sanitized_condition['type_cast'] = in_array($condition['type_cast'] ?? 'CHAR', $allowed_meta_types) ? $condition['type_cast'] : 'CHAR';
             } elseif ($condition['type'] === 'pricing_plan') {
+                // Handle plan_status_condition (new feature) - can be used with or without plan_id
+                $allowed_plan_status_conditions = array('user_active_plan', 'listing_has_plan');
+                if (!empty($condition['plan_status_condition']) && in_array($condition['plan_status_condition'], $allowed_plan_status_conditions)) {
+                    $sanitized_condition['plan_status_condition'] = sanitize_text_field($condition['plan_status_condition']);
+                }
+                
+                // Always save plan_id and compare (even if plan_status_condition is set)
                 $sanitized_condition['plan_id'] = intval($condition['plan_id'] ?? 0);
                 $allowed_plan_compares = array('=', '!=', 'IN', 'NOT IN');
                 $sanitized_condition['compare'] = in_array($condition['compare'] ?? '=', $allowed_plan_compares) ? $condition['compare'] : '=';
