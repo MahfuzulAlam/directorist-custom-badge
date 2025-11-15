@@ -204,6 +204,10 @@ class Directorist_Badge
         $compare = isset($condition['compare']) ? $condition['compare'] : '=';
         $type_cast = isset($condition['type_cast']) ? $condition['type_cast'] : 'CHAR';
 
+        // Ensure values are not null
+        $meta_value = is_null($meta_value) ? '' : $meta_value;
+        $compare_value = is_null($compare_value) ? '' : $compare_value;
+
         // Handle EXISTS and NOT EXISTS first (don't need compare_value)
         if ($compare === 'EXISTS') {
             return !empty($meta_value) || $meta_value === '0' || $meta_value === 0;
@@ -214,11 +218,11 @@ class Directorist_Badge
 
         // Cast meta value based on type for comparison operations
         if ($type_cast === 'NUMERIC' || $type_cast === 'DECIMAL') {
-            $meta_value = floatval($meta_value);
-            $compare_value = floatval($compare_value);
+            $meta_value = is_numeric($meta_value) ? floatval($meta_value) : 0;
+            $compare_value = is_numeric($compare_value) ? floatval($compare_value) : 0;
         } elseif ($type_cast === 'DATE' || $type_cast === 'DATETIME') {
-            $meta_value = strtotime($meta_value);
-            $compare_value = strtotime($compare_value);
+            $meta_value = !empty($meta_value) ? strtotime($meta_value) : 0;
+            $compare_value = !empty($compare_value) ? strtotime($compare_value) : 0;
         } else {
             // CHAR - ensure strings for string operations
             $meta_value = strval($meta_value);
@@ -240,20 +244,30 @@ class Directorist_Badge
                 return $meta_value <= $compare_value;
             case 'LIKE':
                 // Ensure strings for LIKE operations
-                $meta_value = strval($meta_value);
-                $compare_value = strval($compare_value);
+                $meta_value = is_null($meta_value) ? '' : strval($meta_value);
+                $compare_value = is_null($compare_value) ? '' : strval($compare_value);
+                if (empty($meta_value) || empty($compare_value)) {
+                    return false;
+                }
                 return strpos($meta_value, $compare_value) !== false;
             case 'NOT LIKE':
                 // Ensure strings for NOT LIKE operations
-                $meta_value = strval($meta_value);
-                $compare_value = strval($compare_value);
+                $meta_value = is_null($meta_value) ? '' : strval($meta_value);
+                $compare_value = is_null($compare_value) ? '' : strval($compare_value);
+                if (empty($meta_value) || empty($compare_value)) {
+                    return true; // If meta_value is empty, it doesn't contain compare_value
+                }
                 return strpos($meta_value, $compare_value) === false;
             case 'IN':
-                $values = array_map('trim', explode(',', strval($compare_value)));
-                return in_array(strval($meta_value), $values, true);
+                $compare_value_str = is_null($compare_value) ? '' : strval($compare_value);
+                $meta_value_str = is_null($meta_value) ? '' : strval($meta_value);
+                $values = !empty($compare_value_str) ? array_map('trim', explode(',', $compare_value_str)) : array();
+                return in_array($meta_value_str, $values, true);
             case 'NOT IN':
-                $values = array_map('trim', explode(',', strval($compare_value)));
-                return !in_array(strval($meta_value), $values, true);
+                $compare_value_str = is_null($compare_value) ? '' : strval($compare_value);
+                $meta_value_str = is_null($meta_value) ? '' : strval($meta_value);
+                $values = !empty($compare_value_str) ? array_map('trim', explode(',', $compare_value_str)) : array();
+                return !in_array($meta_value_str, $values, true);
             default:
                 return $meta_value == $compare_value;
         }

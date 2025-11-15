@@ -49,8 +49,22 @@ class Directorist_Custom_Badges_Admin
      */
     public function enqueue_admin_assets($hook)
     {
-        $screen = get_current_screen();
-        if (!$screen || $screen->id !== 'at_biz_dir_page_directorist-custom-badges') {
+        // Check if we're on our admin pages using hook or page parameter
+        $is_list_page = ($hook === 'at_biz_dir_page_directorist-custom-badges');
+        $is_form_page = ($hook === 'at_biz_dir_page_directorist-custom-badges-form');
+        
+        // Also check page parameter for hidden pages
+        if (!$is_list_page && !$is_form_page) {
+            $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+            if ($page === 'directorist-custom-badges' || $page === 'directorist-custom-badges-form') {
+                $is_list_page = ($page === 'directorist-custom-badges');
+                $is_form_page = ($page === 'directorist-custom-badges-form');
+            } else {
+                return;
+            }
+        }
+
+        if (!$is_list_page && !$is_form_page) {
             return;
         }
 
@@ -91,6 +105,7 @@ class Directorist_Custom_Badges_Admin
      */
     public function add_admin_submenu()
     {
+        // Main badges list page
         add_submenu_page(
             'edit.php?post_type=at_biz_dir',
             __('Custom Badges', 'directorist-custom-badges'),
@@ -99,10 +114,20 @@ class Directorist_Custom_Badges_Admin
             'directorist-custom-badges',
             array($this, 'render_admin_page')
         );
+
+        // Add/Edit badge form page (hidden from menu)
+        add_submenu_page(
+            'edit.php?post_type=at_biz_dir', // Hidden from menu
+            __('Badge Configuration', 'directorist-custom-badges'),
+            __('Badge Configuration', 'directorist-custom-badges'),
+            'manage_options',
+            'directorist-custom-badges-form',
+            array($this, 'render_form_page')
+        );
     }
 
     /**
-     * Render admin page
+     * Render admin page (list view)
      */
     public function render_admin_page()
     {
@@ -112,6 +137,20 @@ class Directorist_Custom_Badges_Admin
             include $template_path;
         } else {
             echo '<div class="wrap"><h1>' . esc_html__('Custom Badges', 'directorist-custom-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-custom-badges') . '</p></div>';
+        }
+    }
+
+    /**
+     * Render form page (add/edit)
+     */
+    public function render_form_page()
+    {
+        $template_path = DIRECTORIST_CUSTOM_BADGE_DIR . 'templates/admin-form-page.php';
+        
+        if (file_exists($template_path)) {
+            include $template_path;
+        } else {
+            echo '<div class="wrap"><h1>' . esc_html__('Badge Configuration', 'directorist-custom-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-custom-badges') . '</p></div>';
         }
     }
 

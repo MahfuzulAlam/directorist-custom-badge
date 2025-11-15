@@ -18,14 +18,14 @@
         bindEvents: function() {
             var self = this;
 
-            // Add badge button
+            // Add badge button - redirect to form page
             $(document).on('click', '.dcb-add-badge-btn', function() {
-                self.showBadgeForm();
+                window.location.href = self.getFormUrl();
             });
 
-            // Close/Cancel form
+            // Close/Cancel form - redirect to list page
             $(document).on('click', '.dcb-close-form, .dcb-cancel-form', function() {
-                self.hideBadgeForm();
+                window.location.href = self.getListUrl();
             });
 
             // Save badge
@@ -103,17 +103,18 @@
             });
         },
 
-        showBadgeForm: function() {
-            this.resetForm();
-            $('#dcb-badge-form-wrapper').slideDown();
-            $('html, body').animate({
-                scrollTop: $('#dcb-badge-form-wrapper').offset().top - 50
-            }, 300);
+        getFormUrl: function(badgeId) {
+            var url = dcbAdmin.ajaxUrl.replace('admin-ajax.php', 'admin.php');
+            url += '?page=directorist-custom-badges-form';
+            if (badgeId) {
+                url += '&badge_id=' + encodeURIComponent(badgeId);
+            }
+            return url;
         },
 
-        hideBadgeForm: function() {
-            $('#dcb-badge-form-wrapper').slideUp();
-            this.resetForm();
+        getListUrl: function() {
+            var url = dcbAdmin.ajaxUrl.replace('admin-ajax.php', 'admin.php');
+            return url + '?page=directorist-custom-badges';
         },
 
         resetForm: function() {
@@ -160,28 +161,8 @@
         },
 
         editBadge: function(badgeId) {
-            var self = this;
-            
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_get_badge',
-                    id: badgeId,
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        self.populateForm(response.data.badge);
-                        self.showBadgeForm();
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
+            // Redirect to form page with badge ID
+            window.location.href = this.getFormUrl(badgeId);
         },
 
         populateForm: function(badge) {
@@ -250,9 +231,8 @@
                     
                     if (response.success) {
                         self.showNotice(response.data.message, 'success');
-                        self.hideBadgeForm();
                         setTimeout(function() {
-                            location.reload();
+                            window.location.href = self.getListUrl();
                         }, 1000);
                     } else {
                         self.showNotice(response.data.message, 'error');
