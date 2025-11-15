@@ -52,6 +52,7 @@ class Directorist_Badge
                 'hook' => 'atbdp-' . $badge['badge_id'],
                 'title' => $badge['badge_label'],
                 'class' => !empty($badge['badge_class']) ? $badge['badge_class'] : '',
+                'color' => !empty($badge['badge_color']) ? $badge['badge_color'] : '',
                 'badge_data' => $badge, // Store full badge data for condition checking
             );
 
@@ -358,8 +359,15 @@ class Directorist_Badge
         $badge_class = esc_attr($this->atts['class']);
         $badge_title = esc_html($this->atts['title']);
         $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
+        $badge_color = !empty($this->atts['color']) ? esc_attr($this->atts['color']) : '';
+        
+        // Build inline style for color
+        $style = '';
+        if (!empty($badge_color)) {
+            $style = ' style="background-color: ' . esc_attr($badge_color) . ';"';
+        }
         ?>
-        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $badge_class; ?>">
+        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $badge_class; ?>"<?php echo $style; ?>>
             <?php if ($badge_icon): ?>
                 <?php echo directorist_icon($badge_icon); ?>
             <?php endif; ?>

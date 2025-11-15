@@ -211,6 +211,35 @@
     font-size: 14px;
 }
 
+/* Color Picker */
+.dcb-color-picker {
+    max-width: 100px !important;
+}
+
+.dcb-color-picker.wp-color-picker {
+    width: 100px;
+    padding: 3px 5px;
+}
+
+.wp-picker-container {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.wp-picker-container .wp-color-picker {
+    width: 100px;
+    padding: 3px 5px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.wp-picker-container .wp-color-picker:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
 .dcb-input:focus,
 .dcb-select:focus {
     border-color: #2271b1;

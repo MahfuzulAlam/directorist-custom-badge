@@ -94,6 +94,16 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                 <p class="description"><?php echo esc_html__('CSS class for styling.', 'directorist-custom-badges'); ?></p>
                             </div>
                         </div>
+
+                        <div class="dcb-form-row">
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-color">
+                                    <?php echo esc_html__('Badge Color', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="text" id="dcb-badge-color" name="badge[badge_color]" class="dcb-color-picker dcb-input" value="<?php echo $is_edit && isset($badge['badge_color']) ? esc_attr($badge['badge_color']) : ''; ?>" data-default-color="">
+                                <p class="description"><?php echo esc_html__('Choose a color for the badge background or text.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="dcb-form-section">

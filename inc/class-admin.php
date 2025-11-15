@@ -69,6 +69,13 @@ class Directorist_Custom_Badges_Admin
         }
 
         wp_enqueue_script('jquery-ui-sortable');
+        
+        // Enqueue WordPress color picker (only on form page)
+        if ($is_form_page) {
+            wp_enqueue_style('wp-color-picker');
+            wp_enqueue_script('wp-color-picker');
+        }
+        
         wp_enqueue_script(
             'directorist-custom-badges-admin',
             DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/admin.js',
@@ -258,6 +265,7 @@ class Directorist_Custom_Badges_Admin
             'badge_id' => $badge_id,
             'badge_label' => sanitize_text_field($badge_data['badge_label']),
             'badge_class' => sanitize_text_field($badge_data['badge_class'] ?? ''),
+            'badge_color' => sanitize_hex_color($badge_data['badge_color'] ?? '') ?: '',
             'conditions' => self::sanitize_conditions($badge_data['conditions'] ?? array()),
             'condition_relation' => in_array($badge_data['condition_relation'] ?? 'AND', array('AND', 'OR')) ? $badge_data['condition_relation'] : 'AND',
             'is_active' => isset($badge_data['is_active']) ? (bool) $badge_data['is_active'] : true,

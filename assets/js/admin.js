@@ -12,6 +12,7 @@
         init: function() {
             this.bindEvents();
             this.initSortable();
+            this.initColorPicker();
             this.loadBadgeData();
         },
 
@@ -103,6 +104,20 @@
             });
         },
 
+        initColorPicker: function() {
+            // Initialize WordPress color picker if available
+            if (typeof jQuery.fn.wpColorPicker !== 'undefined') {
+                $('.dcb-color-picker').wpColorPicker({
+                    change: function(event, ui) {
+                        // Color changed
+                    },
+                    clear: function() {
+                        // Color cleared
+                    }
+                });
+            }
+        },
+
         getFormUrl: function(badgeId) {
             var url = dcbAdmin.ajaxUrl.replace('admin-ajax.php', 'admin.php');
             url += '?page=directorist-custom-badges-form';
@@ -176,6 +191,11 @@
             $('#dcb-badge-id-field').val(badge.badge_id || '');
             $('#dcb-badge-label').val(badge.badge_label || '');
             $('#dcb-badge-class').val(badge.badge_class || '');
+            $('#dcb-badge-color').val(badge.badge_color || '');
+            // Update color picker if it exists
+            if (typeof jQuery.fn.wpColorPicker !== 'undefined' && $('#dcb-badge-color').hasClass('wp-color-picker')) {
+                $('#dcb-badge-color').wpColorPicker('color', badge.badge_color || '');
+            }
             $('#dcb-condition-relation').val(badge.condition_relation || 'AND');
             $('#dcb-badge-active').prop('checked', badge.is_active === true || badge.is_active === '1' || badge.is_active === 1);
 
@@ -240,6 +260,7 @@
                     badge_id: $('#dcb-badge-id-field').val() || '',
                     badge_label: $('#dcb-badge-label').val() || '',
                     badge_class: $('#dcb-badge-class').val() || '',
+                    badge_color: $('#dcb-badge-color').val() || '',
                     condition_relation: $('#dcb-condition-relation').val() || 'AND',
                     is_active: $('#dcb-badge-active').is(':checked') ? 1 : 0,
                     conditions: []
@@ -308,6 +329,7 @@
             postData['badge[badge_id]'] = formData.badge.badge_id;
             postData['badge[badge_label]'] = formData.badge.badge_label;
             postData['badge[badge_class]'] = formData.badge.badge_class;
+            postData['badge[badge_color]'] = formData.badge.badge_color;
             postData['badge[condition_relation]'] = formData.badge.condition_relation;
             postData['badge[is_active]'] = formData.badge.is_active;
 
