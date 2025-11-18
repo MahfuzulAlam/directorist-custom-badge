@@ -18,7 +18,7 @@ add_filter('directorist_custom_field_meta_key_field_args', function ($args) {
  */
 add_action( 'init', function(){
     // Initialize badges from wp_options table
-    if (class_exists('Directorist_Custom_Badges_Admin') && class_exists('Directorist_Badge')) {
+    if (class_exists('Directorist_Custom_Badges_Admin') && class_exists('Directorist_Custom_Badge')) {
         Directorist_Custom_Badge::init_badges_from_options();
     }
 } );

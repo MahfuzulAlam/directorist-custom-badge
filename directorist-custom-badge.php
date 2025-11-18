@@ -79,6 +79,8 @@ if (!class_exists('Directorist_Custom_Badges')) {
          */
         public function includes()
         {
+            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-helper.php' );
+            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-conditions.php' );
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-badge.php' );
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-single.php' );
             include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-admin.php' );

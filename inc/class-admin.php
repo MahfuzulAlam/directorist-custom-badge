@@ -259,14 +259,14 @@ class Directorist_Custom_Badges_Admin
 
         // Prepare badge data
         $badge = array(
-            'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : self::generate_unique_id(),
+            'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : Directorist_Custom_Badges_Helper::generate_unique_id(),
             'badge_title' => sanitize_text_field($badge_data['badge_title']),
             'badge_icon' => sanitize_text_field($badge_data['badge_icon'] ?? ''),
             'badge_id' => $badge_id,
             'badge_label' => sanitize_text_field($badge_data['badge_label']),
             'badge_class' => sanitize_text_field($badge_data['badge_class'] ?? ''),
             'badge_color' => sanitize_hex_color($badge_data['badge_color'] ?? '') ?: '',
-            'conditions' => self::sanitize_conditions($badge_data['conditions'] ?? array()),
+            'conditions' => Directorist_Custom_Badges_Helper::sanitize_conditions($badge_data['conditions'] ?? array()),
             'condition_relation' => in_array($badge_data['condition_relation'] ?? 'AND', array('AND', 'OR')) ? $badge_data['condition_relation'] : 'AND',
             'is_active' => isset($badge_data['is_active']) ? (bool) $badge_data['is_active'] : true,
             'order' => isset($badge_data['order']) ? intval($badge_data['order']) : count($badges),
@@ -365,60 +365,6 @@ class Directorist_Custom_Badges_Admin
         return self::save_badge($new_badge);
     }
 
-    /**
-     * Sanitize conditions
-     */
-    private static function sanitize_conditions($conditions)
-    {
-        if (!is_array($conditions)) {
-            return array();
-        }
-
-        $sanitized = array();
-        $allowed_types = array('meta', 'pricing_plan');
-        $allowed_compares = array('=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'EXISTS', 'NOT EXISTS');
-        $allowed_meta_types = array('CHAR', 'NUMERIC', 'DECIMAL', 'DATE', 'DATETIME', 'BOOLEAN');
-
-        foreach ($conditions as $condition) {
-            if (!isset($condition['type']) || !in_array($condition['type'], $allowed_types)) {
-                continue;
-            }
-
-            $sanitized_condition = array(
-                'type' => sanitize_text_field($condition['type']),
-            );
-
-            if ($condition['type'] === 'meta') {
-                $sanitized_condition['meta_key'] = sanitize_text_field($condition['meta_key'] ?? '');
-                $sanitized_condition['meta_value'] = sanitize_text_field($condition['meta_value'] ?? '');
-                $sanitized_condition['compare'] = in_array($condition['compare'] ?? '=', $allowed_compares) ? $condition['compare'] : '=';
-                $sanitized_condition['type_cast'] = in_array($condition['type_cast'] ?? 'CHAR', $allowed_meta_types) ? $condition['type_cast'] : 'CHAR';
-            } elseif ($condition['type'] === 'pricing_plan') {
-                // Handle plan_status_condition (new feature) - can be used with or without plan_id
-                $allowed_plan_status_conditions = array('user_active_plan', 'listing_has_plan');
-                if (!empty($condition['plan_status_condition']) && in_array($condition['plan_status_condition'], $allowed_plan_status_conditions)) {
-                    $sanitized_condition['plan_status_condition'] = sanitize_text_field($condition['plan_status_condition']);
-                }
-                
-                // Always save plan_id and compare (even if plan_status_condition is set)
-                $sanitized_condition['plan_id'] = intval($condition['plan_id'] ?? 0);
-                $allowed_plan_compares = array('=', '!=', 'IN', 'NOT IN');
-                $sanitized_condition['compare'] = in_array($condition['compare'] ?? '=', $allowed_plan_compares) ? $condition['compare'] : '=';
-            }
-
-            $sanitized[] = $sanitized_condition;
-        }
-
-        return $sanitized;
-    }
-
-    /**
-     * Generate unique ID
-     */
-    private static function generate_unique_id()
-    {
-        return time() . '-' . wp_rand(1000, 9999);
-    }
 
     /**
      * AJAX: Get badge
