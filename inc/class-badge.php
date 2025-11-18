@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @author  wpwax
+ * @author  wpxplore
  * @since   1.0
  * @version 1.0
  */
@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Directorist_Badge
+class Directorist_Custom_Badge
 {
     public $atts;
     private static $badges_initialized = false;
@@ -66,6 +66,7 @@ class Directorist_Badge
     {
         add_filter( 'atbdp_listing_type_settings_field_list', [ $this, 'atbdp_listing_type_settings_field_list' ] );
         add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template' ] );
+        add_filter( 'directorist_listing_header_layout', [ $this, 'directorist_listing_header_layout' ] );
     }
 
     public function atbdp_listing_type_settings_field_list( $fields )
@@ -119,6 +120,17 @@ class Directorist_Badge
 
         return $fields;
 
+    }
+
+    public function directorist_listing_header_layout( $layout )
+    {
+        $layout['widgets']['badges']['options']['fields'][$this->atts['id']] = [
+            'type' => "toggle",
+            'label' => 'Display ' . $this->atts['label'] . ' Badge',
+            'value' => false,
+        ];
+
+        return $layout;
     }
 
     public function atbdp_all_listings_badge_template( $field )
