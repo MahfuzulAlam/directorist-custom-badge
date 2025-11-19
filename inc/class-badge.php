@@ -1,14 +1,19 @@
 <?php
 
 /**
- * @author  wpwax
+ * @author  wpxplore
  * @since   1.0
  * @version 1.0
  */
 
-class Directorist_Badge
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+class Directorist_Custom_Badge
 {
     public $atts;
+    private static $badges_initialized = false;
 
     public function __construct( $atts = [] )
     {
@@ -16,10 +21,36 @@ class Directorist_Badge
         $this->render();
     }
 
+    /**
+     * Initialize badges from options
+     */
+    public static function init_badges_from_options()
+    {
+        if (self::$badges_initialized) {
+            return;
+        }
+
+        // Get badges from options
+        $badges_data = Directorist_Custom_Badges_Helper::get_badges_from_options();
+        
+        if (empty($badges_data)) {
+            self::$badges_initialized = true;
+            return;
+        }
+
+        // Initialize each active badge
+        foreach ($badges_data as $atts) {
+            new Directorist_Custom_Badge($atts);
+        }
+
+        self::$badges_initialized = true;
+    }
+
     public function render()
     {
         add_filter( 'atbdp_listing_type_settings_field_list', [ $this, 'atbdp_listing_type_settings_field_list' ] );
         add_action( 'atbdp_all_listings_badge_template', [ $this, 'atbdp_all_listings_badge_template' ] );
+        add_filter( 'directorist_listing_header_layout', [ $this, 'directorist_listing_header_layout' ] );
     }
 
     public function atbdp_listing_type_settings_field_list( $fields )
@@ -30,7 +61,7 @@ class Directorist_Badge
                 'type'    => "badge",
                 'id'      => $this->atts[ 'id' ],
                 'label'   => $this->atts[ 'label' ],
-                'icon'    => $this->atts[ 'icon' ] ? $this->atts[ 'icon' ]: "uil uil-text-fields",
+                'icon'    => $this->atts[ 'icon' ] ? $this->atts[ 'icon' ]: "",
                 'hook'    => $this->atts[ 'hook' ],
                 'options' => [],
             ];
@@ -75,23 +106,69 @@ class Directorist_Badge
 
     }
 
+    public function directorist_listing_header_layout( $layout )
+    {
+        $layout['widgets']['badges']['options']['fields'][$this->atts['id']] = [
+            'type' => "toggle",
+            'label' => 'Display ' . $this->atts['label'] . ' Badge',
+            'value' => false,
+        ];
+
+        return $layout;
+    }
+
     public function atbdp_all_listings_badge_template( $field )
     {
-        switch ( $field['widget_key'] ) {
-            case $this->atts[ 'id' ]:
-    
-                $free_trial = get_post_meta( get_the_ID(), $this->atts[ 'meta_key' ], true );
-    
-                if ( $free_trial == $this->atts[ 'meta_value' ] ):
-                ?>
-                    <span id="<?php echo $this->atts[ 'id' ]; ?>" class="directorist-badge directorist-info-item directorist-custom-badge <?php echo $this->atts[ 'class' ]; ?>">
-                        <?php echo $this->atts[ 'title' ]; ?>
-                    </span>
-                <?php
-                endif;
-    
-            break;
+        // Check if this badge matches the widget_key
+        if (!isset($field['widget_key']) || $field['widget_key'] !== $this->atts['id']) {
+            return;
         }
+
+        // Get badge data
+        $badge_data = isset($this->atts['badge_data']) ? $this->atts['badge_data'] : null;
+        
+        if (!$badge_data) {
+            // Fallback to old method if badge_data is not available
+            if (isset($this->atts['meta_key']) && isset($this->atts['meta_value'])) {
+                $meta_value = get_post_meta(get_the_ID(), $this->atts['meta_key'], true);
+                if ($meta_value == $this->atts['meta_value']) {
+                    $this->render_badge();
+                }
+            }
+            return;
+        }
+
+        // Check conditions
+        if (Directorist_Custom_Badges_Conditions::check_conditions($badge_data, get_the_ID())) {
+            $this->render_badge();
+        }
+    }
+
+
+    /**
+     * Render badge HTML
+     */
+    private function render_badge()
+    {
+        $badge_id = esc_attr($this->atts['id']);
+        $badge_class = esc_attr($this->atts['class']);
+        $badge_title = esc_html($this->atts['title']);
+        $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
+        $badge_color = !empty($this->atts['color']) ? esc_attr($this->atts['color']) : '';
+        
+        // Build inline style for color
+        $style = '';
+        if (!empty($badge_color)) {
+            $style = ' style="background-color: ' . esc_attr($badge_color) . ';"';
+        }
+        ?>
+        <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
+            <?php if ($badge_icon): ?>
+                <?php echo directorist_icon($badge_icon); ?>
+            <?php endif; ?>
+            <?php echo esc_html($badge_title); ?>
+        </span>
+        <?php
     }
 
 }

@@ -1,0 +1,407 @@
+/**
+ * Directorist Custom Badges Admin Styles
+ */
+
+.dcb-admin-wrap {
+    max-width: 1400px;
+}
+
+.dcb-notices {
+    margin: 20px 0;
+}
+
+.dcb-notices .notice {
+    margin: 0;
+}
+
+/* Empty State */
+.dcb-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.dcb-empty-state p {
+    font-size: 16px;
+    color: #646970;
+    margin-bottom: 20px;
+}
+
+/* Badges Table */
+.dcb-badges-table-wrapper {
+    margin-top: 20px;
+}
+
+.dcb-badges-table {
+    margin-top: 0;
+}
+
+.dcb-badges-table .column-order {
+    width: 50px;
+    text-align: center;
+}
+
+.dcb-badges-table .column-title {
+    width: 200px;
+}
+
+.dcb-badges-table .column-label {
+    width: 150px;
+}
+
+.dcb-badges-table .column-id {
+    width: 150px;
+}
+
+.dcb-badges-table .column-conditions {
+    width: 120px;
+}
+
+.dcb-badges-table .column-status {
+    width: 100px;
+    text-align: center;
+}
+
+.dcb-badges-table .column-actions {
+    width: 200px;
+}
+
+.dcb-drag-handle {
+    cursor: move;
+    color: #787c82;
+}
+
+.dcb-drag-handle:hover {
+    color: #2271b1;
+}
+
+.dcb-badge-row.ui-sortable-helper {
+    background: #f0f0f1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle Switch */
+.dcb-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin: 0;
+}
+
+.dcb-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.dcb-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.dcb-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.dcb-toggle-switch input:checked + .dcb-toggle-slider {
+    background-color: #2271b1;
+}
+
+.dcb-toggle-switch input:checked + .dcb-toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.dcb-toggle-switch input:focus + .dcb-toggle-slider {
+    box-shadow: 0 0 1px #2271b1;
+}
+
+/* Badge Form */
+.dcb-badge-form-wrapper {
+    margin-top: 30px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.dcb-badge-form-container {
+    padding: 20px;
+}
+
+.dcb-badge-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #ccd0d4;
+    background: #f6f7f7;
+}
+
+.dcb-form-title {
+    margin: 0;
+    font-size: 18px;
+}
+
+.dcb-badge-form {
+    padding: 20px 0;
+}
+
+.dcb-form-section {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.dcb-form-section:last-child {
+    border-bottom: none;
+}
+
+.dcb-form-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.dcb-form-row {
+    margin-bottom: 20px;
+}
+
+.dcb-form-field {
+    width: 100%;
+}
+
+.dcb-form-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1d2327;
+}
+
+.dcb-required {
+    color: #d63638;
+}
+
+.dcb-input,
+.dcb-select {
+    width: 100%;
+    max-width: 500px;
+    padding: 6px 10px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Color Picker */
+.dcb-color-picker {
+    max-width: 100px !important;
+}
+
+.dcb-color-picker.wp-color-picker {
+    width: 100px;
+    padding: 3px 5px;
+}
+
+.wp-picker-container {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.wp-picker-container .wp-color-picker {
+    width: 100px;
+    padding: 3px 5px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.wp-picker-container .wp-color-picker:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.dcb-input:focus,
+.dcb-select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.dcb-input.dcb-error,
+.dcb-select.dcb-error {
+    border-color: #d63638;
+}
+
+.dcb-field-error {
+    display: block;
+    color: #d63638;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.dcb-form-field .description {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 13px;
+    color: #646970;
+    font-style: normal;
+}
+
+.dcb-checkbox-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.dcb-checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Conditions Repeater */
+.dcb-conditions-repeater {
+    margin-top: 20px;
+}
+
+.dcb-conditions-list {
+    margin-bottom: 15px;
+}
+
+.dcb-condition-item {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.dcb-condition-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.dcb-condition-title {
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.dcb-remove-condition {
+    color: #d63638;
+    text-decoration: none;
+}
+
+.dcb-remove-condition:hover {
+    color: #b32d2e;
+}
+
+.dcb-condition-body {
+    padding-top: 10px;
+}
+
+.dcb-condition-fields {
+    margin-top: 15px;
+}
+
+.dcb-form-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    gap: 10px;
+}
+
+.dcb-form-actions .button {
+    min-width: 120px;
+}
+
+/* Buttons */
+.dcb-add-badge-btn {
+    margin-left: 10px;
+}
+
+.dcb-add-condition {
+    margin-top: 10px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .dcb-badge-form-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .dcb-form-actions {
+        flex-direction: column;
+    }
+
+    .dcb-form-actions .button {
+        width: 100%;
+    }
+
+    .dcb-badges-table .column-actions {
+        width: auto;
+    }
+
+    .dcb-badges-table .column-actions .button {
+        display: block;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+}
+
+/* Loading State */
+.dcb-saving {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Animations */
+.dcb-badge-form-wrapper {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Code styling */
+code {
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+

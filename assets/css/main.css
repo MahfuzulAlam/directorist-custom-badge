@@ -1,6 +1,44 @@
 /* Add you custom css here */
 
-.directorist-custom-badge
+.directorist-custom-badge,
+.directorist-custom-badge-single
 {
     background-color: #47d6a5;
+
+}
+
+.directorist-badge .directorist-icon-mask:after,
+.directorist-custom-badge-single .directorist-icon-mask:after
+{
+    background-color: #fff;
+}
+
+.directorist-custom-badge-single
+{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.directorist-custom-badge-single .directorist-icon-mask
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 12px;
+    width: 12px;
+}
+
+.directorist-custom-badge-single .directorist-icon-mask:after
+{
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+}
+
+.directorist-content-active .directorist-listing-single__info .directorist-info-item-badges
+{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
