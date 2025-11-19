@@ -80,7 +80,7 @@ class Directorist_Custom_Badges_Admin
             'directorist-custom-badges-admin',
             DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/admin.js',
             array('jquery', 'jquery-ui-sortable'),
-            '3.0.0',
+            DIRECTORIST_CUSTOM_BADGE_VERSION,
             true
         );
 
@@ -88,7 +88,7 @@ class Directorist_Custom_Badges_Admin
             'directorist-custom-badges-admin',
             DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/admin.css',
             array(),
-            '3.0.0'
+            DIRECTORIST_CUSTOM_BADGE_VERSION
         );
 
         wp_localize_script('directorist-custom-badges-admin', 'dcbAdmin', array(

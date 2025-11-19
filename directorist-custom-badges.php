@@ -27,7 +27,6 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-
 if (!class_exists('Directorist_Custom_Badges')) {
 
     final class Directorist_Custom_Badges
@@ -65,6 +64,13 @@ if (!class_exists('Directorist_Custom_Badges')) {
          */
         public function define_constant()
         {
+            /**
+             * Plugin version
+             */
+            if (!defined('DIRECTORIST_CUSTOM_BADGE_VERSION')) {
+                define('DIRECTORIST_CUSTOM_BADGE_VERSION', '3.0.0');
+            }
+
             if (!defined('DIRECTORIST_CUSTOM_BADGE_URI')) {
                 define('DIRECTORIST_CUSTOM_BADGE_URI', plugin_dir_url(__FILE__));
             }
@@ -105,7 +111,7 @@ if (!class_exists('Directorist_Custom_Badges')) {
                 'directorist-custom-script',
                 DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js',
                 array('jquery'),
-                '3.0.0',
+                DIRECTORIST_CUSTOM_BADGE_VERSION,
                 true
             );
         }
@@ -119,7 +125,7 @@ if (!class_exists('Directorist_Custom_Badges')) {
                 'directorist-custom-style',
                 DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css',
                 array(),
-                '3.0.0'
+                DIRECTORIST_CUSTOM_BADGE_VERSION
             );
         }
 
