@@ -7,7 +7,7 @@
 /**
  * Plugin Name:       Directorist - Custom Badges
  * Plugin URI:        https://wpxplore.com/tools/directorist-custom-badges/
- * Description:       Best way to creat a custom badge for directorist
+ * Description:       Best way to create custom badges for Directorist with advanced condition-based display rules
  * Version:           3.0.0
  * Requires at least: 5.2
  * Author:            wpWax
@@ -21,10 +21,10 @@
 /* This is an extension for Directorist plugin. It helps using custom code and template overriding of Directorist plugin.*/
 
 /**
- * If this file is called directly, abrot!!!
+ * If this file is called directly, abort!
  */
 if (!defined('ABSPATH')) {
-    exit;                      // Exit if accessed
+    exit; // Exit if accessed directly
 }
 
 
@@ -61,16 +61,16 @@ if (!class_exists('Directorist_Custom_Badges')) {
         }
 
         /**
-         * Define
+         * Define constants
          */
         public function define_constant()
         {
-            if ( !defined( 'DIRECTORIST_CUSTOM_BADGES_URI' ) ) {
-                define( 'DIRECTORIST_CUSTOM_BADGE_URI', plugin_dir_url( __FILE__ ) );
+            if (!defined('DIRECTORIST_CUSTOM_BADGE_URI')) {
+                define('DIRECTORIST_CUSTOM_BADGE_URI', plugin_dir_url(__FILE__));
             }
 
-            if ( !defined( 'DIRECTORIST_CUSTOM_BADGE_DIR' ) ) {
-                define( 'DIRECTORIST_CUSTOM_BADGE_DIR', plugin_dir_path( __FILE__ ) );
+            if (!defined('DIRECTORIST_CUSTOM_BADGE_DIR')) {
+                define('DIRECTORIST_CUSTOM_BADGE_DIR', plugin_dir_path(__FILE__));
             }
         }
 
@@ -97,21 +97,30 @@ if (!class_exists('Directorist_Custom_Badges')) {
         }
 
         /**
-         *  Enqueue JS file
+         * Enqueue JS file
          */
         public function enqueue_scripts()
         {
-            // Replace 'your-plugin-name' with the actual name of your plugin's folder.
-            wp_enqueue_script('directorist-custom-script', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js', array('jquery'), '1.0', true);
+            wp_enqueue_script(
+                'directorist-custom-script',
+                DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js',
+                array('jquery'),
+                '3.0.0',
+                true
+            );
         }
 
         /**
-         *  Enqueue CSS file
+         * Enqueue CSS file
          */
         public function enqueue_styles()
         {
-            // Replace 'your-plugin-name' with the actual name of your plugin's folder.
-            wp_enqueue_style('directorist-custom-style', DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css', array(), '1.0');
+            wp_enqueue_style(
+                'directorist-custom-style',
+                DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css',
+                array(),
+                '3.0.0'
+            );
         }
 
         /**
@@ -150,15 +159,18 @@ if (!class_exists('Directorist_Custom_Badges')) {
         }
     }
 
-    function Directorist_Custom_Badges()
+    /**
+     * Main plugin function
+     *
+     * @return Directorist_Custom_Badges
+     */
+    function directorist_custom_badges()
     {
         return Directorist_Custom_Badges::instance();
     }
 
+    // Initialize plugin if Directorist is active
     if (directorist_is_plugin_active('directorist/directorist-base.php')) {
-        Directorist_Custom_Badges(); // get the plugin running
+        directorist_custom_badges();
     }
 }
-
-
-?>

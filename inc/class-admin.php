@@ -403,8 +403,15 @@ class Directorist_Custom_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
         }
 
-        // Get badge data from POST
+        // Get badge data from POST and sanitize
         $badge_data = isset($_POST['badge']) ? $_POST['badge'] : array();
+        
+        if (!is_array($badge_data)) {
+            wp_send_json_error(array('message' => __('Invalid badge data.', 'directorist-custom-badges')));
+        }
+        
+        // Sanitize badge data
+        $badge_data = self::sanitize_badge_post_data($badge_data);
         
         // Ensure conditions is an array
         if (isset($badge_data['conditions']) && !is_array($badge_data['conditions'])) {
@@ -494,6 +501,9 @@ class Directorist_Custom_Badges_Admin
             wp_send_json_error(array('message' => __('Invalid order data.', 'directorist-custom-badges')));
         }
 
+        // Sanitize order array
+        $order = array_map('sanitize_text_field', $order);
+
         $result = self::reorder_badges($order);
 
         if ($result) {
@@ -561,6 +571,13 @@ class Directorist_Custom_Badges_Admin
             wp_send_json_error(array('message' => __('Invalid badges data.', 'directorist-custom-badges')));
         }
 
+        // Sanitize badges data
+        foreach ($badges_data as $key => $badge_data) {
+            if (is_array($badge_data)) {
+                $badges_data[$key] = self::sanitize_badge_post_data($badge_data);
+            }
+        }
+
         $imported = 0;
         $errors = array();
 
@@ -587,6 +604,59 @@ class Directorist_Custom_Badges_Admin
         } else {
             wp_send_json_error(array('message' => __('No badges were imported.', 'directorist-custom-badges'), 'errors' => $errors));
         }
+    }
+
+    /**
+     * Sanitize badge POST data
+     *
+     * @param array $data Badge data from POST
+     * @return array Sanitized badge data
+     */
+    private static function sanitize_badge_post_data($data)
+    {
+        if (!is_array($data)) {
+            return array();
+        }
+
+        $sanitized = array();
+
+        foreach ($data as $key => $value) {
+            $key = sanitize_key($key);
+
+            if (is_array($value)) {
+                // Recursively sanitize nested arrays
+                if ($key === 'conditions') {
+                    $sanitized[$key] = Directorist_Custom_Badges_Helper::sanitize_conditions($value);
+                } else {
+                    $sanitized[$key] = self::sanitize_badge_post_data($value);
+                }
+            } else {
+                // Sanitize based on field type
+                switch ($key) {
+                    case 'badge_id':
+                    case 'id':
+                        $sanitized[$key] = sanitize_key($value);
+                        break;
+                    case 'badge_color':
+                        $sanitized[$key] = sanitize_hex_color($value) ?: '';
+                        break;
+                    case 'is_active':
+                        $sanitized[$key] = (bool) $value;
+                        break;
+                    case 'order':
+                        $sanitized[$key] = absint($value);
+                        break;
+                    case 'condition_relation':
+                        $sanitized[$key] = in_array($value, array('AND', 'OR'), true) ? $value : 'AND';
+                        break;
+                    default:
+                        $sanitized[$key] = sanitize_text_field($value);
+                        break;
+                }
+            }
+        }
+
+        return $sanitized;
     }
 }
 

@@ -166,13 +166,23 @@ class Directorist_Custom_Badges_Helper
         return $badges_data;
     }
 
-    public static function listing_has_plan($listing_id = 0, $plan_id = 0, $compare = ''){
-        if ( empty( $listing_id ) || empty( $plan_id ) || empty( $compare ) ) {
+    /**
+     * Check if listing has plan
+     *
+     * @param int    $listing_id Listing ID
+     * @param string $plan_id    Plan ID(s) - comma separated or single value
+     * @param string $compare     Comparison operator
+     * @return bool
+     */
+    public static function listing_has_plan($listing_id = 0, $plan_id = 0, $compare = '')
+    {
+        $listing_id = absint($listing_id);
+        if (empty($listing_id) || empty($plan_id) || empty($compare)) {
             return false;
         }
 
-        if ( $plan_id ) {
-            $plan_id = explode( ',', $plan_id );
+        if (!is_array($plan_id)) {
+            $plan_id = explode(',', $plan_id);
         }
 
         $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
@@ -210,153 +220,210 @@ class Directorist_Custom_Badges_Helper
         return $plan_id_result;
     }
 
-    public static function user_has_active_plans($user_id = 0, $plans = ''){
-        // get orders list post type = atbdp_orders active status payment_status completed
-        // post_status publish
-        if ( empty( $plans ) ) {
+    /**
+     * Check if user has active plans
+     *
+     * @param int    $user_id User ID
+     * @param string $plans   Plan ID(s) - comma separated
+     * @return bool
+     */
+    public static function user_has_active_plans($user_id = 0, $plans = '')
+    {
+        if (empty($plans)) {
             return false;
         }
 
-        $plans = explode( ',', $plans );
+        $plans = explode(',', $plans);
+        $plans = array_map('absint', array_map('trim', $plans));
+        $plans = array_filter($plans);
 
-        $user_id = $user_id ? $user_id : get_current_user_id();
-        if ( empty( $user_id ) ) {
-            return [];
+        if (empty($plans)) {
+            return false;
         }
 
-        $orders = self::get_orders_by_user( $user_id, false );
+        $user_id = absint($user_id);
+        if (empty($user_id)) {
+            return false;
+        }
 
-        if ( $orders->have_posts() ) {
-            foreach($orders->posts as $order){
-                // get pricing plan id from the order meta _fm_plan_ordered
-                $pricing_plan_id = get_post_meta($order, '_fm_plan_ordered', true);
+        $orders = self::get_orders_by_user($user_id, false);
 
-                if ( ! in_array( $pricing_plan_id, $plans ) ) {
+        if ($orders->have_posts()) {
+            foreach ($orders->posts as $order) {
+                // Get pricing plan ID from the order meta _fm_plan_ordered
+                $pricing_plan_id = absint(get_post_meta($order, '_fm_plan_ordered', true));
+
+                if (empty($pricing_plan_id) || !in_array($pricing_plan_id, $plans, true)) {
                     continue;
                 }
-                
-                // check the period and find the exired date _recurrence_period_term fm_length[month, year, day]
-                $period = get_post_meta($pricing_plan_id, '_recurrence_period_term', true);
-                $length = get_post_meta($pricing_plan_id, 'fm_length', true); //month, year, day - convert to days
-                $days = gluvega_convert_period_to_days($period, $length);
-                
-                // Get order submit date. Its the publish date
-                $order_date = get_the_date('Y-m-d', $order);
-                $expired_date = date('Y-m-d', strtotime($order_date . ' + ' . $days . ' days'));
 
-                // check if the expired date is greater than the current date
-                if($expired_date > date('Y-m-d')){
-                    return true;
+                // Check the period and find the expired date
+                $period = get_post_meta($pricing_plan_id, '_recurrence_period_term', true);
+                $length = absint(get_post_meta($pricing_plan_id, 'fm_length', true));
+                $days = self::convert_period_to_days($period, $length);
+
+                if (empty($days)) {
+                    continue;
                 }
 
+                // Get order submit date (publish date)
+                $order_date = get_the_date('Y-m-d', $order);
+                if (empty($order_date)) {
+                    continue;
+                }
+
+                $expired_date = date('Y-m-d', strtotime($order_date . ' + ' . $days . ' days'));
+                $current_date = date('Y-m-d');
+
+                // Check if the expired date is greater than the current date
+                if ($expired_date > $current_date) {
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    public static function get_orders_by_user( $user_id = 0, $is_paid = false ){
-        if ( empty( $user_id ) ) {
-            return [];
+    /**
+     * Get orders by user
+     *
+     * @param int  $user_id User ID
+     * @param bool $is_paid Whether to get only paid plans
+     * @return WP_Query
+     */
+    public static function get_orders_by_user($user_id = 0, $is_paid = false)
+    {
+        $user_id = absint($user_id);
+        if (empty($user_id)) {
+            return new WP_Query(array('post__in' => array(0)));
         }
 
-        if ( $is_paid ) {
-            $get_pricing_plans = self::get_paid_pricing_plans();
+        if ($is_paid) {
+            $pricing_plans = self::get_paid_pricing_plans();
         } else {
-            $get_pricing_plans = self::get_all_pricing_plans();
+            $pricing_plans = self::get_all_pricing_plans();
         }
 
-        if ( empty( $get_pricing_plans ) ) {
-            return [];
+        if (empty($pricing_plans)) {
+            return new WP_Query(array('post__in' => array(0)));
         }
-        
-        $args = [
+
+        $args = array(
             'post_type'      => 'atbdp_orders',
             'posts_per_page' => -1,
             'post_status'    => 'publish',
             'author'         => $user_id,
             'fields'         => 'ids',
-        ];
-    
-        $meta = [];
-    
-        $meta['plan_status'] = [
-            'relation' => 'AND',
-            [
-                'key'     => '_fm_plan_ordered',
-                'value'   => $get_pricing_plans,
-                'compare' => 'IN',
-            ],
-            [
-                'key'     => '_payment_status',
-                'value'   => 'completed',
-                'compare' => '=',
-            ],
-        ];
-    
-        $meta['order_status'] = [
-            'relation' => 'OR',
-            [
-                'key'     => '_order_status',
-                'value'   => 'exit',
-                'compare' => '!=',
-            ],
-            [
-                'key'     => '_order_status',
-                'compare' => 'NOT EXISTS',
-            ],
-        ];
-    
-        $metas = count( $meta );
-        if ( $metas ) {
-            $args['meta_query'] = ( $metas > 1 ) ? array_merge( ['relation' => 'AND'], $meta ) : $meta;
-        }
-    
-        return new WP_Query( $args );
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_fm_plan_ordered',
+                    'value'   => $pricing_plans,
+                    'compare' => 'IN',
+                ),
+                array(
+                    'key'     => '_payment_status',
+                    'value'   => 'completed',
+                    'compare' => '=',
+                ),
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key'     => '_order_status',
+                        'value'   => 'exit',
+                        'compare' => '!=',
+                    ),
+                    array(
+                        'key'     => '_order_status',
+                        'compare' => 'NOT EXISTS',
+                    ),
+                ),
+            ),
+        );
+
+        return new WP_Query($args);
     }
 
+    /**
+     * Get all pricing plans
+     *
+     * @return array Array of plan IDs
+     */
     public static function get_all_pricing_plans()
     {
-        $args = [
-            'post_type' => 'atbdp_pricing_plans',
+        $args = array(
+            'post_type'      => 'atbdp_pricing_plans',
             'posts_per_page' => -1,
-            'status' => 'publish',
-            'fields' => 'ids',
-        ];
+            'post_status'    => 'publish',
+            'fields'         => 'ids',
+        );
 
-        $atbdp_query = new WP_Query( $args );
+        $query = new WP_Query($args);
 
-        if ( $atbdp_query->have_posts() ) {
-            return $atbdp_query->posts;
-        } else {
-            return [];
+        if ($query->have_posts()) {
+            return $query->posts;
         }
+
+        return array();
     }
 
-
+    /**
+     * Get paid pricing plans
+     *
+     * @return array Array of plan IDs
+     */
     public static function get_paid_pricing_plans()
     {
-        $args = [
-            'post_type' => 'atbdp_pricing_plans',
+        $args = array(
+            'post_type'      => 'atbdp_pricing_plans',
             'posts_per_page' => -1,
-            'status' => 'publish',
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => 'fm_price',
-                    'value' => 0,
+            'post_status'    => 'publish',
+            'meta_query'     => array(
+                array(
+                    'key'     => 'fm_price',
+                    'value'   => 0,
                     'compare' => '>',
-                ],
-            ],
-            'fields' => 'ids',
-        ];
+                    'type'    => 'NUMERIC',
+                ),
+            ),
+            'fields'         => 'ids',
+        );
 
-        $atbdp_query = new WP_Query( $args );
+        $query = new WP_Query($args);
 
-        if ( $atbdp_query->have_posts() ) {
-            return $atbdp_query->posts;
-        } else {
-            return [];
+        if ($query->have_posts()) {
+            return $query->posts;
+        }
+
+        return array();
+    }
+
+    /**
+     * Convert period to days
+     *
+     * @param string $period Period type (month, year, day)
+     * @param int    $length Length value
+     * @return int Days
+     */
+    public static function convert_period_to_days($period, $length)
+    {
+        $length = absint($length);
+        if (empty($length)) {
+            return 0;
+        }
+
+        switch (strtolower($period)) {
+            case 'month':
+            case 'months':
+                return $length * 30;
+            case 'year':
+            case 'years':
+                return $length * 365;
+            case 'day':
+            case 'days':
+            default:
+                return $length;
         }
     }
 }

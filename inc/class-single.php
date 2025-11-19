@@ -18,13 +18,21 @@ class Directorist_Custom_Single_Listing_Badge
         add_filter( 'directorist_template', [ $this, 'directorist_template' ], 10, 2 );
     }
 
+    /**
+     * Get badges from options
+     *
+     * @return array Badges data
+     */
     public function get_badges_from_options()
     {
         return Directorist_Custom_Badges_Helper::get_badges_from_options();
     }
 
     /**
-     * Template Exists
+     * Check if template exists
+     *
+     * @param string $template_file Template file name
+     * @return bool
      */
     public function template_exists($template_file)
     {
@@ -39,12 +47,10 @@ class Directorist_Custom_Single_Listing_Badge
         if (is_array($args)) {
             extract($args);
         }
-        
-        if($template_file !== 'single/fields/badges') {
-            return;
-        }
 
-        if (isset($args['listing'])) $listing = $args['listing'];
+        // Extract variables safely
+        $listing = isset($args['listing']) ? $args['listing'] : null;
+        $data = isset($args['data']) ? $args['data'] : $args;
 
         $custom_badges = $this->get_listing_badges($data);
 
@@ -56,36 +62,61 @@ class Directorist_Custom_Single_Listing_Badge
     }
 
     /**
-     * Directorist Template
+     * Directorist template filter
+     *
+     * @param mixed $template   Template content
+     * @param array $field_data Field data
+     * @return mixed
      */
     public function directorist_template($template, $field_data)
     {
-        if ($this->template_exists($template)) $template = $this->get_template($template, $field_data);
+        if ( $template == 'single/fields/badges' && $this->template_exists($template)) {
+            return $this->get_template($template, $field_data);
+        }
         return $template;
     }
 
     /**
-     * Get Listing Badges
+     * Get listing badges
+     *
+     * @param array $data Template data
+     * @return array Listing badges
      */
     public function get_listing_badges($data)
     {
-        $listing_badges = [];
+        $listing_badges = array();
 
-        $default_badges = [ 'featured_badge', 'popular_badge', 'new_badge'];
+        if (!isset($data['options']['fields']) || !is_array($data['options']['fields'])) {
+            return $listing_badges;
+        }
 
+        $default_badges = array('featured_badge', 'popular_badge', 'new_badge');
         $badge_options = $this->get_badges_from_options();
 
         foreach ($data['options']['fields'] as $key => $badge) {
-            if($badge['value'] && ! in_array($key, $default_badges)) {
-                if( ! empty($badge_options) ){
-                    foreach($badge_options as $badge_option) {
-                        if($badge_option['id'] == $key && $badge_option['badge_data']['is_active']) {
-                            $badge['data'] = $badge_option;
-                        }
+            if (!isset($badge['value']) || !$badge['value']) {
+                continue;
+            }
+
+            $key = sanitize_key($key);
+
+            if (in_array($key, $default_badges, true)) {
+                continue;
+            }
+
+            if (!empty($badge_options)) {
+                foreach ($badge_options as $badge_option) {
+                    if (isset($badge_option['id']) && $badge_option['id'] === $key
+                        && isset($badge_option['badge_data']['is_active'])
+                        && $badge_option['badge_data']['is_active']
+                    ) {
+                        $badge['data'] = $badge_option;
+                        break;
                     }
                 }
-                $listing_badges[$key] = $badge;
             }
+
+            $listing_badges[$key] = $badge;
         }
 
         return $listing_badges;

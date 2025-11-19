@@ -162,11 +162,11 @@ class Directorist_Custom_Badge
             $style = ' style="background-color: ' . esc_attr($badge_color) . ';"';
         }
         ?>
-        <span id="<?php echo $badge_id; ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo $badge_class; ?>"<?php echo $style; ?>>
+        <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
             <?php if ($badge_icon): ?>
                 <?php echo directorist_icon($badge_icon); ?>
             <?php endif; ?>
-            <?php echo $badge_title; ?>
+            <?php echo esc_html($badge_title); ?>
         </span>
         <?php
     }
