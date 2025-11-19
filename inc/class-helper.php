@@ -224,7 +224,7 @@ class Directorist_Custom_Badges_Helper
             return [];
         }
 
-        $orders = self::get_paid_orders_by_user( $user_id );
+        $orders = self::get_orders_by_user( $user_id, false );
 
         if ( $orders->have_posts() ) {
             foreach($orders->posts as $order){
@@ -255,14 +255,18 @@ class Directorist_Custom_Badges_Helper
         return false;
     }
 
-    public static function get_paid_orders_by_user( $user_id = 0 ){
+    public static function get_orders_by_user( $user_id = 0, $is_paid = false ){
         if ( empty( $user_id ) ) {
             return [];
         }
 
-        $get_paid_pricing_plans = self::get_paid_pricing_plans();
+        if ( $is_paid ) {
+            $get_pricing_plans = self::get_paid_pricing_plans();
+        } else {
+            $get_pricing_plans = self::get_all_pricing_plans();
+        }
 
-        if ( empty( $get_paid_pricing_plans ) ) {
+        if ( empty( $get_pricing_plans ) ) {
             return [];
         }
         
@@ -280,7 +284,7 @@ class Directorist_Custom_Badges_Helper
             'relation' => 'AND',
             [
                 'key'     => '_fm_plan_ordered',
-                'value'   => $paid_pricing_plans,
+                'value'   => $get_pricing_plans,
                 'compare' => 'IN',
             ],
             [
@@ -311,12 +315,31 @@ class Directorist_Custom_Badges_Helper
         return new WP_Query( $args );
     }
 
+    public static function get_all_pricing_plans()
+    {
+        $args = [
+            'post_type' => 'atbdp_pricing_plans',
+            'posts_per_page' => -1,
+            'status' => 'publish',
+            'fields' => 'ids',
+        ];
+
+        $atbdp_query = new WP_Query( $args );
+
+        if ( $atbdp_query->have_posts() ) {
+            return $atbdp_query->posts;
+        } else {
+            return [];
+        }
+    }
+
 
     public static function get_paid_pricing_plans()
     {
         $args = [
             'post_type' => 'atbdp_pricing_plans',
             'posts_per_page' => -1,
+            'status' => 'publish',
             'meta_query' => [
                 'relation' => 'OR',
                 [
