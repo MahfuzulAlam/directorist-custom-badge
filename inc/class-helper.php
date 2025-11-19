@@ -165,5 +165,176 @@ class Directorist_Custom_Badges_Helper
 
         return $badges_data;
     }
+
+    public static function listing_has_plan($listing_id = 0, $plan_id = 0, $compare = ''){
+        if ( empty( $listing_id ) || empty( $plan_id ) || empty( $compare ) ) {
+            return false;
+        }
+
+        if ( $plan_id ) {
+            $plan_id = explode( ',', $plan_id );
+        }
+
+        $listing_plan_id = get_post_meta($listing_id, '_fm_plans', true);
+        $listing_plan_id = intval($listing_plan_id);
+
+        $plan_id_result = false;
+
+        switch ($compare) {
+            case '=':
+                // Passes if the listing_plan_id matches any of the given plan_ids
+                $plan_ids = array_map('intval', array_map('trim', $plan_id));
+                $plan_id_result = in_array($listing_plan_id, $plan_ids, true);
+                break;
+            case '!=':
+                // Passes if the listing_plan_id does not match any of the given plan_ids
+                $plan_ids = array_map('intval', array_map('trim', $plan_id));
+                $plan_id_result = !in_array($listing_plan_id, $plan_ids, true);
+                break;
+            case 'IN':
+                // Synonym for '=' when plan_id is an array
+                $plan_ids = array_map('intval', array_map('trim', $plan_id));
+                $plan_id_result = in_array($listing_plan_id, $plan_ids, true);
+                break;
+            case 'NOT IN':
+                // Synonym for '!=' when plan_id is an array
+                $plan_ids = array_map('intval', array_map('trim', $plan_id));
+                $plan_id_result = !in_array($listing_plan_id, $plan_ids, true);
+                break;
+            default:
+                $plan_ids = array_map('intval', array_map('trim', $plan_id));
+                $plan_id_result = in_array($listing_plan_id, $plan_ids, true);
+                break;
+        }
+
+        return $plan_id_result;
+    }
+
+    public static function user_has_active_plans($user_id = 0, $plans = ''){
+        // get orders list post type = atbdp_orders active status payment_status completed
+        // post_status publish
+        if ( empty( $plans ) ) {
+            return false;
+        }
+
+        $plans = explode( ',', $plans );
+
+        $user_id = $user_id ? $user_id : get_current_user_id();
+        if ( empty( $user_id ) ) {
+            return [];
+        }
+
+        $orders = self::get_paid_orders_by_user( $user_id );
+
+        if ( $orders->have_posts() ) {
+            foreach($orders->posts as $order){
+                // get pricing plan id from the order meta _fm_plan_ordered
+                $pricing_plan_id = get_post_meta($order, '_fm_plan_ordered', true);
+
+                if ( ! in_array( $pricing_plan_id, $plans ) ) {
+                    continue;
+                }
+                
+                // check the period and find the exired date _recurrence_period_term fm_length[month, year, day]
+                $period = get_post_meta($pricing_plan_id, '_recurrence_period_term', true);
+                $length = get_post_meta($pricing_plan_id, 'fm_length', true); //month, year, day - convert to days
+                $days = gluvega_convert_period_to_days($period, $length);
+                
+                // Get order submit date. Its the publish date
+                $order_date = get_the_date('Y-m-d', $order);
+                $expired_date = date('Y-m-d', strtotime($order_date . ' + ' . $days . ' days'));
+
+                // check if the expired date is greater than the current date
+                if($expired_date > date('Y-m-d')){
+                    return true;
+                }
+
+            }
+        }
+
+        return false;
+    }
+
+    public static function get_paid_orders_by_user( $user_id = 0 ){
+        if ( empty( $user_id ) ) {
+            return [];
+        }
+
+        $get_paid_pricing_plans = self::get_paid_pricing_plans();
+
+        if ( empty( $get_paid_pricing_plans ) ) {
+            return [];
+        }
+        
+        $args = [
+            'post_type'      => 'atbdp_orders',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'author'         => $user_id,
+            'fields'         => 'ids',
+        ];
+    
+        $meta = [];
+    
+        $meta['plan_status'] = [
+            'relation' => 'AND',
+            [
+                'key'     => '_fm_plan_ordered',
+                'value'   => $paid_pricing_plans,
+                'compare' => 'IN',
+            ],
+            [
+                'key'     => '_payment_status',
+                'value'   => 'completed',
+                'compare' => '=',
+            ],
+        ];
+    
+        $meta['order_status'] = [
+            'relation' => 'OR',
+            [
+                'key'     => '_order_status',
+                'value'   => 'exit',
+                'compare' => '!=',
+            ],
+            [
+                'key'     => '_order_status',
+                'compare' => 'NOT EXISTS',
+            ],
+        ];
+    
+        $metas = count( $meta );
+        if ( $metas ) {
+            $args['meta_query'] = ( $metas > 1 ) ? array_merge( ['relation' => 'AND'], $meta ) : $meta;
+        }
+    
+        return new WP_Query( $args );
+    }
+
+
+    public static function get_paid_pricing_plans()
+    {
+        $args = [
+            'post_type' => 'atbdp_pricing_plans',
+            'posts_per_page' => -1,
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key' => 'fm_price',
+                    'value' => 0,
+                    'compare' => '>',
+                ],
+            ],
+            'fields' => 'ids',
+        ];
+
+        $atbdp_query = new WP_Query( $args );
+
+        if ( $atbdp_query->have_posts() ) {
+            return $atbdp_query->posts;
+        } else {
+            return [];
+        }
+    }
 }
 

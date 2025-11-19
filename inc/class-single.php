@@ -70,16 +70,16 @@ class Directorist_Custom_Single_Listing_Badge
     public function get_listing_badges($data)
     {
         $listing_badges = [];
-        //e_var_dump( $data['options']['fields'] );
+
         $default_badges = [ 'featured_badge', 'popular_badge', 'new_badge'];
 
         $badge_options = $this->get_badges_from_options();
 
         foreach ($data['options']['fields'] as $key => $badge) {
             if($badge['value'] && ! in_array($key, $default_badges)) {
-                if($badge_options){
+                if( ! empty($badge_options) ){
                     foreach($badge_options as $badge_option) {
-                        if($badge_option['id'] == $key) {
+                        if($badge_option['id'] == $key && $badge_option['badge_data']['is_active']) {
                             $badge['data'] = $badge_option;
                         }
                     }
