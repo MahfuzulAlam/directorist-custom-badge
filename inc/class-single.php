@@ -39,10 +39,14 @@ class Directorist_Custom_Single_Listing_Badge
         if (is_array($args)) {
             extract($args);
         }
+        
+        if($template_file !== 'single/fields/badges') {
+            return;
+        }
 
         if (isset($args['listing'])) $listing = $args['listing'];
 
-        $badges = $this->get_badges_from_options();
+        $custom_badges = $this->get_listing_badges($data);
 
         $file = DIRECTORIST_CUSTOM_BADGE_DIR . '/templates/' . $template_file . '.php';
 
@@ -58,6 +62,33 @@ class Directorist_Custom_Single_Listing_Badge
     {
         if ($this->template_exists($template)) $template = $this->get_template($template, $field_data);
         return $template;
+    }
+
+    /**
+     * Get Listing Badges
+     */
+    public function get_listing_badges($data)
+    {
+        $listing_badges = [];
+        //e_var_dump( $data['options']['fields'] );
+        $default_badges = [ 'featured_badge', 'popular_badge', 'new_badge'];
+
+        $badge_options = $this->get_badges_from_options();
+
+        foreach ($data['options']['fields'] as $key => $badge) {
+            if($badge['value'] && ! in_array($key, $default_badges)) {
+                if($badge_options){
+                    foreach($badge_options as $badge_option) {
+                        if($badge_option['id'] == $key) {
+                            $badge['data'] = $badge_option;
+                        }
+                    }
+                }
+                $listing_badges[$key] = $badge;
+            }
+        }
+
+        return $listing_badges;
     }
 }
 
