@@ -77,10 +77,12 @@ class Directorist_Custom_Badges_Conditions
 
         // Handle EXISTS and NOT EXISTS first (don't need compare_value)
         if ($compare === 'EXISTS') {
-            return !empty($meta_value) || $meta_value === '0' || $meta_value === 0;
+            // Meta exists if it's not empty, or if it's explicitly '0' or 0
+            return $meta_value !== '' && $meta_value !== null && $meta_value !== false;
         }
         if ($compare === 'NOT EXISTS') {
-            return empty($meta_value) && $meta_value !== '0' && $meta_value !== 0;
+            // Meta doesn't exist if it's empty, null, or false (but not '0' or 0)
+            return $meta_value === '' || $meta_value === null || $meta_value === false;
         }
 
         // Cast meta value based on type for comparison operations
@@ -95,9 +97,16 @@ class Directorist_Custom_Badges_Conditions
             $meta_value = Directorist_Custom_Badges_Helper::convert_to_boolean($meta_value);
             $compare_value = Directorist_Custom_Badges_Helper::convert_to_boolean($compare_value);
         } else {
-            // CHAR - ensure strings for string operations
-            $meta_value = strval($meta_value);
-            $compare_value = strval($compare_value);
+            if( $meta_value && ! empty( $meta_value ) ){
+                $meta_value = is_string($meta_value) ? strval($meta_value) : $meta_value;
+                $compare_value = strval($compare_value);
+            }else{
+                if( $compare_value === 'IN' || $compare_value === 'NOT IN' ){
+                    $meta_value = array('n');
+                }else{
+                    $meta_value = '';
+                }
+            }
         }
 
         switch ($compare) {
@@ -115,6 +124,9 @@ class Directorist_Custom_Badges_Conditions
                 return $meta_value <= $compare_value;
             case 'LIKE':
                 // Ensure strings for LIKE operations
+                if( !empty( $meta_value ) && is_array( $meta_value ) ){
+                    return in_array($compare_value, $meta_value, true);
+                }
                 $meta_value = is_null($meta_value) ? '' : strval($meta_value);
                 $compare_value = is_null($compare_value) ? '' : strval($compare_value);
                 if (empty($meta_value) || empty($compare_value)) {
@@ -123,6 +135,9 @@ class Directorist_Custom_Badges_Conditions
                 return strpos($meta_value, $compare_value) !== false;
             case 'NOT LIKE':
                 // Ensure strings for NOT LIKE operations
+                if( !empty( $meta_value ) && is_array( $meta_value ) ){
+                    return !in_array($compare_value, $meta_value, true);
+                }
                 $meta_value = is_null($meta_value) ? '' : strval($meta_value);
                 $compare_value = is_null($compare_value) ? '' : strval($compare_value);
                 if (empty($meta_value) || empty($compare_value)) {
@@ -130,15 +145,17 @@ class Directorist_Custom_Badges_Conditions
                 }
                 return strpos($meta_value, $compare_value) === false;
             case 'IN':
-                $compare_value_str = is_null($compare_value) ? '' : strval($compare_value);
-                $meta_value_str = is_null($meta_value) ? '' : strval($meta_value);
-                $values = !empty($compare_value_str) ? array_map('trim', explode(',', $compare_value_str)) : array();
-                return in_array($meta_value_str, $values, true);
+                if (is_array($meta_value)) {  
+                    return in_array($compare_value, $meta_value, true);
+                }else{
+                    return strpos($meta_value, $compare_value) !== false;
+                }
             case 'NOT IN':
-                $compare_value_str = is_null($compare_value) ? '' : strval($compare_value);
-                $meta_value_str = is_null($meta_value) ? '' : strval($meta_value);
-                $values = !empty($compare_value_str) ? array_map('trim', explode(',', $compare_value_str)) : array();
-                return !in_array($meta_value_str, $values, true);
+                if (is_array($meta_value)) {
+                    return !in_array($compare_value, $meta_value, true);
+                }else{
+                    return strpos($meta_value, $compare_value) === false;
+                }
             default:
                 return $meta_value == $compare_value;
         }
