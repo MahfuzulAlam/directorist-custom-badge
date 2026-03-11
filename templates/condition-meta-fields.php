@@ -23,7 +23,17 @@ $is_template   = ( false !== strpos( (string) $index, '{{' ) );
 $condition     = isset( $condition ) ? $condition : array();
 $saved_compare = ! $is_template && isset( $condition['compare'] ) ? $condition['compare'] : '=';
 $hide_value    = ! $is_template && in_array( $saved_compare, array( 'EXISTS', 'NOT EXISTS' ), true );
+
+// Meta key dropdown options: distinct keys from listings + common keys.
+$meta_keys     = Directorist_Custom_Badges_Admin::get_listing_meta_keys();
+$saved_meta_key = ( ! $is_template && isset( $condition['meta_key'] ) ) ? (string) $condition['meta_key'] : '';
+if ( $saved_meta_key && ! in_array( $saved_meta_key, $meta_keys, true ) ) {
+	array_unshift( $meta_keys, $saved_meta_key );
+	$meta_keys = array_values( array_unique( $meta_keys ) );
+	sort( $meta_keys, SORT_STRING );
+}
 ?>
+
 
 <!-- Meta Condition Fields -->
 <div class="dcb-condition-fields dcb-meta-fields"<?php
@@ -35,15 +45,20 @@ $hide_value    = ! $is_template && in_array( $saved_compare, array( 'EXISTS', 'N
 	<!-- Row 1: Meta Key + Compare (always visible) -->
 	<div class="dcb-form-row dcb-form-row--grid">
 
-		<div class="dcb-form-field">
-			<label><?php esc_html_e( 'Meta Key', 'directorist-custom-badges' ); ?></label>
-			<input
-				type="text"
+		<div class="dcb-form-field dcb-form-field--meta-key">
+			<label for="dcb-meta-key-<?php echo esc_attr( $index ); ?>"><?php esc_html_e( 'Meta Key', 'directorist-custom-badges' ); ?></label>
+			<select
+				id="dcb-meta-key-<?php echo esc_attr( $index ); ?>"
 				name="badge[conditions][<?php echo esc_attr( $index ); ?>][meta_key]"
-				class="dcb-input"
-				placeholder="<?php esc_attr_e( '_my_meta_key', 'directorist-custom-badges' ); ?>"
-				value="<?php echo ( ! $is_template && isset( $condition['meta_key'] ) ) ? esc_attr( $condition['meta_key'] ) : ''; ?>"
+				class="dcb-input dcb-meta-key-select"
+				data-placeholder="<?php esc_attr_e( 'Select or type a meta key…', 'directorist-custom-badges' ); ?>"
 			>
+				<option value=""><?php esc_html_e( '— Select or type —', 'directorist-custom-badges' ); ?></option>
+				<?php foreach ( $meta_keys as $mk ) : ?>
+					<option value="<?php echo esc_attr( $mk ); ?>"<?php echo ( $saved_meta_key === $mk ) ? ' selected' : ''; ?>><?php echo esc_html( $mk ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<p class="description"><?php esc_html_e( 'Choose from keys already used on listings, or type a custom key.', 'directorist-custom-badges' ); ?></p>
 		</div>
 
 		<div class="dcb-form-field">

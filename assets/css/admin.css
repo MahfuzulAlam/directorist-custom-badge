@@ -669,6 +669,28 @@
 	height: 16px;
 }
 
+/* Select2 – Meta Key combobox full width */
+.dcb-form-field--meta-key .select2-container {
+	width: 100% !important;
+	max-width: 100%;
+}
+
+.dcb-form-field--meta-key .select2-container .select2-selection--single {
+	min-height: 38px;
+	padding: 4px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+.dcb-form-field--meta-key .select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 28px;
+	padding-left: 4px;
+}
+
+.dcb-form-field--meta-key .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 36px;
+}
+
 /* =========================================================================
    15. Condition fields grid
    ========================================================================= */

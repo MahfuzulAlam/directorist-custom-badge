@@ -71,15 +71,24 @@ class Directorist_Custom_Badges_Admin
         wp_enqueue_script('jquery-ui-sortable');
         
         // Enqueue WordPress color picker (only on form page)
-        if ($is_form_page) {
-            wp_enqueue_style('wp-color-picker');
-            wp_enqueue_script('wp-color-picker');
+        $select2_handle = null;
+        if ( $is_form_page ) {
+            wp_enqueue_style( 'wp-color-picker' );
+            wp_enqueue_script( 'wp-color-picker' );
+
+            // Select2 for Meta Key combobox (tags = type custom value).
+            $select2_handle = $this->enqueue_select2_for_form();
         }
-        
+
+        $admin_script_deps = array( 'jquery', 'jquery-ui-sortable' );
+        if ( $is_form_page && $select2_handle ) {
+            $admin_script_deps[] = $select2_handle;
+        }
+
         wp_enqueue_script(
             'directorist-custom-badges-admin',
             DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/admin.js',
-            array('jquery', 'jquery-ui-sortable'),
+            $admin_script_deps,
             DIRECTORIST_CUSTOM_BADGE_VERSION,
             true
         );
@@ -91,7 +100,7 @@ class Directorist_Custom_Badges_Admin
             DIRECTORIST_CUSTOM_BADGE_VERSION
         );
 
-        wp_localize_script( 'directorist-custom-badges-admin', 'dcbAdmin', array(
+        $localize = array(
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'nonce'   => wp_create_nonce( 'directorist_custom_badges_nonce' ),
             'strings' => array(
@@ -105,8 +114,114 @@ class Directorist_Custom_Badges_Admin
                 'condition'        => __( 'Condition', 'directorist-custom-badges' ),
                 'minimize'         => __( 'Minimize', 'directorist-custom-badges' ),
                 'maximize'         => __( 'Maximize', 'directorist-custom-badges' ),
+                'metaKeyPlaceholder' => __( 'Select or type a meta key…', 'directorist-custom-badges' ),
             ),
-        ) );
+        );
+
+        if ( $is_form_page ) {
+            $localize['metaKeys'] = self::get_listing_meta_keys();
+        }
+
+        wp_localize_script( 'directorist-custom-badges-admin', 'dcbAdmin', $localize );
+    }
+
+    /**
+     * Enqueue Select2 (prefer Directorist's bundled copy; CDN fallback).
+     */
+    /**
+     * @return string|null Script handle enqueued, or null.
+     */
+    private function enqueue_select2_for_form() {
+        if ( wp_script_is( 'directorist-select2-script', 'registered' ) ) {
+            wp_enqueue_style( 'directorist-select2-style' );
+            wp_enqueue_script( 'directorist-select2-script' );
+            return 'directorist-select2-script';
+        }
+
+        // CDN fallback when Directorist asset loader has not registered handles.
+        if ( ! wp_script_is( 'dcb-select2', 'registered' ) ) {
+            wp_register_style(
+                'dcb-select2',
+                'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
+                array(),
+                '4.1.0-rc.0'
+            );
+            wp_register_script(
+                'dcb-select2',
+                'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
+                array( 'jquery' ),
+                '4.1.0-rc.0',
+                true
+            );
+        }
+        wp_enqueue_style( 'dcb-select2' );
+        wp_enqueue_script( 'dcb-select2' );
+        return 'dcb-select2';
+    }
+
+    /**
+     * Collect distinct post meta keys used on listings (ATBDP_POST_TYPE).
+     *
+     * Merges DB-discovered keys with common Directorist field keys so the
+     * dropdown is useful even before many listings exist.
+     *
+     * @return string[] Sorted unique meta keys.
+     */
+    public static function get_listing_meta_keys() {
+        static $db_keys_cached = null;
+
+        global $wpdb;
+
+        $post_type = defined( 'ATBDP_POST_TYPE' ) ? ATBDP_POST_TYPE : 'at_biz_dir';
+
+        if ( null === $db_keys_cached ) {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- post_type validated above.
+            $db_keys_cached = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT DISTINCT pm.meta_key
+					FROM {$wpdb->postmeta} pm
+					INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					WHERE p.post_type = %s
+					AND pm.meta_key != ''
+					ORDER BY pm.meta_key ASC
+					LIMIT 500",
+                    $post_type
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            if ( ! is_array( $db_keys_cached ) ) {
+                $db_keys_cached = array();
+            }
+        }
+
+        $keys = $db_keys_cached;
+
+        // Common Directorist / extension meta keys (always offer as suggestions).
+        $common = array(
+            '_featured',
+            '_price',
+            '_atbdp_listing_pricing_plans',
+            '_listing_img',
+            '_videourl',
+            '_manual_lat',
+            '_manual_lng',
+            '_hide_map',
+            '_directory_type',
+            '_default_preview_image',
+            'address',
+            'zip',
+            'phone',
+            'phone2',
+            'fax',
+            'email',
+            'website',
+            'tagline',
+        );
+
+        $merged = array_unique( array_merge( $common, $keys ) );
+        sort( $merged, SORT_STRING );
+
+        return array_values( $merged );
     }
 
     /**

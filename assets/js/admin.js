@@ -26,6 +26,7 @@
 			this.initConditionSortable();
 			this.initColorPicker();
 			this.initExistingCompareStates();
+			this.initMetaKeySelect2();
 		},
 
 		// -----------------------------------------------------------------
@@ -190,7 +191,51 @@
 			var $item = $( '#dcb-conditions-list .dcb-condition-item' ).last();
 			this.handleConditionTypeChange( $item.find( '.dcb-condition-type' ) );
 			this.handleCompareChange( $item.find( '.dcb-compare-select' ) );
+			this.initMetaKeySelect2( $item );
 			this.renumberConditions();
+		},
+
+		// -----------------------------------------------------------------
+		// Meta Key: Select2 combobox (dropdown + type custom key)
+		// -----------------------------------------------------------------
+
+		initMetaKeySelect2: function ( $context ) {
+			if ( typeof $.fn.select2 === 'undefined' ) {
+				return;
+			}
+
+			var placeholder = ( dcbAdmin.strings && dcbAdmin.strings.metaKeyPlaceholder )
+				? dcbAdmin.strings.metaKeyPlaceholder
+				: 'Select or type a meta key…';
+
+			var $targets = $context && $context.length
+				? $context.find( '.dcb-meta-key-select' )
+				: $( '.dcb-meta-key-select' );
+
+			$targets.each( function () {
+				var $el = $( this );
+				if ( $el.data( 'select2' ) ) {
+					return;
+				}
+
+				$el.select2( {
+					width: '100%',
+					placeholder: placeholder,
+					allowClear: true,
+					tags: true,
+					createTag: function ( params ) {
+						var term = $.trim( params.term );
+						if ( term === '' ) {
+							return null;
+						}
+						return {
+							id: term,
+							text: term,
+							newTag: true
+						};
+					}
+				} );
+			} );
 		},
 
 		// -----------------------------------------------------------------
@@ -267,7 +312,7 @@
 			var summary = '';
 
 			if ( 'meta' === type ) {
-				var key = $item.find( 'input[name*="[meta_key]"]' ).val()   || '';
+				var key = $item.find( '[name*="[meta_key]"]' ).val()   || '';
 				var op  = $item.find( '.dcb-compare-select' ).val()         || '=';
 				var val = $item.find( 'input[name*="[meta_value]"]' ).val() || '';
 				summary = key + ' ' + op;
@@ -362,12 +407,28 @@
 					setTimeout( function () {
 						if ( 'meta' === condition.type ) {
 							var $meta = $item.find( '.dcb-meta-fields' );
-							$meta.find( 'input[name="badge[conditions][' + index + '][meta_key]"]' ).val( condition.meta_key || '' );
+							var $mk   = $meta.find( '[name="badge[conditions][' + index + '][meta_key]"]' );
+							var mkVal = condition.meta_key || '';
+							// Ensure option exists then set value (Select2 tags / custom keys).
+							if ( mkVal ) {
+								var hasOption = false;
+								$mk.find( 'option' ).each( function () {
+									if ( $( this ).val() === mkVal ) {
+										hasOption = true;
+										return false;
+									}
+								} );
+								if ( ! hasOption ) {
+									$mk.append( $( '<option></option>' ).val( mkVal ).text( mkVal ) );
+								}
+							}
+							$mk.val( mkVal ).trigger( 'change' );
 							$meta.find( 'input[name="badge[conditions][' + index + '][meta_value]"]' ).val( condition.meta_value || '' );
 							$meta.find( 'select[name="badge[conditions][' + index + '][compare]"]' ).val( condition.compare || '=' );
 							$meta.find( 'select[name="badge[conditions][' + index + '][type_cast]"]' ).val( condition.type_cast || 'CHAR' );
 							// Apply visibility rules based on the loaded compare value.
 							self.handleCompareChange( $meta.find( '.dcb-compare-select' ) );
+							self.initMetaKeySelect2( $item );
 						} else if ( 'pricing_plan' === condition.type ) {
 							var $plan = $item.find( '.dcb-pricing-plan-fields' );
 							$plan.find( 'select[name="badge[conditions][' + index + '][plan_status_condition]"]' ).val( condition.plan_status_condition || '' );
@@ -420,7 +481,7 @@
 
 				if ( 'meta' === type ) {
 					var $meta        = $item.find( '.dcb-meta-fields' );
-					cond.meta_key    = $meta.find( 'input[name*="[meta_key]"]' ).val()        || '';
+					cond.meta_key    = $meta.find( '[name*="[meta_key]"]' ).val()        || '';
 					cond.meta_value  = $meta.find( 'input[name*="[meta_value]"]' ).val()      || '';
 					cond.compare     = $meta.find( 'select[name*="[compare]"]' ).val()        || '=';
 					cond.type_cast   = $meta.find( 'select[name*="[type_cast]"]' ).val()      || 'CHAR';
