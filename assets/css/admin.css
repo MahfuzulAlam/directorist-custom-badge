@@ -1,407 +1,757 @@
 /**
- * Directorist Custom Badges Admin Styles
+ * Directorist Custom Badges – Admin Styles
+ *
+ * Table of contents:
+ *  1. Variables & reset
+ *  2. Layout wrapper
+ *  3. Notices
+ *  4. Page-header toolbar
+ *  5. Empty state
+ *  6. Badges list table
+ *  7. Toggle switch
+ *  8. Action buttons
+ *  9. Badge form wrapper
+ * 10. Form sections & fields
+ * 11. Color picker
+ * 12. Condition repeater
+ * 13. Condition item (card)
+ * 14. Condition header (drag, toggle, remove)
+ * 15. Condition fields grid
+ * 16. Form actions bar
+ * 17. Animations
+ * 18. Responsive
  */
 
+/* =========================================================================
+   1. Variables & reset
+   ========================================================================= */
+
 .dcb-admin-wrap {
-    max-width: 1400px;
+	--dcb-blue    : #2271b1;
+	--dcb-blue-dk : #135e96;
+	--dcb-red     : #d63638;
+	--dcb-green   : #00a32a;
+	--dcb-border  : #dcdcde;
+	--dcb-bg      : #f6f7f7;
+	--dcb-bg-card : #ffffff;
+	--dcb-text    : #1d2327;
+	--dcb-muted   : #646970;
+	--dcb-radius  : 6px;
+	--dcb-shadow  : 0 1px 3px rgba(0,0,0,.08);
+	max-width: 1400px;
 }
 
+/* =========================================================================
+   2. Layout wrapper
+   ========================================================================= */
+
+.dcb-admin-content {
+	margin-top: 20px;
+}
+
+/* =========================================================================
+   3. Notices
+   ========================================================================= */
+
 .dcb-notices {
-    margin: 20px 0;
+	margin: 16px 0 0;
 }
 
 .dcb-notices .notice {
-    margin: 0;
+	margin: 0;
+	border-radius: var(--dcb-radius);
 }
 
-/* Empty State */
+/* =========================================================================
+   4. Page-header toolbar
+   ========================================================================= */
+
+.dcb-admin-wrap h1.wp-heading-inline {
+	margin-right: 8px;
+}
+
+.dcb-toolbar {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	vertical-align: middle;
+}
+
+/* =========================================================================
+   5. Empty state
+   ========================================================================= */
+
 .dcb-empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 4px;
+	text-align: center;
+	padding: 64px 24px;
+	background: var(--dcb-bg-card);
+	border: 1px dashed var(--dcb-border);
+	border-radius: var(--dcb-radius);
+	margin-top: 20px;
 }
 
 .dcb-empty-state p {
-    font-size: 16px;
-    color: #646970;
-    margin-bottom: 20px;
+	font-size: 15px;
+	color: var(--dcb-muted);
+	margin-bottom: 20px;
 }
 
-/* Badges Table */
+/* =========================================================================
+   6. Badges list table
+   ========================================================================= */
+
 .dcb-badges-table-wrapper {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .dcb-badges-table {
-    margin-top: 0;
+	margin-top: 0;
+	border-radius: var(--dcb-radius);
+	overflow: hidden;
+	box-shadow: var(--dcb-shadow);
 }
 
-.dcb-badges-table .column-order {
-    width: 50px;
-    text-align: center;
+/* Column widths */
+.dcb-badges-table .column-order      { width: 48px;  text-align: center; }
+.dcb-badges-table .column-preview    { width: 200px;  text-align: center; padding-right: 0; }
+.dcb-badges-table .column-title      { min-width: 160px; padding-left: 20px; }
+.dcb-badges-table .column-label      { width: 140px; }
+.dcb-badges-table .column-id         { width: 160px; }
+.dcb-badges-table .column-conditions { width: 120px; text-align: center; }
+.dcb-badges-table .column-status     { width: 80px;  text-align: center; }
+.dcb-badges-table .column-actions    { width: 180px; }
+
+/* Header row */
+.dcb-badges-table thead th {
+	background: var(--dcb-bg);
+	font-size: 12px;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var(--dcb-muted);
+	padding: 10px 12px;
+	border-bottom: 2px solid var(--dcb-border);
 }
 
-.dcb-badges-table .column-title {
-    width: 200px;
+/* Body rows */
+.dcb-badges-table tbody td {
+	padding: 12px;
+	vertical-align: middle;
+	border-bottom: 1px solid #f0f0f1;
 }
 
-.dcb-badges-table .column-label {
-    width: 150px;
+.dcb-badge-row:hover td {
+	background: #f9f9fa;
 }
 
-.dcb-badges-table .column-id {
-    width: 150px;
+/* Badge preview swatch */
+.dcb-badge-preview {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	background: #e0e0e0;
+	color: #333;
+	white-space: nowrap;
+	max-width: 140px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.dcb-badges-table .column-conditions {
-    width: 120px;
+.dcb-badge-icon-preview {
+	font-size: 13px;
 }
 
-.dcb-badges-table .column-status {
-    width: 100px;
-    text-align: center;
+/* Badge ID code tag */
+.dcb-badges-table code {
+	background: #eef2f7;
+	color: #2271b1;
+	padding: 2px 7px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-family: monospace;
 }
 
-.dcb-badges-table .column-actions {
-    width: 200px;
+/* Condition count pill */
+.dcb-condition-count {
+	display: inline-block;
+	background: #e5f0fb;
+	color: #1a5f9e;
+	border-radius: 20px;
+	padding: 2px 10px;
+	font-size: 12px;
+	font-weight: 600;
 }
 
+.dcb-condition-count.is-zero {
+	background: #f0f0f1;
+	color: var(--dcb-muted);
+}
+
+/* Drag handle */
 .dcb-drag-handle {
-    cursor: move;
-    color: #787c82;
+	cursor: grab;
+	color: #bbb;
+	font-size: 18px;
+	display: block;
+	text-align: center;
+	line-height: 1;
 }
 
 .dcb-drag-handle:hover {
-    color: #2271b1;
+	color: var(--dcb-blue);
 }
 
 .dcb-badge-row.ui-sortable-helper {
-    background: #f0f0f1;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: #f0f6fb;
+	box-shadow: 0 4px 12px rgba(0,0,0,.12);
+	outline: 2px solid var(--dcb-blue);
+	border-radius: var(--dcb-radius);
 }
 
-/* Toggle Switch */
+/* =========================================================================
+   7. Toggle switch
+   ========================================================================= */
+
 .dcb-toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-    margin: 0;
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 22px;
+	margin: 0;
 }
 
 .dcb-toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .dcb-toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.3s;
-    border-radius: 24px;
+	position: absolute;
+	inset: 0;
+	cursor: pointer;
+	background: #ccc;
+	border-radius: 22px;
+	transition: background .25s;
 }
 
-.dcb-toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
+.dcb-toggle-slider::before {
+	content: '';
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	left: 3px;
+	top: 3px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform .25s;
+	box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
 
 .dcb-toggle-switch input:checked + .dcb-toggle-slider {
-    background-color: #2271b1;
+	background: var(--dcb-green);
 }
 
-.dcb-toggle-switch input:checked + .dcb-toggle-slider:before {
-    transform: translateX(26px);
+.dcb-toggle-switch input:checked + .dcb-toggle-slider::before {
+	transform: translateX(22px);
 }
 
 .dcb-toggle-switch input:focus + .dcb-toggle-slider {
-    box-shadow: 0 0 1px #2271b1;
+	box-shadow: 0 0 0 2px rgba(34,113,177,.35);
 }
 
-/* Badge Form */
+/* =========================================================================
+   8. Action buttons
+   ========================================================================= */
+
+.dcb-row-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: nowrap;
+}
+
+.dcb-btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	border: 1px solid var(--dcb-border);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--dcb-muted);
+	cursor: pointer;
+	transition: border-color .2s, color .2s, background .2s;
+	text-decoration: none;
+}
+
+.dcb-btn-icon:hover {
+	border-color: var(--dcb-blue);
+	color: var(--dcb-blue);
+	background: #e8f2fb;
+}
+
+.dcb-btn-icon.is-delete:hover {
+	border-color: var(--dcb-red);
+	color: var(--dcb-red);
+	background: #fde8e8;
+}
+
+.dcb-btn-icon .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* =========================================================================
+   9. Badge form wrapper
+   ========================================================================= */
+
 .dcb-badge-form-wrapper {
-    margin-top: 30px;
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 4px;
-    padding: 0;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-top: 24px;
+	background: var(--dcb-bg-card);
+	border: 1px solid var(--dcb-border);
+	border-radius: var(--dcb-radius);
+	box-shadow: var(--dcb-shadow);
+	animation: dcbFadeIn .25s ease-out;
 }
 
 .dcb-badge-form-container {
-    padding: 20px;
+	padding: 28px 32px;
 }
 
-.dcb-badge-form-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #ccd0d4;
-    background: #f6f7f7;
-}
-
-.dcb-form-title {
-    margin: 0;
-    font-size: 18px;
-}
+/* =========================================================================
+   10. Form sections & fields
+   ========================================================================= */
 
 .dcb-badge-form {
-    padding: 20px 0;
+	padding: 0;
 }
 
 .dcb-form-section {
-    margin-bottom: 30px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 32px;
+	padding-bottom: 32px;
+	border-bottom: 1px solid #f0f0f1;
 }
 
 .dcb-form-section:last-child {
-    border-bottom: none;
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 .dcb-form-section h3 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 16px;
-    font-weight: 600;
+	margin: 0 0 20px;
+	font-size: 14px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .06em;
+	color: var(--dcb-muted);
+	padding-bottom: 10px;
+	border-bottom: 2px solid #f0f0f1;
 }
 
 .dcb-form-row {
-    margin-bottom: 20px;
+	margin-bottom: 18px;
+}
+
+.dcb-form-row:last-child {
+	margin-bottom: 0;
+}
+
+/* Two-column grid row */
+.dcb-form-row--grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
 }
 
 .dcb-form-field {
-    width: 100%;
+	width: 100%;
 }
 
 .dcb-form-field label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #1d2327;
+	display: block;
+	font-weight: 600;
+	font-size: 13px;
+	margin-bottom: 6px;
+	color: var(--dcb-text);
 }
 
 .dcb-required {
-    color: #d63638;
+	color: var(--dcb-red);
+	margin-left: 2px;
 }
 
 .dcb-input,
 .dcb-select {
-    width: 100%;
-    max-width: 500px;
-    padding: 6px 10px;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
-    font-size: 14px;
+	display: block;
+	width: 100%;
+	max-width: 520px;
+	padding: 7px 11px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 14px;
+	color: var(--dcb-text);
+	background: #fff;
+	box-sizing: border-box;
+	transition: border-color .15s, box-shadow .15s;
 }
 
-/* Color Picker */
-.dcb-color-picker {
-    max-width: 100px !important;
-}
-
-.dcb-color-picker.wp-color-picker {
-    width: 100px;
-    padding: 3px 5px;
-}
-
-.wp-picker-container {
-    display: inline-block;
-    margin-right: 10px;
-}
-
-.wp-picker-container .wp-color-picker {
-    width: 100px;
-    padding: 3px 5px;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.wp-picker-container .wp-color-picker:focus {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
-    outline: none;
+/* Inside condition grids, inputs fill the cell */
+.dcb-condition-body .dcb-input,
+.dcb-condition-body .dcb-select {
+	max-width: 100%;
 }
 
 .dcb-input:focus,
 .dcb-select:focus {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
-    outline: none;
+	border-color: var(--dcb-blue);
+	box-shadow: 0 0 0 2px rgba(34,113,177,.2);
+	outline: none;
 }
 
 .dcb-input.dcb-error,
 .dcb-select.dcb-error {
-    border-color: #d63638;
+	border-color: var(--dcb-red);
+	box-shadow: 0 0 0 2px rgba(214,54,56,.15);
 }
 
 .dcb-field-error {
-    display: block;
-    color: #d63638;
-    font-size: 12px;
-    margin-top: 5px;
+	display: block;
+	color: var(--dcb-red);
+	font-size: 12px;
+	margin-top: 4px;
 }
 
 .dcb-form-field .description {
-    margin-top: 5px;
-    margin-bottom: 0;
-    font-size: 13px;
-    color: #646970;
-    font-style: normal;
+	margin: 6px 0 0;
+	font-size: 12px;
+	color: var(--dcb-muted);
+	font-style: normal;
+	line-height: 1.5;
 }
 
 .dcb-checkbox-label {
-    display: flex;
-    align-items: center;
-    font-weight: normal;
-    cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: normal;
+	cursor: pointer;
 }
 
-.dcb-checkbox-label input[type="checkbox"] {
-    margin-right: 8px;
+/* =========================================================================
+   11. Color picker
+   ========================================================================= */
+
+.dcb-color-picker {
+	max-width: 110px !important;
 }
 
-/* Conditions Repeater */
+.wp-picker-container {
+	display: inline-block;
+}
+
+.wp-picker-container .wp-color-picker {
+	width: 110px;
+	padding: 5px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.wp-picker-container .wp-color-picker:focus {
+	border-color: var(--dcb-blue);
+	box-shadow: 0 0 0 2px rgba(34,113,177,.2);
+	outline: none;
+}
+
+/* =========================================================================
+   12. Condition repeater
+   ========================================================================= */
+
 .dcb-conditions-repeater {
-    margin-top: 20px;
+	margin-top: 16px;
 }
 
 .dcb-conditions-list {
-    margin-bottom: 15px;
+	margin-bottom: 12px;
+	min-height: 4px; /* So sortable placeholder shows when list is empty */
 }
 
-.dcb-condition-item {
-    background: #f6f7f7;
-    border: 1px solid #dcdcde;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.dcb-condition-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #dcdcde;
-}
-
-.dcb-condition-title {
-    font-weight: 600;
-    color: #1d2327;
-}
-
-.dcb-remove-condition {
-    color: #d63638;
-    text-decoration: none;
-}
-
-.dcb-remove-condition:hover {
-    color: #b32d2e;
-}
-
-.dcb-condition-body {
-    padding-top: 10px;
-}
-
-.dcb-condition-fields {
-    margin-top: 15px;
-}
-
-.dcb-form-actions {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #e5e5e5;
-    display: flex;
-    gap: 10px;
-}
-
-.dcb-form-actions .button {
-    min-width: 120px;
-}
-
-/* Buttons */
-.dcb-add-badge-btn {
-    margin-left: 10px;
+/* Sortable drag placeholder */
+.dcb-condition-placeholder {
+	border: 2px dashed var(--dcb-blue);
+	border-radius: var(--dcb-radius);
+	background: #e8f2fb;
+	margin-bottom: 12px;
 }
 
 .dcb-add-condition {
-    margin-top: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 }
 
-/* Responsive */
-@media screen and (max-width: 782px) {
-    .dcb-badge-form-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .dcb-form-actions {
-        flex-direction: column;
-    }
-
-    .dcb-form-actions .button {
-        width: 100%;
-    }
-
-    .dcb-badges-table .column-actions {
-        width: auto;
-    }
-
-    .dcb-badges-table .column-actions .button {
-        display: block;
-        margin-bottom: 5px;
-        width: 100%;
-    }
+.dcb-add-condition::before {
+	content: '+';
+	font-size: 18px;
+	line-height: 1;
+	font-weight: 300;
 }
 
-/* Loading State */
+/* =========================================================================
+   13. Condition item (card)
+   ========================================================================= */
+
+.dcb-condition-item {
+	background: var(--dcb-bg-card);
+	border: 1px solid var(--dcb-border);
+	border-left: 3px solid var(--dcb-blue);
+	border-radius: var(--dcb-radius);
+	margin-bottom: 12px;
+	overflow: hidden;
+	box-shadow: var(--dcb-shadow);
+	transition: box-shadow .2s;
+}
+
+.dcb-condition-item:hover {
+	box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.dcb-condition-item.ui-sortable-helper {
+	box-shadow: 0 6px 20px rgba(0,0,0,.15);
+	outline: 2px solid var(--dcb-blue);
+}
+
+/* Collapsed state – body is hidden, left border turns grey */
+.dcb-condition-item.dcb-collapsed {
+	border-left-color: #c3c4c7;
+}
+
+.dcb-condition-item.dcb-collapsed .dcb-condition-body {
+	display: none;
+}
+
+.dcb-condition-body {
+	padding: 16px 16px 12px;
+	border-top: 1px solid #f0f0f1;
+}
+
+/* =========================================================================
+   14. Condition header
+   ========================================================================= */
+
+.dcb-condition-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	background: var(--dcb-bg);
+	user-select: none;
+}
+
+/* Drag handle */
+.dcb-condition-drag {
+	color: #bbb;
+	font-size: 18px;
+	cursor: grab;
+	flex-shrink: 0;
+	line-height: 1;
+	width: 20px;
+	height: 20px;
+}
+
+.dcb-condition-drag:hover {
+	color: var(--dcb-blue);
+}
+
+.dcb-condition-drag:active {
+	cursor: grabbing;
+}
+
+/* Condition title */
+.dcb-condition-title {
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--dcb-text);
+	flex-shrink: 0;
+}
+
+/* One-line summary shown when collapsed */
+.dcb-condition-summary {
+	flex: 1 1 auto;
+	font-size: 12px;
+	color: var(--dcb-muted);
+	font-family: monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 0 8px;
+	/* Hidden when expanded; JS adds/removes dcb-collapsed to trigger visibility */
+	opacity: 0;
+	transition: opacity .15s;
+}
+
+.dcb-condition-item.dcb-collapsed .dcb-condition-summary {
+	opacity: 1;
+}
+
+/* Right-side header action buttons */
+.dcb-condition-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+/* Toggle (minimize/maximize) button */
+.dcb-toggle-condition {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 1px solid var(--dcb-border);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--dcb-muted);
+	cursor: pointer;
+	transition: border-color .15s, color .15s;
+}
+
+.dcb-toggle-condition:hover {
+	border-color: var(--dcb-blue);
+	color: var(--dcb-blue);
+}
+
+.dcb-toggle-condition .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* Remove button – icon-only, same size as the toggle button */
+.dcb-remove-condition {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 1px solid var(--dcb-border);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--dcb-red);
+	cursor: pointer;
+	transition: background .15s, border-color .15s, color .15s;
+}
+
+.dcb-remove-condition:hover {
+	background: #fde8e8;
+	border-color: #f5b0b1;
+	color: #b32d2e;
+}
+
+.dcb-remove-condition .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* =========================================================================
+   15. Condition fields grid
+   ========================================================================= */
+
+.dcb-condition-fields {
+	margin-top: 0;
+}
+
+/* Type selector row (full width) */
+.dcb-condition-body .dcb-form-row:first-child .dcb-input,
+.dcb-condition-body .dcb-form-row:first-child .dcb-select {
+	max-width: 280px;
+}
+
+/* =========================================================================
+   16. Form actions bar
+   ========================================================================= */
+
+.dcb-form-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 28px;
+	padding-top: 20px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.dcb-form-actions .button {
+	min-width: 120px;
+}
+
+/* =========================================================================
+   17. Animations
+   ========================================================================= */
+
+@keyframes dcbFadeIn {
+	from { opacity: 0; transform: translateY(-6px); }
+	to   { opacity: 1; transform: translateY(0);    }
+}
+
 .dcb-saving {
-    opacity: 0.6;
-    pointer-events: none;
+	opacity: .6;
+	pointer-events: none;
 }
 
-/* Animations */
-.dcb-badge-form-wrapper {
-    animation: slideDown 0.3s ease-out;
+/* =========================================================================
+   18. Responsive
+   ========================================================================= */
+
+@media screen and (max-width: 1100px) {
+	.dcb-form-row--grid {
+		grid-template-columns: 1fr;
+	}
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@media screen and (max-width: 782px) {
+	.dcb-badge-form-container {
+		padding: 16px;
+	}
+
+	.dcb-form-actions {
+		flex-direction: column;
+	}
+
+	.dcb-form-actions .button {
+		width: 100%;
+	}
+
+	.dcb-badges-table .column-conditions,
+	.dcb-badges-table .column-id {
+		display: none;
+	}
+
+	.dcb-row-actions {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.dcb-condition-header {
+		flex-wrap: wrap;
+	}
+
+	.dcb-condition-header-actions {
+		margin-left: 0;
+	}
 }
-
-/* Code styling */
-code {
-    background: #f0f0f1;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 13px;
-}
-
-

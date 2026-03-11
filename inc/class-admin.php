@@ -91,20 +91,22 @@ class Directorist_Custom_Badges_Admin
             DIRECTORIST_CUSTOM_BADGE_VERSION
         );
 
-        wp_localize_script('directorist-custom-badges-admin', 'dcbAdmin', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('directorist_custom_badges_nonce'),
+        wp_localize_script( 'directorist-custom-badges-admin', 'dcbAdmin', array(
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'directorist_custom_badges_nonce' ),
             'strings' => array(
-                'confirmDelete' => __('Are you sure you want to delete this badge?', 'directorist-custom-badges'),
-                'confirmBulkDelete' => __('Are you sure you want to delete selected badges?', 'directorist-custom-badges'),
-                'saving' => __('Saving...', 'directorist-custom-badges'),
-                'saved' => __('Saved successfully!', 'directorist-custom-badges'),
-                'error' => __('An error occurred. Please try again.', 'directorist-custom-badges'),
-                'requiredField' => __('This field is required.', 'directorist-custom-badges'),
-                'uniqueBadgeId' => __('Badge ID must be unique.', 'directorist-custom-badges'),
-                'invalidBadgeId' => __('Badge ID must be lowercase with hyphens only.', 'directorist-custom-badges'),
-            )
-        ));
+                'confirmDelete'    => __( 'Are you sure you want to delete this badge?', 'directorist-custom-badges' ),
+                'saving'           => __( 'Saving…', 'directorist-custom-badges' ),
+                'saved'            => __( 'Saved successfully!', 'directorist-custom-badges' ),
+                'error'            => __( 'An error occurred. Please try again.', 'directorist-custom-badges' ),
+                'requiredField'    => __( 'This field is required.', 'directorist-custom-badges' ),
+                'uniqueBadgeId'    => __( 'Badge ID must be unique.', 'directorist-custom-badges' ),
+                'invalidBadgeId'   => __( 'Badge ID must be lowercase with hyphens only.', 'directorist-custom-badges' ),
+                'condition'        => __( 'Condition', 'directorist-custom-badges' ),
+                'minimize'         => __( 'Minimize', 'directorist-custom-badges' ),
+                'maximize'         => __( 'Maximize', 'directorist-custom-badges' ),
+            ),
+        ) );
     }
 
     /**

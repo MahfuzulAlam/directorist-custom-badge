@@ -1,671 +1,769 @@
 /**
- * Directorist Custom Badges Admin JavaScript
+ * Directorist Custom Badges – Admin JavaScript.
+ *
+ * Responsibilities:
+ *  - Badge list: sortable rows, toggle active, duplicate, delete, export/import.
+ *  - Badge form: save (AJAX), validate, color picker.
+ *  - Condition repeater: add / remove, drag-to-reorder, minimize/maximize,
+ *    type-based field visibility, compare-based Meta Value visibility.
  */
 
-(function($) {
-    'use strict';
-
-    var DCBAdmin = {
-        conditionIndex: 0,
-        currentBadge: null,
-
-        init: function() {
-            this.bindEvents();
-            this.initSortable();
-            this.initColorPicker();
-            this.loadBadgeData();
-        },
-
-        bindEvents: function() {
-            var self = this;
-
-            // Add badge button - redirect to form page
-            $(document).on('click', '.dcb-add-badge-btn', function() {
-                window.location.href = self.getFormUrl();
-            });
-
-            // Close/Cancel form - redirect to list page
-            $(document).on('click', '.dcb-close-form, .dcb-cancel-form', function() {
-                window.location.href = self.getListUrl();
-            });
-
-            // Save badge
-            $(document).on('submit', '#dcb-badge-form', function(e) {
-                e.preventDefault();
-                self.saveBadge();
-            });
-
-            // Edit badge
-            $(document).on('click', '.dcb-edit-badge', function() {
-                var badgeId = $(this).data('badge-id');
-                self.editBadge(badgeId);
-            });
-
-            // Delete badge
-            $(document).on('click', '.dcb-delete-badge', function() {
-                var badgeId = $(this).data('badge-id');
-                self.deleteBadge(badgeId);
-            });
-
-            // Duplicate badge
-            $(document).on('click', '.dcb-duplicate-badge', function() {
-                var badgeId = $(this).data('badge-id');
-                self.duplicateBadge(badgeId);
-            });
-
-            // Toggle active status
-            $(document).on('change', '.dcb-toggle-active', function() {
-                var badgeId = $(this).data('badge-id');
-                self.toggleBadge(badgeId);
-            });
-
-            // Add condition
-            $(document).on('click', '.dcb-add-condition', function() {
-                self.addCondition();
-            });
-
-            // Remove condition
-            $(document).on('click', '.dcb-remove-condition', function() {
-                $(this).closest('.dcb-condition-item').remove();
-            });
-
-            // Condition type change
-            $(document).on('change', '.dcb-condition-type', function() {
-                self.handleConditionTypeChange($(this));
-            });
-
-            // Plan status condition change
-            // Note: Fields remain visible, no special handling needed
-            // $(document).on('change', '.dcb-plan-status-condition', function() {
-            //     self.handlePlanStatusConditionChange($(this));
-            // });
-
-            // Badge ID validation
-            $(document).on('blur', '#dcb-badge-id-field', function() {
-                self.validateBadgeId($(this).val());
-            });
-
-            // Export badges
-            $(document).on('click', '.dcb-export-badges', function() {
-                self.exportBadges();
-            });
-
-            // Import badges
-            $(document).on('change', '#dcb-import-file', function() {
-                self.importBadges(this);
-            });
-        },
-
-        initSortable: function() {
-            var self = this;
-            
-            $('.dcb-badges-list').sortable({
-                handle: '.dcb-drag-handle',
-                axis: 'y',
-                opacity: 0.6,
-                cursor: 'move',
-                update: function(event, ui) {
-                    self.reorderBadges();
-                }
-            });
-        },
-
-        initColorPicker: function() {
-            // Initialize WordPress color picker if available
-            if (typeof jQuery.fn.wpColorPicker !== 'undefined') {
-                $('.dcb-color-picker').wpColorPicker({
-                    change: function(event, ui) {
-                        // Color changed
-                    },
-                    clear: function() {
-                        // Color cleared
-                    }
-                });
-            }
-        },
-
-        getFormUrl: function(badgeId) {
-            var url = dcbAdmin.ajaxUrl.replace('admin-ajax.php', 'admin.php');
-            url += '?page=directorist-custom-badges-form';
-            if (badgeId) {
-                url += '&badge_id=' + encodeURIComponent(badgeId);
-            }
-            return url;
-        },
-
-        getListUrl: function() {
-            var url = dcbAdmin.ajaxUrl.replace('admin-ajax.php', 'admin.php');
-            return url + '?page=directorist-custom-badges';
-        },
-
-        resetForm: function() {
-            $('#dcb-badge-form')[0].reset();
-            $('#dcb-badge-id').val('');
-            $('#dcb-badge-order').val('');
-            $('#dcb-conditions-list').empty();
-            this.conditionIndex = 0;
-            this.currentBadge = null;
-            $('.dcb-field-error').text('');
-            $('.dcb-input, .dcb-select').removeClass('dcb-error');
-        },
-
-        addCondition: function() {
-            var template = $('#dcb-condition-template').html();
-            var index = this.conditionIndex++;
-            var html = template.replace(/\{\{index\}\}/g, index);
-            
-            $('#dcb-conditions-list').append(html);
-            
-            // Initialize condition type
-            var $condition = $('#dcb-conditions-list .dcb-condition-item').last();
-            this.handleConditionTypeChange($condition.find('.dcb-condition-type'));
-        },
-
-        handleConditionTypeChange: function($select) {
-            var type = $select.val();
-            var $condition = $select.closest('.dcb-condition-item');
-            var $metaFields = $condition.find('.dcb-meta-fields');
-            var $planFields = $condition.find('.dcb-pricing-plan-fields');
-
-            if (type === 'meta') {
-                $metaFields.show();
-                $planFields.hide();
-            } else if (type === 'pricing_plan') {
-                $metaFields.hide();
-                $planFields.show();
-            }
-        },
-
-        handlePlanStatusConditionChange: function($select) {
-            // Function kept for potential future use, but no longer hides fields
-            // Plan ID and Compare fields remain visible regardless of plan_status_condition selection
-        },
-
-        loadBadgeData: function() {
-            // Load existing badges data if needed
-            // This is handled server-side in the template
-        },
-
-        editBadge: function(badgeId) {
-            // Redirect to form page with badge ID
-            window.location.href = this.getFormUrl(badgeId);
-        },
-
-        populateForm: function(badge) {
-            this.currentBadge = badge;
-            
-            // Populate basic fields
-            $('#dcb-badge-id').val(badge.id || '');
-            $('#dcb-badge-order').val(badge.order || '');
-            $('#dcb-badge-title').val(badge.badge_title || '');
-            $('#dcb-badge-icon').val(badge.badge_icon || '');
-            $('#dcb-badge-id-field').val(badge.badge_id || '');
-            $('#dcb-badge-label').val(badge.badge_label || '');
-            $('#dcb-badge-class').val(badge.badge_class || '');
-            $('#dcb-badge-color').val(badge.badge_color || '');
-            // Update color picker if it exists
-            if (typeof jQuery.fn.wpColorPicker !== 'undefined' && $('#dcb-badge-color').hasClass('wp-color-picker')) {
-                $('#dcb-badge-color').wpColorPicker('color', badge.badge_color || '');
-            }
-            $('#dcb-condition-relation').val(badge.condition_relation || 'AND');
-            $('#dcb-badge-active').prop('checked', badge.is_active === true || badge.is_active === '1' || badge.is_active === 1);
-
-            // Populate conditions
-            $('#dcb-conditions-list').empty();
-            this.conditionIndex = 0;
-            
-            if (badge.conditions && badge.conditions.length > 0) {
-                var self = this;
-                badge.conditions.forEach(function(condition, idx) {
-                    // Add condition using the addCondition method to ensure proper structure
-                    self.addCondition();
-                    
-                    // Get the last added condition
-                    var $condition = $('#dcb-conditions-list .dcb-condition-item').last();
-                    var index = self.conditionIndex - 1; // Get the index that was just used
-                    
-                    // Set condition type first
-                    var $conditionType = $condition.find('.dcb-condition-type');
-                    $conditionType.val(condition.type || 'meta');
-                    
-                    // Trigger change to show/hide appropriate fields
-                    $conditionType.trigger('change');
-                    
-                    // Use setTimeout to ensure fields are visible before setting values
-                    setTimeout(function() {
-                        if (condition.type === 'meta') {
-                            // Set meta condition values - use more specific selectors
-                            var $metaFields = $condition.find('.dcb-meta-fields');
-                            $metaFields.find('input[name="badge[conditions][' + index + '][meta_key]"]').val(condition.meta_key || '');
-                            $metaFields.find('input[name="badge[conditions][' + index + '][meta_value]"]').val(condition.meta_value || '');
-                            $metaFields.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
-                            $metaFields.find('select[name="badge[conditions][' + index + '][type_cast]"]').val(condition.type_cast || 'CHAR');
-                        } else if (condition.type === 'pricing_plan') {
-                            // Set pricing plan condition values - use more specific selectors
-                            var $planFields = $condition.find('.dcb-pricing-plan-fields');
-                            $planFields.find('select[name="badge[conditions][' + index + '][plan_status_condition]"]').val(condition.plan_status_condition || '');
-                            $planFields.find('input[name="badge[conditions][' + index + '][plan_id]"]').val(condition.plan_id || '');
-                            $planFields.find('select[name="badge[conditions][' + index + '][compare]"]').val(condition.compare || '=');
-                        }
-                    }, 50);
-                });
-            }
-        },
-
-        saveBadge: function() {
-            var self = this;
-            var $saveBtn = $('.dcb-save-badge');
-            var originalText = $saveBtn.text();
-
-            // Validate required fields
-            if (!this.validateForm()) {
-                return;
-            }
-
-            // Build form data object manually to ensure proper nesting
-            var formData = {
-                badge: {
-                    id: $('#dcb-badge-id').val() || '',
-                    order: $('#dcb-badge-order').val() || '',
-                    badge_title: $('#dcb-badge-title').val() || '',
-                    badge_icon: $('#dcb-badge-icon').val() || '',
-                    badge_id: $('#dcb-badge-id-field').val() || '',
-                    badge_label: $('#dcb-badge-label').val() || '',
-                    badge_class: $('#dcb-badge-class').val() || '',
-                    badge_color: $('#dcb-badge-color').val() || '',
-                    condition_relation: $('#dcb-condition-relation').val() || 'AND',
-                    is_active: $('#dcb-badge-active').is(':checked') ? 1 : 0,
-                    conditions: []
-                },
-                action: 'dcb_save_badge',
-                nonce: dcbAdmin.nonce
-            };
-
-            // Collect conditions - loop through all condition items
-            $('#dcb-conditions-list .dcb-condition-item').each(function() {
-                var $condition = $(this);
-                var conditionType = $condition.find('.dcb-condition-type').val();
-                
-                if (!conditionType) {
-                    return; // Skip if no type selected
-                }
-
-                var condition = {
-                    type: conditionType
-                };
-
-                if (conditionType === 'meta') {
-                    var $metaFields = $condition.find('.dcb-meta-fields');
-                    if ($metaFields.length) {
-                        condition.meta_key = $metaFields.find('input[name*="[meta_key]"]').val() || '';
-                        condition.meta_value = $metaFields.find('input[name*="[meta_value]"]').val() || '';
-                        condition.compare = $metaFields.find('select[name*="[compare]"]').val() || '=';
-                        condition.type_cast = $metaFields.find('select[name*="[type_cast]"]').val() || 'CHAR';
-                    } else {
-                        // Fallback: try direct selectors if meta-fields wrapper not found
-                        condition.meta_key = $condition.find('input[name*="[meta_key]"]').val() || '';
-                        condition.meta_value = $condition.find('input[name*="[meta_value]"]').val() || '';
-                        condition.compare = $condition.find('select[name*="[compare]"]').not('.dcb-pricing-plan-fields select').val() || '=';
-                        condition.type_cast = $condition.find('select[name*="[type_cast]"]').val() || 'CHAR';
-                    }
-                } else if (conditionType === 'pricing_plan') {
-                    var $planFields = $condition.find('.dcb-pricing-plan-fields');
-                    if ($planFields.length) {
-                        condition.plan_status_condition = $planFields.find('select[name*="[plan_status_condition]"]').val() || '';
-                        condition.plan_id = $planFields.find('input[name*="[plan_id]"]').val() || '';
-                        condition.compare = $planFields.find('select[name*="[compare]"]').val() || '=';
-                    } else {
-                        // Fallback: try direct selectors if pricing-plan-fields wrapper not found
-                        condition.plan_status_condition = $condition.find('select[name*="[plan_status_condition]"]').val() || '';
-                        condition.plan_id = $condition.find('input[name*="[plan_id]"]').val() || '';
-                        condition.compare = $condition.find('.dcb-pricing-plan-fields select[name*="[compare]"]').val() || '=';
-                    }
-                }
-
-                // Add condition - validation happens server-side
-                // EXISTS and NOT EXISTS don't require meta_key, so we add all conditions
-                formData.badge.conditions.push(condition);
-            });
-
-            $saveBtn.prop('disabled', true).text(dcbAdmin.strings.saving);
-
-            // Convert to format WordPress expects (nested arrays)
-            var postData = {
-                action: 'dcb_save_badge',
-                nonce: dcbAdmin.nonce
-            };
-
-            // Add badge data with proper nesting
-            postData['badge[id]'] = formData.badge.id;
-            postData['badge[order]'] = formData.badge.order;
-            postData['badge[badge_title]'] = formData.badge.badge_title;
-            postData['badge[badge_icon]'] = formData.badge.badge_icon;
-            postData['badge[badge_id]'] = formData.badge.badge_id;
-            postData['badge[badge_label]'] = formData.badge.badge_label;
-            postData['badge[badge_class]'] = formData.badge.badge_class;
-            postData['badge[badge_color]'] = formData.badge.badge_color;
-            postData['badge[condition_relation]'] = formData.badge.condition_relation;
-            postData['badge[is_active]'] = formData.badge.is_active;
-
-            // Add conditions with proper array indexing
-            formData.badge.conditions.forEach(function(condition, index) {
-                postData['badge[conditions][' + index + '][type]'] = condition.type;
-                
-                if (condition.type === 'meta') {
-                    postData['badge[conditions][' + index + '][meta_key]'] = condition.meta_key || '';
-                    postData['badge[conditions][' + index + '][meta_value]'] = condition.meta_value || '';
-                    postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
-                    postData['badge[conditions][' + index + '][type_cast]'] = condition.type_cast || 'CHAR';
-                } else if (condition.type === 'pricing_plan') {
-                    postData['badge[conditions][' + index + '][plan_status_condition]'] = condition.plan_status_condition || '';
-                    postData['badge[conditions][' + index + '][plan_id]'] = condition.plan_id || '';
-                    postData['badge[conditions][' + index + '][compare]'] = condition.compare || '=';
-                }
-            });
-
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: postData,
-                success: function(response) {
-                    $saveBtn.prop('disabled', false).text(originalText);
-                    
-                    if (response.success) {
-                        self.showNotice(response.data.message, 'success');
-                        setTimeout(function() {
-                            window.location.href = self.getListUrl();
-                        }, 1000);
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    $saveBtn.prop('disabled', false).text(originalText);
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
-        },
-
-        validateForm: function() {
-            var isValid = true;
-            var $title = $('#dcb-badge-title');
-            var $badgeId = $('#dcb-badge-id-field');
-            var $label = $('#dcb-badge-label');
-
-            // Reset errors
-            $('.dcb-field-error').text('');
-
-            // Validate title
-            if (!$title.val().trim()) {
-                isValid = false;
-                $title.addClass('dcb-error');
-            } else {
-                $title.removeClass('dcb-error');
-            }
-
-            // Validate badge ID
-            var badgeId = $badgeId.val().trim();
-            if (!badgeId) {
-                isValid = false;
-                $badgeId.addClass('dcb-error');
-                $badgeId.siblings('.dcb-field-error').text(dcbAdmin.strings.requiredField);
-            } else if (!/^[a-z0-9-]+$/.test(badgeId)) {
-                isValid = false;
-                $badgeId.addClass('dcb-error');
-                $badgeId.siblings('.dcb-field-error').text(dcbAdmin.strings.invalidBadgeId);
-            } else {
-                $badgeId.removeClass('dcb-error');
-            }
-
-            // Validate label
-            if (!$label.val().trim()) {
-                isValid = false;
-                $label.addClass('dcb-error');
-            } else {
-                $label.removeClass('dcb-error');
-            }
-
-            if (!isValid) {
-                this.showNotice(dcbAdmin.strings.requiredField, 'error');
-            }
-
-            return isValid;
-        },
-
-        validateBadgeId: function(badgeId) {
-            var self = this;
-            var $field = $('#dcb-badge-id-field');
-            var $error = $field.siblings('.dcb-field-error');
-            var currentId = $('#dcb-badge-id').val();
-
-            if (!badgeId || !/^[a-z0-9-]+$/.test(badgeId)) {
-                $error.text(dcbAdmin.strings.invalidBadgeId);
-                $field.addClass('dcb-error');
-                return;
-            }
-
-            // Check uniqueness (only if not editing same badge)
-            // This would require an AJAX call to check, but for now we'll validate on save
-            $error.text('');
-            $field.removeClass('dcb-error');
-        },
-
-        deleteBadge: function(badgeId) {
-            var self = this;
-            
-            if (!confirm(dcbAdmin.strings.confirmDelete)) {
-                return;
-            }
-
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_delete_badge',
-                    id: badgeId,
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        self.showNotice(response.data.message, 'success');
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
-        },
-
-        duplicateBadge: function(badgeId) {
-            var self = this;
-            
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_duplicate_badge',
-                    id: badgeId,
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        self.showNotice(response.data.message, 'success');
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
-        },
-
-        toggleBadge: function(badgeId) {
-            var self = this;
-            
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_toggle_badge',
-                    id: badgeId,
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Status updated, no need to reload
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                        // Revert toggle
-                        setTimeout(function() {
-                            location.reload();
-                        }, 500);
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 500);
-                }
-            });
-        },
-
-        reorderBadges: function() {
-            var self = this;
-            var order = [];
-            
-            $('.dcb-badge-row').each(function() {
-                order.push($(this).data('badge-id'));
-            });
-
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_reorder_badges',
-                    order: order,
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Successfully reordered
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
-        },
-
-        exportBadges: function() {
-            var self = this;
-            
-            $.ajax({
-                url: dcbAdmin.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'dcb_export_badges',
-                    nonce: dcbAdmin.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        var dataStr = JSON.stringify(response.data.badges, null, 2);
-                        var dataBlob = new Blob([dataStr], {type: 'application/json'});
-                        var url = URL.createObjectURL(dataBlob);
-                        var link = document.createElement('a');
-                        link.href = url;
-                        link.download = 'directorist-custom-badges-' + new Date().getTime() + '.json';
-                        link.click();
-                        URL.revokeObjectURL(url);
-                    } else {
-                        self.showNotice(response.data.message, 'error');
-                    }
-                },
-                error: function() {
-                    self.showNotice(dcbAdmin.strings.error, 'error');
-                }
-            });
-        },
-
-        importBadges: function(input) {
-            var self = this;
-            var file = input.files[0];
-            
-            if (!file) {
-                return;
-            }
-
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    var badges = JSON.parse(e.target.result);
-                    
-                    if (!Array.isArray(badges)) {
-                        self.showNotice('Invalid file format.', 'error');
-                        return;
-                    }
-
-                    if (!confirm('Import ' + badges.length + ' badge(s)?')) {
-                        return;
-                    }
-
-                    $.ajax({
-                        url: dcbAdmin.ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'dcb_import_badges',
-                            badges: badges,
-                            nonce: dcbAdmin.nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                self.showNotice(response.data.message, 'success');
-                                setTimeout(function() {
-                                    location.reload();
-                                }, 1000);
-                            } else {
-                                self.showNotice(response.data.message, 'error');
-                            }
-                        },
-                        error: function() {
-                            self.showNotice(dcbAdmin.strings.error, 'error');
-                        }
-                    });
-                } catch (error) {
-                    self.showNotice('Error parsing JSON file.', 'error');
-                }
-            };
-            reader.readAsText(file);
-        },
-
-        showNotice: function(message, type) {
-            type = type || 'info';
-            var $notice = $('<div class="notice notice-' + type + ' is-dismissible"><p>' + message + '</p></div>');
-            $('.dcb-notices').html($notice);
-            
-            setTimeout(function() {
-                $notice.fadeOut(function() {
-                    $(this).remove();
-                });
-            }, 5000);
-        }
-    };
-
-    // Initialize on document ready
-    $(document).ready(function() {
-        DCBAdmin.init();
-    });
-
-})(jQuery);
-
+( function ( $ ) {
+	'use strict';
+
+	var DCBAdmin = {
+
+		conditionIndex : 0,
+		currentBadge   : null,
+
+		// -----------------------------------------------------------------
+		// Bootstrap
+		// -----------------------------------------------------------------
+
+		init: function () {
+			this.bindEvents();
+			this.initBadgeSortable();
+			this.initConditionSortable();
+			this.initColorPicker();
+			this.initExistingCompareStates();
+		},
+
+		// -----------------------------------------------------------------
+		// Event binding
+		// -----------------------------------------------------------------
+
+		bindEvents: function () {
+			var self = this;
+
+			// Redirect to form page (add new).
+			$( document ).on( 'click', '.dcb-add-badge-btn', function () {
+				window.location.href = self.getFormUrl();
+			} );
+
+			// Save badge (form submit).
+			$( document ).on( 'submit', '#dcb-badge-form', function ( e ) {
+				e.preventDefault();
+				self.saveBadge();
+			} );
+
+			// Edit badge → redirect to form.
+			$( document ).on( 'click', '.dcb-edit-badge', function () {
+				self.editBadge( $( this ).data( 'badge-id' ) );
+			} );
+
+			// Delete badge.
+			$( document ).on( 'click', '.dcb-delete-badge', function () {
+				self.deleteBadge( $( this ).data( 'badge-id' ) );
+			} );
+
+			// Duplicate badge.
+			$( document ).on( 'click', '.dcb-duplicate-badge', function () {
+				self.duplicateBadge( $( this ).data( 'badge-id' ) );
+			} );
+
+			// Toggle active status.
+			$( document ).on( 'change', '.dcb-toggle-active', function () {
+				self.toggleBadge( $( this ).data( 'badge-id' ) );
+			} );
+
+			// Add a new condition row.
+			$( document ).on( 'click', '.dcb-add-condition', function () {
+				self.addCondition();
+			} );
+
+			// Remove a condition row.
+			$( document ).on( 'click', '.dcb-remove-condition', function () {
+				$( this ).closest( '.dcb-condition-item' ).remove();
+				self.renumberConditions();
+			} );
+
+			// Condition type switcher (Meta ↔ Pricing Plan).
+			$( document ).on( 'change', '.dcb-condition-type', function () {
+				self.handleConditionTypeChange( $( this ) );
+			} );
+
+			// Compare operator change → show/hide Meta Value row.
+			$( document ).on( 'change', '.dcb-compare-select', function () {
+				self.handleCompareChange( $( this ) );
+			} );
+
+			// Minimize / maximize condition body.
+			$( document ).on( 'click', '.dcb-toggle-condition', function () {
+				self.toggleCondition( $( this ).closest( '.dcb-condition-item' ) );
+			} );
+
+			// Badge ID live validation.
+			$( document ).on( 'blur', '#dcb-badge-id-field', function () {
+				self.validateBadgeId( $( this ).val() );
+			} );
+
+			// Export / import.
+			$( document ).on( 'click', '.dcb-export-badges', function () {
+				self.exportBadges();
+			} );
+
+			$( document ).on( 'change', '#dcb-import-file', function () {
+				self.importBadges( this );
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Sortable: badge list rows
+		// -----------------------------------------------------------------
+
+		initBadgeSortable: function () {
+			var self = this;
+
+			$( '.dcb-badges-list' ).sortable( {
+				handle  : '.dcb-drag-handle',
+				axis    : 'y',
+				opacity : 0.6,
+				cursor  : 'move',
+				update  : function () {
+					self.reorderBadges();
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Sortable: condition items within the repeater
+		// -----------------------------------------------------------------
+
+		initConditionSortable: function () {
+			$( '.dcb-conditions-list' ).sortable( {
+				handle      : '.dcb-condition-drag',
+				axis        : 'y',
+				opacity     : 0.7,
+				cursor      : 'grabbing',
+				placeholder : 'dcb-condition-placeholder',
+				tolerance   : 'pointer',
+				start: function ( event, ui ) {
+					// Preserve height so placeholder matches item.
+					ui.placeholder.height( ui.item.outerHeight() );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Color picker
+		// -----------------------------------------------------------------
+
+		initColorPicker: function () {
+			if ( typeof $.fn.wpColorPicker !== 'undefined' ) {
+				$( '.dcb-color-picker' ).wpColorPicker( {
+					change: function () {},
+					clear : function () {}
+				} );
+			}
+		},
+
+		// -----------------------------------------------------------------
+		// URL helpers
+		// -----------------------------------------------------------------
+
+		getFormUrl: function ( badgeId ) {
+			var url = dcbAdmin.ajaxUrl.replace( 'admin-ajax.php', 'admin.php' );
+			url += '?page=directorist-custom-badges-form';
+			if ( badgeId ) {
+				url += '&badge_id=' + encodeURIComponent( badgeId );
+			}
+			return url;
+		},
+
+		getListUrl: function () {
+			var url = dcbAdmin.ajaxUrl.replace( 'admin-ajax.php', 'admin.php' );
+			return url + '?page=directorist-custom-badges';
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: add
+		// -----------------------------------------------------------------
+
+		addCondition: function () {
+			var template = $( '#dcb-condition-template' ).html();
+			var index    = this.conditionIndex++;
+			var html     = template.replace( /\{\{index\}\}/g, index );
+
+			$( '#dcb-conditions-list' ).append( html );
+
+			// Wire up the new item.
+			var $item = $( '#dcb-conditions-list .dcb-condition-item' ).last();
+			this.handleConditionTypeChange( $item.find( '.dcb-condition-type' ) );
+			this.handleCompareChange( $item.find( '.dcb-compare-select' ) );
+			this.renumberConditions();
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: type change (Meta ↔ Pricing Plan)
+		// -----------------------------------------------------------------
+
+		handleConditionTypeChange: function ( $select ) {
+			var type    = $select.val();
+			var $item   = $select.closest( '.dcb-condition-item' );
+			var $meta   = $item.find( '.dcb-meta-fields' );
+			var $plan   = $item.find( '.dcb-pricing-plan-fields' );
+
+			if ( 'meta' === type ) {
+				$meta.show();
+				$plan.hide();
+			} else if ( 'pricing_plan' === type ) {
+				$meta.hide();
+				$plan.show();
+			}
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: compare change → show / hide Meta Value row
+		// -----------------------------------------------------------------
+
+		handleCompareChange: function ( $select ) {
+			var val     = $select.val();
+			var $item   = $select.closest( '.dcb-condition-item' );
+			var hideRow = ( 'EXISTS' === val || 'NOT EXISTS' === val );
+
+			$item.find( '.dcb-meta-value-row' ).toggle( ! hideRow );
+
+			// Update the collapsed summary if the item is already minimised.
+			this.updateConditionSummary( $item );
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: minimize / maximize
+		// -----------------------------------------------------------------
+
+		toggleCondition: function ( $item ) {
+			var $body      = $item.find( '.dcb-condition-body' );
+			var $btn       = $item.find( '.dcb-toggle-condition' );
+			var collapsed  = $item.hasClass( 'dcb-collapsed' );
+
+			if ( collapsed ) {
+				$item.removeClass( 'dcb-collapsed' );
+				$body.slideDown( 180 );
+				$btn
+					.attr( 'title', dcbAdmin.strings.minimize || 'Minimize' )
+					.attr( 'aria-expanded', 'true' )
+					.find( '.dashicons' )
+					.removeClass( 'dashicons-arrow-down-alt2' )
+					.addClass( 'dashicons-arrow-up-alt2' );
+			} else {
+				this.updateConditionSummary( $item );
+				$item.addClass( 'dcb-collapsed' );
+				$body.slideUp( 180 );
+				$btn
+					.attr( 'title', dcbAdmin.strings.maximize || 'Maximize' )
+					.attr( 'aria-expanded', 'false' )
+					.find( '.dashicons' )
+					.removeClass( 'dashicons-arrow-up-alt2' )
+					.addClass( 'dashicons-arrow-down-alt2' );
+			}
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: update the summary line shown when collapsed
+		// -----------------------------------------------------------------
+
+		updateConditionSummary: function ( $item ) {
+			var type    = $item.find( '.dcb-condition-type' ).val();
+			var summary = '';
+
+			if ( 'meta' === type ) {
+				var key = $item.find( 'input[name*="[meta_key]"]' ).val()   || '';
+				var op  = $item.find( '.dcb-compare-select' ).val()         || '=';
+				var val = $item.find( 'input[name*="[meta_value]"]' ).val() || '';
+				summary = key + ' ' + op;
+				if ( 'EXISTS' !== op && 'NOT EXISTS' !== op ) {
+					summary += ' ' + val;
+				}
+			} else if ( 'pricing_plan' === type ) {
+				var status = $item.find( 'select[name*="[plan_status_condition]"]' ).val() || '';
+				summary    = status.replace( /_/g, ' ' );
+			}
+
+			$item.find( '.dcb-condition-summary' ).text( summary );
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: renumber visible #labels after add/remove
+		// -----------------------------------------------------------------
+
+		renumberConditions: function () {
+			$( '#dcb-conditions-list .dcb-condition-item' ).each( function ( i ) {
+				$( this )
+					.attr( 'data-condition-index', i )
+					.find( '.dcb-condition-title' )
+					.text(
+						( dcbAdmin.strings.condition || 'Condition' ) + ' #' + ( i + 1 )
+					);
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Condition: initialise compare states for pre-rendered conditions
+		// -----------------------------------------------------------------
+
+		initExistingCompareStates: function () {
+			var self = this;
+			$( '#dcb-conditions-list .dcb-condition-item' ).each( function () {
+				self.handleCompareChange( $( this ).find( '.dcb-compare-select' ) );
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Navigate to form page with badge ID
+		// -----------------------------------------------------------------
+
+		editBadge: function ( badgeId ) {
+			window.location.href = this.getFormUrl( badgeId );
+		},
+
+		// -----------------------------------------------------------------
+		// Populate form fields (used when editing via AJAX-loaded data)
+		// -----------------------------------------------------------------
+
+		populateForm: function ( badge ) {
+			var self = this;
+			this.currentBadge = badge;
+
+			$( '#dcb-badge-id' ).val( badge.id || '' );
+			$( '#dcb-badge-order' ).val( badge.order || '' );
+			$( '#dcb-badge-title' ).val( badge.badge_title || '' );
+			$( '#dcb-badge-icon' ).val( badge.badge_icon || '' );
+			$( '#dcb-badge-id-field' ).val( badge.badge_id || '' );
+			$( '#dcb-badge-label' ).val( badge.badge_label || '' );
+			$( '#dcb-badge-class' ).val( badge.badge_class || '' );
+			$( '#dcb-badge-color' ).val( badge.badge_color || '' );
+
+			if ( typeof $.fn.wpColorPicker !== 'undefined' && $( '#dcb-badge-color' ).hasClass( 'wp-color-picker' ) ) {
+				$( '#dcb-badge-color' ).wpColorPicker( 'color', badge.badge_color || '' );
+			}
+
+			$( '#dcb-condition-relation' ).val( badge.condition_relation || 'AND' );
+			$( '#dcb-badge-active' ).prop(
+				'checked',
+				true === badge.is_active || '1' === badge.is_active || 1 === badge.is_active
+			);
+
+			// Rebuild condition rows.
+			$( '#dcb-conditions-list' ).empty();
+			this.conditionIndex = 0;
+
+			if ( badge.conditions && badge.conditions.length > 0 ) {
+				badge.conditions.forEach( function ( condition, idx ) {
+					self.addCondition();
+
+					var $item  = $( '#dcb-conditions-list .dcb-condition-item' ).last();
+					var index  = self.conditionIndex - 1;
+					var $type  = $item.find( '.dcb-condition-type' );
+
+					$type.val( condition.type || 'meta' );
+					$type.trigger( 'change' );
+
+					// Set values after fields become visible.
+					setTimeout( function () {
+						if ( 'meta' === condition.type ) {
+							var $meta = $item.find( '.dcb-meta-fields' );
+							$meta.find( 'input[name="badge[conditions][' + index + '][meta_key]"]' ).val( condition.meta_key || '' );
+							$meta.find( 'input[name="badge[conditions][' + index + '][meta_value]"]' ).val( condition.meta_value || '' );
+							$meta.find( 'select[name="badge[conditions][' + index + '][compare]"]' ).val( condition.compare || '=' );
+							$meta.find( 'select[name="badge[conditions][' + index + '][type_cast]"]' ).val( condition.type_cast || 'CHAR' );
+							// Apply visibility rules based on the loaded compare value.
+							self.handleCompareChange( $meta.find( '.dcb-compare-select' ) );
+						} else if ( 'pricing_plan' === condition.type ) {
+							var $plan = $item.find( '.dcb-pricing-plan-fields' );
+							$plan.find( 'select[name="badge[conditions][' + index + '][plan_status_condition]"]' ).val( condition.plan_status_condition || '' );
+							$plan.find( 'input[name="badge[conditions][' + index + '][plan_id]"]' ).val( condition.plan_id || '' );
+							$plan.find( 'select[name="badge[conditions][' + index + '][compare]"]' ).val( condition.compare || '=' );
+						}
+					}, 50 );
+				} );
+			}
+		},
+
+		// -----------------------------------------------------------------
+		// Save badge (AJAX)
+		// -----------------------------------------------------------------
+
+		saveBadge: function () {
+			var self      = this;
+			var $btn      = $( '.dcb-save-badge' );
+			var origText  = $btn.text();
+
+			if ( ! this.validateForm() ) {
+				return;
+			}
+
+			// Collect field values.
+			var badgeData = {
+				id               : $( '#dcb-badge-id' ).val()              || '',
+				order            : $( '#dcb-badge-order' ).val()           || '',
+				badge_title      : $( '#dcb-badge-title' ).val()           || '',
+				badge_icon       : $( '#dcb-badge-icon' ).val()            || '',
+				badge_id         : $( '#dcb-badge-id-field' ).val()        || '',
+				badge_label      : $( '#dcb-badge-label' ).val()           || '',
+				badge_class      : $( '#dcb-badge-class' ).val()           || '',
+				badge_color      : $( '#dcb-badge-color' ).val()           || '',
+				condition_relation: $( '#dcb-condition-relation' ).val()   || 'AND',
+				is_active        : $( '#dcb-badge-active' ).is( ':checked' ) ? 1 : 0,
+				conditions       : []
+			};
+
+			// Collect condition rows in DOM order (respects drag-reorder).
+			$( '#dcb-conditions-list .dcb-condition-item' ).each( function () {
+				var $item = $( this );
+				var type  = $item.find( '.dcb-condition-type' ).val();
+
+				if ( ! type ) {
+					return;
+				}
+
+				var cond = { type: type };
+
+				if ( 'meta' === type ) {
+					var $meta        = $item.find( '.dcb-meta-fields' );
+					cond.meta_key    = $meta.find( 'input[name*="[meta_key]"]' ).val()        || '';
+					cond.meta_value  = $meta.find( 'input[name*="[meta_value]"]' ).val()      || '';
+					cond.compare     = $meta.find( 'select[name*="[compare]"]' ).val()        || '=';
+					cond.type_cast   = $meta.find( 'select[name*="[type_cast]"]' ).val()      || 'CHAR';
+				} else if ( 'pricing_plan' === type ) {
+					var $plan                  = $item.find( '.dcb-pricing-plan-fields' );
+					cond.plan_status_condition = $plan.find( 'select[name*="[plan_status_condition]"]' ).val() || '';
+					cond.plan_id               = $plan.find( 'input[name*="[plan_id]"]' ).val()                || '';
+					cond.compare               = $plan.find( 'select[name*="[compare]"]' ).val()               || '=';
+				}
+
+				badgeData.conditions.push( cond );
+			} );
+
+			$btn.prop( 'disabled', true ).text( dcbAdmin.strings.saving );
+
+			// Flatten nested data into a format WP admin-ajax.php can parse.
+			var postData = {
+				action : 'dcb_save_badge',
+				nonce  : dcbAdmin.nonce,
+				'badge[id]'                : badgeData.id,
+				'badge[order]'             : badgeData.order,
+				'badge[badge_title]'       : badgeData.badge_title,
+				'badge[badge_icon]'        : badgeData.badge_icon,
+				'badge[badge_id]'          : badgeData.badge_id,
+				'badge[badge_label]'       : badgeData.badge_label,
+				'badge[badge_class]'       : badgeData.badge_class,
+				'badge[badge_color]'       : badgeData.badge_color,
+				'badge[condition_relation]': badgeData.condition_relation,
+				'badge[is_active]'         : badgeData.is_active
+			};
+
+			badgeData.conditions.forEach( function ( cond, i ) {
+				postData[ 'badge[conditions][' + i + '][type]' ] = cond.type;
+
+				if ( 'meta' === cond.type ) {
+					postData[ 'badge[conditions][' + i + '][meta_key]'   ] = cond.meta_key   || '';
+					postData[ 'badge[conditions][' + i + '][meta_value]' ] = cond.meta_value || '';
+					postData[ 'badge[conditions][' + i + '][compare]'    ] = cond.compare    || '=';
+					postData[ 'badge[conditions][' + i + '][type_cast]'  ] = cond.type_cast  || 'CHAR';
+				} else if ( 'pricing_plan' === cond.type ) {
+					postData[ 'badge[conditions][' + i + '][plan_status_condition]' ] = cond.plan_status_condition || '';
+					postData[ 'badge[conditions][' + i + '][plan_id]'               ] = cond.plan_id               || '';
+					postData[ 'badge[conditions][' + i + '][compare]'               ] = cond.compare               || '=';
+				}
+			} );
+
+			$.ajax( {
+				url     : dcbAdmin.ajaxUrl,
+				type    : 'POST',
+				data    : postData,
+				success : function ( response ) {
+					$btn.prop( 'disabled', false ).text( origText );
+
+					if ( response.success ) {
+						self.showNotice( response.data.message, 'success' );
+
+						// Stay on the form page after saving.
+						// For new badges use the server-returned ID so the URL
+						// transitions from "add" to "edit" without losing the form.
+						var savedId = response.data.badge && response.data.badge.id
+							? response.data.badge.id
+							: $( '#dcb-badge-id' ).val();
+
+						setTimeout( function () {
+							window.location.href = self.getFormUrl( savedId );
+						}, 1000 );
+					} else {
+						self.showNotice( response.data.message, 'error' );
+					}
+				},
+				error: function () {
+					$btn.prop( 'disabled', false ).text( origText );
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Form validation
+		// -----------------------------------------------------------------
+
+		validateForm: function () {
+			var isValid  = true;
+			var $title   = $( '#dcb-badge-title' );
+			var $badgeId = $( '#dcb-badge-id-field' );
+			var $label   = $( '#dcb-badge-label' );
+
+			$( '.dcb-field-error' ).text( '' );
+
+			if ( ! $title.val().trim() ) {
+				isValid = false;
+				$title.addClass( 'dcb-error' );
+			} else {
+				$title.removeClass( 'dcb-error' );
+			}
+
+			var idVal = $badgeId.val().trim();
+			if ( ! idVal ) {
+				isValid = false;
+				$badgeId.addClass( 'dcb-error' );
+				$badgeId.siblings( '.dcb-field-error' ).text( dcbAdmin.strings.requiredField );
+			} else if ( ! /^[a-z0-9-]+$/.test( idVal ) ) {
+				isValid = false;
+				$badgeId.addClass( 'dcb-error' );
+				$badgeId.siblings( '.dcb-field-error' ).text( dcbAdmin.strings.invalidBadgeId );
+			} else {
+				$badgeId.removeClass( 'dcb-error' );
+			}
+
+			if ( ! $label.val().trim() ) {
+				isValid = false;
+				$label.addClass( 'dcb-error' );
+			} else {
+				$label.removeClass( 'dcb-error' );
+			}
+
+			if ( ! isValid ) {
+				this.showNotice( dcbAdmin.strings.requiredField, 'error' );
+			}
+
+			return isValid;
+		},
+
+		validateBadgeId: function ( badgeId ) {
+			var $field = $( '#dcb-badge-id-field' );
+			var $error = $field.siblings( '.dcb-field-error' );
+
+			if ( ! badgeId || ! /^[a-z0-9-]+$/.test( badgeId ) ) {
+				$error.text( dcbAdmin.strings.invalidBadgeId );
+				$field.addClass( 'dcb-error' );
+			} else {
+				$error.text( '' );
+				$field.removeClass( 'dcb-error' );
+			}
+		},
+
+		// -----------------------------------------------------------------
+		// Delete badge
+		// -----------------------------------------------------------------
+
+		deleteBadge: function ( badgeId ) {
+			var self = this;
+
+			if ( ! confirm( dcbAdmin.strings.confirmDelete ) ) {
+				return;
+			}
+
+			$.ajax( {
+				url  : dcbAdmin.ajaxUrl,
+				type : 'POST',
+				data : { action: 'dcb_delete_badge', id: badgeId, nonce: dcbAdmin.nonce },
+				success: function ( response ) {
+					if ( response.success ) {
+						self.showNotice( response.data.message, 'success' );
+						setTimeout( function () { location.reload(); }, 1000 );
+					} else {
+						self.showNotice( response.data.message, 'error' );
+					}
+				},
+				error: function () {
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Duplicate badge
+		// -----------------------------------------------------------------
+
+		duplicateBadge: function ( badgeId ) {
+			var self = this;
+
+			$.ajax( {
+				url  : dcbAdmin.ajaxUrl,
+				type : 'POST',
+				data : { action: 'dcb_duplicate_badge', id: badgeId, nonce: dcbAdmin.nonce },
+				success: function ( response ) {
+					if ( response.success ) {
+						self.showNotice( response.data.message, 'success' );
+						setTimeout( function () { location.reload(); }, 1000 );
+					} else {
+						self.showNotice( response.data.message, 'error' );
+					}
+				},
+				error: function () {
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Toggle badge active status
+		// -----------------------------------------------------------------
+
+		toggleBadge: function ( badgeId ) {
+			var self = this;
+
+			$.ajax( {
+				url  : dcbAdmin.ajaxUrl,
+				type : 'POST',
+				data : { action: 'dcb_toggle_badge', id: badgeId, nonce: dcbAdmin.nonce },
+				success: function ( response ) {
+					if ( ! response.success ) {
+						self.showNotice( response.data.message, 'error' );
+						setTimeout( function () { location.reload(); }, 500 );
+					}
+				},
+				error: function () {
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+					setTimeout( function () { location.reload(); }, 500 );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Reorder badges (after drag-drop on list page)
+		// -----------------------------------------------------------------
+
+		reorderBadges: function () {
+			var self  = this;
+			var order = [];
+
+			$( '.dcb-badge-row' ).each( function () {
+				order.push( $( this ).data( 'badge-id' ) );
+			} );
+
+			$.ajax( {
+				url  : dcbAdmin.ajaxUrl,
+				type : 'POST',
+				data : { action: 'dcb_reorder_badges', order: order, nonce: dcbAdmin.nonce },
+				success: function ( response ) {
+					if ( ! response.success ) {
+						self.showNotice( response.data.message, 'error' );
+					}
+				},
+				error: function () {
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Export badges to JSON file
+		// -----------------------------------------------------------------
+
+		exportBadges: function () {
+			var self = this;
+
+			$.ajax( {
+				url  : dcbAdmin.ajaxUrl,
+				type : 'POST',
+				data : { action: 'dcb_export_badges', nonce: dcbAdmin.nonce },
+				success: function ( response ) {
+					if ( response.success ) {
+						var blob = new Blob(
+							[ JSON.stringify( response.data.badges, null, 2 ) ],
+							{ type: 'application/json' }
+						);
+						var url  = URL.createObjectURL( blob );
+						var link = document.createElement( 'a' );
+						link.href     = url;
+						link.download = 'directorist-custom-badges-' + Date.now() + '.json';
+						link.click();
+						URL.revokeObjectURL( url );
+					} else {
+						self.showNotice( response.data.message, 'error' );
+					}
+				},
+				error: function () {
+					self.showNotice( dcbAdmin.strings.error, 'error' );
+				}
+			} );
+		},
+
+		// -----------------------------------------------------------------
+		// Import badges from JSON file
+		// -----------------------------------------------------------------
+
+		importBadges: function ( input ) {
+			var self = this;
+			var file = input.files[ 0 ];
+
+			if ( ! file ) {
+				return;
+			}
+
+			var reader    = new FileReader();
+			reader.onload = function ( e ) {
+				try {
+					var badges = JSON.parse( e.target.result );
+
+					if ( ! Array.isArray( badges ) ) {
+						self.showNotice( 'Invalid file format.', 'error' );
+						return;
+					}
+
+					if ( ! confirm( 'Import ' + badges.length + ' badge(s)?' ) ) {
+						return;
+					}
+
+					$.ajax( {
+						url  : dcbAdmin.ajaxUrl,
+						type : 'POST',
+						data : { action: 'dcb_import_badges', badges: badges, nonce: dcbAdmin.nonce },
+						success: function ( response ) {
+							if ( response.success ) {
+								self.showNotice( response.data.message, 'success' );
+								setTimeout( function () { location.reload(); }, 1000 );
+							} else {
+								self.showNotice( response.data.message, 'error' );
+							}
+						},
+						error: function () {
+							self.showNotice( dcbAdmin.strings.error, 'error' );
+						}
+					} );
+				} catch ( err ) {
+					self.showNotice( 'Error parsing JSON file.', 'error' );
+				}
+			};
+			reader.readAsText( file );
+		},
+
+		// -----------------------------------------------------------------
+		// Inline notice banner
+		// -----------------------------------------------------------------
+
+		showNotice: function ( message, type ) {
+			type = type || 'info';
+			var $notice = $( '<div class="notice notice-' + type + ' is-dismissible"><p>' + message + '</p></div>' );
+			$( '.dcb-notices' ).html( $notice );
+
+			setTimeout( function () {
+				$notice.fadeOut( 400, function () { $( this ).remove(); } );
+			}, 5000 );
+		}
+	};
+
+	// Boot on DOM ready.
+	$( document ).ready( function () {
+		DCBAdmin.init();
+		// Expose globally so the inline PHP script in the form template can set conditionIndex.
+		window.DCBAdmin = DCBAdmin;
+	} );
+
+} )( jQuery );
