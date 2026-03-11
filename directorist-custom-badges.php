@@ -8,7 +8,7 @@
  * Plugin Name:       Directorist - Custom Badges
  * Plugin URI:        https://wpxplore.com/tools/directorist-custom-badges/
  * Description:       Best way to create custom badges for Directorist with advanced condition-based display rules
- * Version:           3.0.0
+ * Version:           3.1.0
  * Requires at least: 5.2
  * Author:            wpWax
  * Author URI:        https://wpxplore.com
@@ -68,7 +68,7 @@ if (!class_exists('Directorist_Custom_Badges')) {
              * Plugin version
              */
             if (!defined('DIRECTORIST_CUSTOM_BADGE_VERSION')) {
-                define('DIRECTORIST_CUSTOM_BADGE_VERSION', '3.0.0');
+                define('DIRECTORIST_CUSTOM_BADGE_VERSION', '3.1.0');
             }
 
             if (!defined('DIRECTORIST_CUSTOM_BADGE_URI')) {
