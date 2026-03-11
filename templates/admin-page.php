@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $badges = Directorist_Custom_Badges_Admin::get_badges();
 ?>
 
-<div class="wrap dcb-admin-wrap">
+<div class="wrap dcb-admin-wrap dcb-admin-wrap--list">
 
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Custom Badges', 'directorist-custom-badges' ); ?></h1>
 
@@ -47,7 +47,7 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 
 			<!-- Badges table ------------------------------------------------ -->
 			<div class="dcb-badges-table-wrapper" id="dcb-badges-table">
-				<table class="wp-list-table widefat fixed striped dcb-badges-table">
+				<table class="wp-list-table widefat fixed striped dcb-badges-table dcb-badges-table--responsive">
 					<thead>
 						<tr>
 							<th class="column-order" scope="col">
@@ -77,12 +77,12 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 							<tr class="dcb-badge-row" data-badge-id="<?php echo esc_attr( $badge['id'] ); ?>">
 
 								<!-- Drag handle -->
-								<td class="column-order">
+								<td class="column-order" data-label="<?php esc_attr_e( 'Reorder', 'directorist-custom-badges' ); ?>">
 									<span class="dcb-drag-handle dashicons dashicons-move" title="<?php esc_attr_e( 'Drag to reorder', 'directorist-custom-badges' ); ?>"></span>
 								</td>
 
 								<!-- Badge preview swatch -->
-								<td class="column-preview">
+								<td class="column-preview" data-label="<?php esc_attr_e( 'Preview', 'directorist-custom-badges' ); ?>">
 									<span class="dcb-badge-preview" style="<?php echo $swatch_style; ?>">
 										<?php if ( $badge_icon ) : ?>
 											<i class="dcb-badge-icon-preview <?php echo esc_attr( $badge_icon ); ?>"></i>
@@ -92,7 +92,7 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 								</td>
 
 								<!-- Title -->
-								<td class="column-title">
+								<td class="column-title" data-label="<?php esc_attr_e( 'Title', 'directorist-custom-badges' ); ?>">
 									<strong>
 										<a href="<?php echo esc_url( admin_url( 'admin.php?page=directorist-custom-badges-form&badge_id=' . urlencode( $badge['id'] ) ) ); ?>">
 											<?php echo esc_html( $badge['badge_title'] ); ?>
@@ -101,19 +101,19 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 								</td>
 
 								<!-- Badge ID -->
-								<td class="column-id">
+								<td class="column-id" data-label="<?php esc_attr_e( 'Badge ID', 'directorist-custom-badges' ); ?>">
 									<code><?php echo esc_html( $badge['badge_id'] ); ?></code>
 								</td>
 
 								<!-- Conditions count -->
-								<td class="column-conditions">
+								<td class="column-conditions" data-label="<?php esc_attr_e( 'Conditions', 'directorist-custom-badges' ); ?>">
 									<span class="dcb-condition-count <?php echo 0 === $condition_count ? 'is-zero' : ''; ?>">
 										<?php echo esc_html( $condition_count ); ?>
 									</span>
 								</td>
 
 								<!-- Active toggle -->
-								<td class="column-status">
+								<td class="column-status" data-label="<?php esc_attr_e( 'Active', 'directorist-custom-badges' ); ?>">
 									<label class="dcb-toggle-switch" title="<?php echo $is_active ? esc_attr__( 'Active – click to disable', 'directorist-custom-badges' ) : esc_attr__( 'Inactive – click to enable', 'directorist-custom-badges' ); ?>">
 										<input
 											type="checkbox"
@@ -126,7 +126,7 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 								</td>
 
 								<!-- Actions -->
-								<td class="column-actions">
+								<td class="column-actions" data-label="<?php esc_attr_e( 'Actions', 'directorist-custom-badges' ); ?>">
 									<div class="dcb-row-actions">
 										<a
 											href="<?php echo esc_url( admin_url( 'admin.php?page=directorist-custom-badges-form&badge_id=' . urlencode( $badge['id'] ) ) ); ?>"

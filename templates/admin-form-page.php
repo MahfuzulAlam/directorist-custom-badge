@@ -25,7 +25,7 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
 
 ?>
 
-<div class="wrap dcb-admin-wrap">
+<div class="wrap dcb-admin-wrap dcb-admin-wrap--form">
     <h1 class="wp-heading-inline"><?php echo esc_html($page_title); ?></h1>
     <a href="<?php echo esc_url($list_url); ?>" class="page-title-action"><?php echo esc_html__('← Back to Badges', 'directorist-custom-badges'); ?></a>
     
