@@ -42,9 +42,40 @@ if ( ! $listing->has_badge( $data ) ) {
                     $badge_label = isset( $badge['data']['label'] ) ? $badge['data']['label'] : '';
                     $badge_icon  = !empty( $badge['data']['icon'] ) ? $badge['data']['icon'] : '';
                     $badge_color = !empty( $badge['data']['color'] ) ? $badge['data']['color'] : '';
+                    $badge_text_color = !empty( $badge['data']['font_color'] ) ? $badge['data']['font_color'] : '';
                     $badge_class = !empty( $badge['data']['class'] ) ? $badge['data']['class'] : '';
-                    $style_attr  = $badge_color ? ' style="background-color:' . esc_attr( $badge_color ) . ';"' : '';
+                    $badge_type  = ! empty( $badge['data']['badge_data']['badge_type'] ) ? $badge['data']['badge_data']['badge_type'] : 'custom';
+                    $style_attr  = '';
+                    if ( $badge_color || $badge_text_color ) {
+                        $style_attr = ' style="';
+                        $style_attr .= $badge_color ? 'background-color:' . esc_attr( $badge_color ) . ';' : '';
+                        $style_attr .= $badge_text_color ? 'color:' . esc_attr( $badge_text_color ) . ';' : '';
+                        $style_attr .= '"';
+                    }
                 ?>
+                <?php if ( 'tags' === $badge_type ) : ?>
+                    <?php
+                    $tags = defined( 'ATBDP_TAGS' ) ? get_the_terms( get_the_ID(), ATBDP_TAGS ) : array();
+                    if ( is_wp_error( $tags ) || empty( $tags ) || ! is_array( $tags ) ) {
+                        continue;
+                    }
+                    $maximum_tags = isset( $badge['data']['maximum_tags'] ) ? absint( $badge['data']['maximum_tags'] ) : 0;
+                    if ( $maximum_tags > 0 ) {
+                        $tags = array_slice( $tags, 0, $maximum_tags );
+                    }
+                    ?>
+                    <span class="directorist-tags-badge directorist-info-item <?php echo esc_attr( $badge_class ); ?>">
+                        <?php foreach ( $tags as $tag ) : ?>
+                            <span class="directorist-tag-badge-item"<?php echo $style_attr; ?>>
+                                <?php if ( $badge_icon ) : ?>
+                                    <?php echo function_exists( 'directorist_icon' ) ? directorist_icon( $badge_icon ) : '<i class="' . esc_attr( $badge_icon ) . '"></i>'; ?>
+                                <?php endif; ?>
+                                <?php echo esc_html( $tag->name ); ?>
+                            </span>
+                        <?php endforeach; ?>
+                    </span>
+                    <?php continue; ?>
+                <?php endif; ?>
                 <span class="directorist-badge directorist-custom-badge-single directorist-badge-single-<?php echo esc_attr( $badge_id ); ?> <?php echo esc_attr( $badge_class ); ?>"<?php echo $style_attr; ?>>
                     <?php if ( $badge_icon ) : ?>
                         <?php echo function_exists( 'directorist_icon' ) ? directorist_icon( $badge_icon ) : '<i class="' . esc_attr( $badge_icon ) . '"></i>'; ?>

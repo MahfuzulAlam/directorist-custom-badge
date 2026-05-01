@@ -44,7 +44,7 @@ class Directorist_Custom_Badges_Conditions {
 		}
 
 		if ( empty( $badge_data['conditions'] ) || ! is_array( $badge_data['conditions'] ) ) {
-			return false;
+			return true;
 		}
 
 		$relation = self::sanitize_relation(

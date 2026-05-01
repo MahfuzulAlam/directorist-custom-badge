@@ -375,14 +375,20 @@ class Directorist_Custom_Badges_Admin
         }
 
         // Prepare badge data
+        $allowed_badge_types = array('custom', 'tags');
+        $badge_type = isset($badge_data['badge_type']) && in_array($badge_data['badge_type'], $allowed_badge_types, true) ? $badge_data['badge_type'] : 'custom';
+
         $badge = array(
             'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : Directorist_Custom_Badges_Helper::generate_unique_id(),
+            'badge_type' => $badge_type,
             'badge_title' => sanitize_text_field($badge_data['badge_title']),
             'badge_icon' => sanitize_text_field($badge_data['badge_icon'] ?? ''),
             'badge_id' => $badge_id,
             'badge_label' => sanitize_text_field($badge_data['badge_label']),
             'badge_class' => sanitize_text_field($badge_data['badge_class'] ?? ''),
+            'maximum_tags' => isset($badge_data['maximum_tags']) ? absint($badge_data['maximum_tags']) : 0,
             'badge_color' => sanitize_hex_color($badge_data['badge_color'] ?? '') ?: '',
+            'badge_text_color' => sanitize_hex_color($badge_data['badge_text_color'] ?? '') ?: '',
             'conditions' => Directorist_Custom_Badges_Helper::sanitize_conditions($badge_data['conditions'] ?? array()),
             'condition_relation' => in_array($badge_data['condition_relation'] ?? 'AND', array('AND', 'OR')) ? $badge_data['condition_relation'] : 'AND',
             'is_active' => isset($badge_data['is_active']) ? (bool) $badge_data['is_active'] : true,
@@ -754,13 +760,18 @@ class Directorist_Custom_Badges_Admin
                     case 'id':
                         $sanitized[$key] = sanitize_key($value);
                         break;
+                    case 'badge_type':
+                        $sanitized[$key] = in_array($value, array('custom', 'tags'), true) ? $value : 'custom';
+                        break;
                     case 'badge_color':
+                    case 'badge_text_color':
                         $sanitized[$key] = sanitize_hex_color($value) ?: '';
                         break;
                     case 'is_active':
                         $sanitized[$key] = (bool) $value;
                         break;
                     case 'order':
+                    case 'maximum_tags':
                         $sanitized[$key] = absint($value);
                         break;
                     case 'condition_relation':
@@ -776,4 +787,3 @@ class Directorist_Custom_Badges_Admin
         return $sanitized;
     }
 }
-

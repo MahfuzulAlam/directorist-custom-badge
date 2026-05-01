@@ -65,14 +65,21 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 						<?php foreach ( $badges as $badge ) : ?>
 							<?php
 							$badge_color      = ! empty( $badge['badge_color'] ) ? esc_attr( $badge['badge_color'] ) : '';
+							$badge_text_color = ! empty( $badge['badge_text_color'] ) ? esc_attr( $badge['badge_text_color'] ) : '';
 							$badge_icon       = ! empty( $badge['badge_icon'] )  ? esc_attr( $badge['badge_icon'] )  : '';
 							$condition_count  = isset( $badge['conditions'] ) ? count( $badge['conditions'] ) : 0;
 							$is_active        = ! empty( $badge['is_active'] );
 
 							// Build accessible preview swatch background/color.
-							$swatch_style = $badge_color
-								? 'background:' . $badge_color . ';color:' . ( Directorist_Custom_Badges_Helper::is_dark_color( $badge_color ) ? '#fff' : '#333' ) . ';'
-								: '';
+							$swatch_style = '';
+							if ( $badge_color ) {
+								$swatch_style .= 'background:' . $badge_color . ';';
+							}
+							if ( $badge_text_color ) {
+								$swatch_style .= 'color:' . $badge_text_color . ';';
+							} elseif ( $badge_color ) {
+								$swatch_style .= 'color:' . ( Directorist_Custom_Badges_Helper::is_dark_color( $badge_color ) ? '#fff' : '#333' ) . ';';
+							}
 							?>
 							<tr class="dcb-badge-row" data-badge-id="<?php echo esc_attr( $badge['id'] ); ?>">
 

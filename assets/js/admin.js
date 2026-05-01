@@ -27,6 +27,7 @@
 			this.initColorPicker();
 			this.initExistingCompareStates();
 			this.initMetaKeySelect2();
+			this.handleBadgeTypeChange();
 		},
 
 		// -----------------------------------------------------------------
@@ -96,6 +97,11 @@
 			// Badge ID live validation.
 			$( document ).on( 'blur', '#dcb-badge-id-field', function () {
 				self.validateBadgeId( $( this ).val() );
+			} );
+
+			// Badge type controls type-specific fields.
+			$( document ).on( 'change', '#dcb-badge-type', function () {
+				self.handleBadgeTypeChange();
 			} );
 
 			// Export / import.
@@ -239,6 +245,15 @@
 		},
 
 		// -----------------------------------------------------------------
+		// Badge type: show / hide type-specific fields
+		// -----------------------------------------------------------------
+
+		handleBadgeTypeChange: function () {
+			var badgeType = $( '#dcb-badge-type' ).val() || 'custom';
+			$( '.dcb-maximum-tags-row' ).toggle( 'tags' === badgeType );
+		},
+
+		// -----------------------------------------------------------------
 		// Condition: type change (Meta ↔ Pricing Plan)
 		// -----------------------------------------------------------------
 
@@ -371,18 +386,25 @@
 
 			$( '#dcb-badge-id' ).val( badge.id || '' );
 			$( '#dcb-badge-order' ).val( badge.order || '' );
+			$( '#dcb-badge-type' ).val( badge.badge_type || 'custom' );
 			$( '#dcb-badge-title' ).val( badge.badge_title || '' );
 			$( '#dcb-badge-icon' ).val( badge.badge_icon || '' );
 			$( '#dcb-badge-id-field' ).val( badge.badge_id || '' );
 			$( '#dcb-badge-label' ).val( badge.badge_label || '' );
 			$( '#dcb-badge-class' ).val( badge.badge_class || '' );
 			$( '#dcb-badge-color' ).val( badge.badge_color || '' );
+			$( '#dcb-badge-text-color' ).val( badge.badge_text_color || '' );
+			$( '#dcb-maximum-tags' ).val( badge.maximum_tags || '' );
 
 			if ( typeof $.fn.wpColorPicker !== 'undefined' && $( '#dcb-badge-color' ).hasClass( 'wp-color-picker' ) ) {
 				$( '#dcb-badge-color' ).wpColorPicker( 'color', badge.badge_color || '' );
 			}
+			if ( typeof $.fn.wpColorPicker !== 'undefined' && $( '#dcb-badge-text-color' ).hasClass( 'wp-color-picker' ) ) {
+				$( '#dcb-badge-text-color' ).wpColorPicker( 'color', badge.badge_text_color || '' );
+			}
 
 			$( '#dcb-condition-relation' ).val( badge.condition_relation || 'AND' );
+			this.handleBadgeTypeChange();
 			$( '#dcb-badge-active' ).prop(
 				'checked',
 				true === badge.is_active || '1' === badge.is_active || 1 === badge.is_active
@@ -457,12 +479,15 @@
 			var badgeData = {
 				id               : $( '#dcb-badge-id' ).val()              || '',
 				order            : $( '#dcb-badge-order' ).val()           || '',
+				badge_type       : $( '#dcb-badge-type' ).val()            || 'custom',
 				badge_title      : $( '#dcb-badge-title' ).val()           || '',
 				badge_icon       : $( '#dcb-badge-icon' ).val()            || '',
 				badge_id         : $( '#dcb-badge-id-field' ).val()        || '',
 				badge_label      : $( '#dcb-badge-label' ).val()           || '',
 				badge_class      : $( '#dcb-badge-class' ).val()           || '',
+				maximum_tags     : $( '#dcb-maximum-tags' ).val()          || '',
 				badge_color      : $( '#dcb-badge-color' ).val()           || '',
+				badge_text_color : $( '#dcb-badge-text-color' ).val()      || '',
 				condition_relation: $( '#dcb-condition-relation' ).val()   || 'AND',
 				is_active        : $( '#dcb-badge-active' ).is( ':checked' ) ? 1 : 0,
 				conditions       : []
@@ -503,12 +528,15 @@
 				nonce  : dcbAdmin.nonce,
 				'badge[id]'                : badgeData.id,
 				'badge[order]'             : badgeData.order,
+				'badge[badge_type]'        : badgeData.badge_type,
 				'badge[badge_title]'       : badgeData.badge_title,
 				'badge[badge_icon]'        : badgeData.badge_icon,
 				'badge[badge_id]'          : badgeData.badge_id,
 				'badge[badge_label]'       : badgeData.badge_label,
 				'badge[badge_class]'       : badgeData.badge_class,
+				'badge[maximum_tags]'      : badgeData.maximum_tags,
 				'badge[badge_color]'       : badgeData.badge_color,
+				'badge[badge_text_color]'  : badgeData.badge_text_color,
 				'badge[condition_relation]': badgeData.condition_relation,
 				'badge[is_active]'         : badgeData.is_active
 			};

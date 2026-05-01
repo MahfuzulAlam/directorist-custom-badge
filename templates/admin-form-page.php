@@ -40,6 +40,23 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
 
                     <div class="dcb-form-section">
                         <h3><?php echo esc_html__('Basic Information', 'directorist-custom-badges'); ?></h3>
+
+                        <div class="dcb-form-row">
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-type">
+                                    <?php echo esc_html__('Badge Type', 'directorist-custom-badges'); ?>
+                                </label>
+                                <select id="dcb-badge-type" name="badge[badge_type]" class="dcb-select">
+                                    <option value="custom" <?php selected($is_edit && isset($badge['badge_type']) ? $badge['badge_type'] : 'custom', 'custom'); ?>>
+                                        <?php echo esc_html__('Custom', 'directorist-custom-badges'); ?>
+                                    </option>
+                                    <option value="tags" <?php selected($is_edit && isset($badge['badge_type']) ? $badge['badge_type'] : 'custom', 'tags'); ?>>
+                                        <?php echo esc_html__('Tags', 'directorist-custom-badges'); ?>
+                                    </option>
+                                </select>
+                                <p class="description"><?php echo esc_html__('Choose whether this badge displays custom label text or listing tags.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
                         
                         <div class="dcb-form-row">
                             <div class="dcb-form-field">
@@ -95,13 +112,33 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                             </div>
                         </div>
 
+                        <div class="dcb-form-row dcb-maximum-tags-row" <?php echo ($is_edit && isset($badge['badge_type']) && 'tags' === $badge['badge_type']) ? '' : 'style="display:none;"'; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-maximum-tags">
+                                    <?php echo esc_html__('Maximum Tags', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="number" id="dcb-maximum-tags" name="badge[maximum_tags]" class="dcb-input" placeholder="<?php echo esc_attr__('3', 'directorist-custom-badges'); ?>" min="0" value="<?php echo $is_edit && isset($badge['maximum_tags']) ? esc_attr($badge['maximum_tags']) : ''; ?>">
+                                <p class="description"><?php echo esc_html__('Maximum number of listing tags to show on the frontend. Leave empty or use 0 to show all tags.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
                         <div class="dcb-form-row">
                             <div class="dcb-form-field">
                                 <label for="dcb-badge-color">
-                                    <?php echo esc_html__('Badge Color', 'directorist-custom-badges'); ?>
+                                    <?php echo esc_html__('Badge Background Color', 'directorist-custom-badges'); ?>
                                 </label>
                                 <input type="text" id="dcb-badge-color" name="badge[badge_color]" class="dcb-color-picker dcb-input" value="<?php echo $is_edit && isset($badge['badge_color']) ? esc_attr($badge['badge_color']) : ''; ?>" data-default-color="">
-                                <p class="description"><?php echo esc_html__('Choose a color for the badge background or text.', 'directorist-custom-badges'); ?></p>
+                                <p class="description"><?php echo esc_html__('Choose a background color for the badge.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dcb-form-row">
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-text-color">
+                                    <?php echo esc_html__('Badge Text Color', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="text" id="dcb-badge-text-color" name="badge[badge_text_color]" class="dcb-color-picker dcb-input" value="<?php echo $is_edit && isset($badge['badge_text_color']) ? esc_attr($badge['badge_text_color']) : ''; ?>" data-default-color="">
+                                <p class="description"><?php echo esc_html__('Choose a text color for the badge.', 'directorist-custom-badges'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -186,4 +223,3 @@ jQuery(document).ready(function($) {
     <?php endif; ?>
 });
 </script>
-

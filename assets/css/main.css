@@ -13,6 +13,12 @@
     background-color: #fff;
 }
 
+.directorist-custom-badge .directorist-icon-mask:after,
+.directorist-custom-badge-single .directorist-icon-mask:after
+{
+    background-color: currentColor;
+}
+
 .directorist-custom-badge-single
 {
     display: inline-flex;
@@ -41,4 +47,41 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.directorist-tags-badge
+{
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.directorist-tag-badge-item
+{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 22px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.directorist-tag-badge-item .directorist-icon-mask
+{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 12px;
+    width: 12px;
+}
+
+.directorist-tag-badge-item .directorist-icon-mask:after
+{
+    background-color: currentColor;
+    display: inline-block;
+    height: 12px;
+    width: 12px;
 }

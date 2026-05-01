@@ -188,12 +188,15 @@ class Directorist_Custom_Badges_Helper
             // Prepare attributes for Directorist_Badge
             $atts = array(
                 'id' => $badge['badge_id'],
+                'badge_type' => !empty($badge['badge_type']) ? $badge['badge_type'] : 'custom',
                 'label' => $badge['badge_label'],
                 'icon' => !empty($badge['badge_icon']) ? $badge['badge_icon'] : '',
                 'hook' => 'atbdp-' . $badge['badge_id'],
                 'title' => $badge['badge_label'],
                 'class' => !empty($badge['badge_class']) ? $badge['badge_class'] : '',
+                'maximum_tags' => isset($badge['maximum_tags']) ? absint($badge['maximum_tags']) : 0,
                 'color' => !empty($badge['badge_color']) ? $badge['badge_color'] : '',
+                'font_color' => !empty($badge['badge_text_color']) ? $badge['badge_text_color'] : '',
                 'badge_data' => $badge, // Store full badge data for condition checking
             );
 
@@ -464,4 +467,3 @@ class Directorist_Custom_Badges_Helper
         }
     }
 }
-

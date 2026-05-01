@@ -32,7 +32,7 @@ class Directorist_Custom_Badge
 
         // Get badges from options
         $badges_data = Directorist_Custom_Badges_Helper::get_badges_from_options();
-        
+
         if (empty($badges_data)) {
             self::$badges_initialized = true;
             return;
@@ -144,22 +144,44 @@ class Directorist_Custom_Badge
         }
     }
 
+    private function render_badge()
+    {
+        $badge_type = isset($this->atts['badge_type']) ? $this->atts['badge_type'] : 'custom';
+
+        if (isset($this->atts['badge_data']['badge_type'])) {
+            $badge_type = $this->atts['badge_data']['badge_type'];
+        }
+
+        if ('tags' === $badge_type) {
+            $this->render_tags();
+        } else {
+            $this->render_custom_badge();
+        }
+    }
+
 
     /**
      * Render badge HTML
      */
-    private function render_badge()
+    private function render_custom_badge()
     {
         $badge_id = esc_attr($this->atts['id']);
         $badge_class = esc_attr($this->atts['class']);
         $badge_title = esc_html($this->atts['title']);
         $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
-        $badge_color = !empty($this->atts['color']) ? esc_attr($this->atts['color']) : '';
-        
+        $badge_color = !empty($this->atts['color']) ? sanitize_hex_color($this->atts['color']) : '';
+        $has_font_color = !empty($this->atts['font_color']);
+        $font_color = $has_font_color ? sanitize_hex_color($this->atts['font_color']) : '#ffffff';
+        $font_color = $font_color ?: '#ffffff';
+        $badge_padding = !empty($this->atts['badge_padding']) ? esc_attr($this->atts['badge_padding']) : '0 10px';
+
         // Build inline style for color
         $style = '';
-        if (!empty($badge_color)) {
-            $style = ' style="background-color: ' . esc_attr($badge_color) . ';"';
+        if (!empty($badge_color) || $has_font_color) {
+            $style = ' style="';
+            $style .= !empty($badge_color) ? 'background-color: ' . esc_attr($badge_color) . ' !important;' : '';
+            $style .= ' color: ' . esc_attr($font_color) . ' !important;';
+            $style .= ' padding: ' . esc_attr($badge_padding) . ' !important;"';
         }
         ?>
         <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
@@ -169,6 +191,61 @@ class Directorist_Custom_Badge
             <?php echo esc_html($badge_title); ?>
         </span>
         <?php
+    }
+
+    private function render_tags()
+    {
+        $tags = $this->get_tags();
+        if (empty($tags)) {
+            return;
+        }
+
+        $maximum_tags = isset($this->atts['maximum_tags']) ? absint($this->atts['maximum_tags']) : 0;
+        if ($maximum_tags > 0) {
+            $tags = array_slice($tags, 0, $maximum_tags);
+        }
+
+        $badge_id = esc_attr($this->atts['id']);
+        $badge_class = esc_attr($this->atts['class']);
+        $badge_icon = !empty($this->atts['icon']) ? esc_attr($this->atts['icon']) : '';
+        $badge_color = !empty($this->atts['color']) ? sanitize_hex_color($this->atts['color']) : '#ffffff';
+        $font_color = !empty($this->atts['font_color']) ? sanitize_hex_color($this->atts['font_color']) : '#000000';
+        $badge_color = $badge_color ?: '#ffffff';
+        $font_color = $font_color ?: '#000000';
+        $badge_padding = !empty($this->atts['badge_padding']) ? esc_attr($this->atts['badge_padding']) : '0 5px';
+
+        // Build inline style for color
+        $style = '';
+        if (!empty($badge_color)) {
+            $style = ' style="background-color: ' . esc_attr($badge_color) . ' !important;';
+            $style .= ' color: ' . esc_attr($font_color) . ' !important;';
+            $style .= ' padding: ' . esc_attr($badge_padding) . ' !important;"';
+        }
+        ?>
+        <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-tags-badge directorist-info-item <?php echo esc_attr($badge_class); ?>">
+            <?php foreach ($tags as $tag) : ?>
+                <span class="directorist-tag-badge-item" <?php echo $style; ?>>
+                    <?php if ($badge_icon): ?>
+                        <?php echo directorist_icon($badge_icon); ?>
+                    <?php endif; ?>
+                    <?php echo esc_html($tag->name); ?>
+                </span>
+            <?php endforeach; ?>
+        </span>
+        <?php
+    }
+
+    private function get_tags()
+    {
+        if (!defined('ATBDP_TAGS')) {
+            return [];
+        }
+
+        $tags = get_the_terms(get_the_ID(), ATBDP_TAGS);
+        if (!is_wp_error($tags) && !empty($tags) && is_array($tags)) {
+            return $tags;
+        }
+        return [];
     }
 
 }
