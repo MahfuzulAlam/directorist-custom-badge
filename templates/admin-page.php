@@ -66,7 +66,17 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 							<?php
 							$badge_color      = ! empty( $badge['badge_color'] ) ? esc_attr( $badge['badge_color'] ) : '';
 							$badge_text_color = ! empty( $badge['badge_text_color'] ) ? esc_attr( $badge['badge_text_color'] ) : '';
+							$badge_label_font_size = ! empty( $badge['badge_label_font_size'] ) ? absint( $badge['badge_label_font_size'] ) : 14;
+							$badge_label_font_size = $badge_label_font_size > 0 ? $badge_label_font_size : 14;
 							$badge_icon       = ! empty( $badge['badge_icon'] )  ? esc_attr( $badge['badge_icon'] )  : '';
+							$badge_type       = ! empty( $badge['badge_type'] ) ? $badge['badge_type'] : 'custom';
+							$badge_type       = in_array( $badge_type, array( 'custom', 'tags' ), true ) ? $badge_type : 'custom';
+							$display_type     = ! empty( $badge['display_type'] ) ? $badge['display_type'] : 'label';
+							$display_type     = in_array( $display_type, array( 'label', 'image' ), true ) ? $display_type : 'label';
+							$badge_image_url  = ! empty( $badge['badge_image_url'] ) ? $badge['badge_image_url'] : '';
+							if ( ! $badge_image_url && ! empty( $badge['badge_image_id'] ) ) {
+								$badge_image_url = wp_get_attachment_image_url( absint( $badge['badge_image_id'] ), 'full' );
+							}
 							$condition_count  = isset( $badge['conditions'] ) ? count( $badge['conditions'] ) : 0;
 							$is_active        = ! empty( $badge['is_active'] );
 
@@ -80,6 +90,7 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 							} elseif ( $badge_color ) {
 								$swatch_style .= 'color:' . ( Directorist_Custom_Badges_Helper::is_dark_color( $badge_color ) ? '#fff' : '#333' ) . ';';
 							}
+							$swatch_style .= 'font-size:' . $badge_label_font_size . 'px;';
 							?>
 							<tr class="dcb-badge-row" data-badge-id="<?php echo esc_attr( $badge['id'] ); ?>">
 
@@ -91,10 +102,14 @@ $badges = Directorist_Custom_Badges_Admin::get_badges();
 								<!-- Badge preview swatch -->
 								<td class="column-preview" data-label="<?php esc_attr_e( 'Preview', 'directorist-custom-badges' ); ?>">
 									<span class="dcb-badge-preview" style="<?php echo $swatch_style; ?>">
-										<?php if ( $badge_icon ) : ?>
-											<i class="dcb-badge-icon-preview <?php echo esc_attr( $badge_icon ); ?>"></i>
+										<?php if ( 'custom' === $badge_type && 'image' === $display_type && $badge_image_url ) : ?>
+											<img src="<?php echo esc_url( $badge_image_url ); ?>" alt="<?php echo esc_attr( $badge['badge_label'] ); ?>" class="dcb-badge-preview-image">
+										<?php else : ?>
+											<?php if ( $badge_icon ) : ?>
+												<i class="dcb-badge-icon-preview <?php echo esc_attr( $badge_icon ); ?>"></i>
+											<?php endif; ?>
+											<?php echo esc_html( $badge['badge_label'] ); ?>
 										<?php endif; ?>
-										<?php echo esc_html( $badge['badge_label'] ); ?>
 									</span>
 								</td>
 

@@ -22,6 +22,8 @@ if (!empty($badge_id)) {
 $page_title = $is_edit ? __('Edit Badge', 'directorist-custom-badges') : __('Add New Badge', 'directorist-custom-badges');
 $form_url = admin_url('admin.php?page=directorist-custom-badges-form');
 $list_url = admin_url('admin.php?page=directorist-custom-badges');
+$badge_type = $is_edit && isset($badge['badge_type']) ? $badge['badge_type'] : 'custom';
+$display_type = $is_edit && isset($badge['display_type']) ? $badge['display_type'] : 'label';
 
 ?>
 
@@ -47,10 +49,10 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                                     <?php echo esc_html__('Badge Type', 'directorist-custom-badges'); ?>
                                 </label>
                                 <select id="dcb-badge-type" name="badge[badge_type]" class="dcb-select">
-                                    <option value="custom" <?php selected($is_edit && isset($badge['badge_type']) ? $badge['badge_type'] : 'custom', 'custom'); ?>>
+                                    <option value="custom" <?php selected($badge_type, 'custom'); ?>>
                                         <?php echo esc_html__('Custom', 'directorist-custom-badges'); ?>
                                     </option>
-                                    <option value="tags" <?php selected($is_edit && isset($badge['badge_type']) ? $badge['badge_type'] : 'custom', 'tags'); ?>>
+                                    <option value="tags" <?php selected($badge_type, 'tags'); ?>>
                                         <?php echo esc_html__('Tags', 'directorist-custom-badges'); ?>
                                     </option>
                                 </select>
@@ -71,16 +73,6 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
 
                         <div class="dcb-form-row">
                             <div class="dcb-form-field">
-                                <label for="dcb-badge-icon">
-                                    <?php echo esc_html__('Badge Icon', 'directorist-custom-badges'); ?>
-                                </label>
-                                <input type="text" id="dcb-badge-icon" name="badge[badge_icon]" class="dcb-input" placeholder="<?php echo esc_attr__('las la-check-circle', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_icon']) ? esc_attr($badge['badge_icon']) : ''; ?>">
-                                <p class="description"><?php echo esc_html__('Icon class name (e.g., las la-check-circle).', 'directorist-custom-badges'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dcb-form-row">
-                            <div class="dcb-form-field">
                                 <label for="dcb-badge-id-field">
                                     <?php echo esc_html__('Badge ID', 'directorist-custom-badges'); ?>
                                     <span class="dcb-required">*</span>
@@ -91,14 +83,87 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                             </div>
                         </div>
 
-                        <div class="dcb-form-row">
+                        <div class="dcb-form-row dcb-display-type-row" <?php echo 'tags' === $badge_type ? 'style="display:none;"' : ''; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-display-type">
+                                    <?php echo esc_html__('Display Type', 'directorist-custom-badges'); ?>
+                                </label>
+                                <select id="dcb-display-type" name="badge[display_type]" class="dcb-select">
+                                    <option value="label" <?php selected($is_edit && isset($badge['display_type']) ? $badge['display_type'] : 'label', 'label'); ?>>
+                                        <?php echo esc_html__('Label', 'directorist-custom-badges'); ?>
+                                    </option>
+                                    <option value="image" <?php selected($is_edit && isset($badge['display_type']) ? $badge['display_type'] : 'label', 'image'); ?>>
+                                        <?php echo esc_html__('Image', 'directorist-custom-badges'); ?>
+                                    </option>
+                                </select>
+                                <p class="description"><?php echo esc_html__('Choose whether the badge displays its text label or an uploaded image on the frontend.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <?php
+                        $badge_image_id = $is_edit && isset($badge['badge_image_id']) ? absint($badge['badge_image_id']) : 0;
+                        $badge_image_url = $is_edit && !empty($badge['badge_image_url']) ? esc_url($badge['badge_image_url']) : '';
+                        $badge_image_width = $is_edit && !empty($badge['badge_image_width']) ? absint($badge['badge_image_width']) : 30;
+                        $badge_label_font_size = $is_edit && !empty($badge['badge_label_font_size']) ? absint($badge['badge_label_font_size']) : 14;
+                        ?>
+                        <div class="dcb-form-row dcb-badge-image-row" <?php echo 'tags' !== $badge_type && 'image' === $display_type ? '' : 'style="display:none;"'; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-image-url">
+                                    <?php echo esc_html__('Badge Image', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="hidden" id="dcb-badge-image-id" name="badge[badge_image_id]" value="<?php echo esc_attr($badge_image_id); ?>">
+                                <input type="hidden" id="dcb-badge-image-url" name="badge[badge_image_url]" value="<?php echo esc_url($badge_image_url); ?>">
+                                <div class="dcb-image-upload-control">
+                                    <button type="button" class="button dcb-upload-badge-image"><?php echo esc_html__('Select Image', 'directorist-custom-badges'); ?></button>
+                                    <button type="button" class="button dcb-remove-badge-image" <?php echo $badge_image_url ? '' : 'style="display:none;"'; ?>><?php echo esc_html__('Remove Image', 'directorist-custom-badges'); ?></button>
+                                    <span class="dcb-badge-image-preview">
+                                        <?php if ($badge_image_url) : ?>
+                                            <img src="<?php echo esc_url($badge_image_url); ?>" alt="">
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+                                <p class="description"><?php echo esc_html__('Upload or select the image to display instead of the badge label.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dcb-form-row dcb-badge-image-row" <?php echo 'tags' !== $badge_type && 'image' === $display_type ? '' : 'style="display:none;"'; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-image-width">
+                                    <?php echo esc_html__('Badge Image Width', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="number" id="dcb-badge-image-width" name="badge[badge_image_width]" class="dcb-input" min="1" value="<?php echo esc_attr($badge_image_width); ?>">
+                                <p class="description"><?php echo esc_html__('Width of the uploaded badge image in pixels.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dcb-form-row dcb-label-display-row" <?php echo ('tags' === $badge_type || 'image' === $display_type) ? 'style="display:none;"' : ''; ?>>
                             <div class="dcb-form-field">
                                 <label for="dcb-badge-label">
                                     <?php echo esc_html__('Badge Label', 'directorist-custom-badges'); ?>
                                     <span class="dcb-required">*</span>
                                 </label>
-                                <input type="text" id="dcb-badge-label" name="badge[badge_label]" class="dcb-input" placeholder="<?php echo esc_attr__('Featured', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_label']) ? esc_attr($badge['badge_label']) : ''; ?>" required>
+                                <input type="text" id="dcb-badge-label" name="badge[badge_label]" class="dcb-input" placeholder="<?php echo esc_attr__('Featured', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_label']) ? esc_attr($badge['badge_label']) : ''; ?>" <?php echo ('custom' === $badge_type && 'label' === $display_type) ? 'required' : ''; ?>>
                                 <p class="description"><?php echo esc_html__('Display text for the badge.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dcb-form-row dcb-badge-label-font-size-row" <?php echo ('tags' === $badge_type || 'label' === $display_type) ? '' : 'style="display:none;"'; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-label-font-size">
+                                    <?php echo esc_html__('Badge Label Font Size', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="number" id="dcb-badge-label-font-size" name="badge[badge_label_font_size]" class="dcb-input" min="1" value="<?php echo esc_attr($badge_label_font_size); ?>">
+                                <p class="description"><?php echo esc_html__('Font size for badge label or tag text in pixels.', 'directorist-custom-badges'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dcb-form-row dcb-badge-icon-row" <?php echo ('tags' !== $badge_type && 'image' === $display_type) ? 'style="display:none;"' : ''; ?>>
+                            <div class="dcb-form-field">
+                                <label for="dcb-badge-icon">
+                                    <?php echo esc_html__('Badge Icon', 'directorist-custom-badges'); ?>
+                                </label>
+                                <input type="text" id="dcb-badge-icon" name="badge[badge_icon]" class="dcb-input" placeholder="<?php echo esc_attr__('las la-check-circle', 'directorist-custom-badges'); ?>" value="<?php echo $is_edit && isset($badge['badge_icon']) ? esc_attr($badge['badge_icon']) : ''; ?>">
+                                <p class="description"><?php echo esc_html__('Icon class name (e.g., las la-check-circle).', 'directorist-custom-badges'); ?></p>
                             </div>
                         </div>
 
@@ -122,7 +187,7 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                             </div>
                         </div>
 
-                        <div class="dcb-form-row">
+                        <div class="dcb-form-row dcb-badge-color-row" <?php echo ('tags' !== $badge_type && 'image' === $display_type) ? 'style="display:none;"' : ''; ?>>
                             <div class="dcb-form-field">
                                 <label for="dcb-badge-color">
                                     <?php echo esc_html__('Badge Background Color', 'directorist-custom-badges'); ?>
@@ -132,7 +197,7 @@ $list_url = admin_url('admin.php?page=directorist-custom-badges');
                             </div>
                         </div>
 
-                        <div class="dcb-form-row">
+                        <div class="dcb-form-row dcb-badge-text-color-row" <?php echo ('tags' !== $badge_type && 'image' === $display_type) ? 'style="display:none;"' : ''; ?>>
                             <div class="dcb-form-field">
                                 <label for="dcb-badge-text-color">
                                     <?php echo esc_html__('Badge Text Color', 'directorist-custom-badges'); ?>

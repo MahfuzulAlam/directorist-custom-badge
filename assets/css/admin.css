@@ -166,6 +166,14 @@
 	font-size: 13px;
 }
 
+.dcb-badge-preview-image {
+	display: block;
+	max-width: 90px;
+	max-height: 28px;
+	width: auto;
+	height: auto;
+}
+
 /* Badge ID code tag */
 .dcb-badges-table code {
 	background: #eef2f7;
@@ -437,6 +445,31 @@
 	color: var(--dcb-muted);
 	font-style: normal;
 	line-height: 1.5;
+}
+
+.dcb-image-upload-control {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.dcb-badge-image-preview {
+	display: inline-flex;
+	align-items: center;
+	min-height: 32px;
+}
+
+.dcb-badge-image-preview img {
+	display: block;
+	max-width: 120px;
+	max-height: 44px;
+	width: auto;
+	height: auto;
+	border: 1px solid var(--dcb-border);
+	border-radius: 4px;
+	background: #fff;
+	padding: 2px;
 }
 
 .dcb-checkbox-label {
@@ -714,8 +747,6 @@
 	align-items: center;
 	gap: 10px;
 	margin-top: 28px;
-	padding-top: 20px;
-	border-top: 1px solid #f0f0f1;
 }
 
 .dcb-form-actions .button {

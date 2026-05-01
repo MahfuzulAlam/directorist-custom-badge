@@ -3,7 +3,7 @@
 /**
  * @author  wpxplore
  * @since   1.0
- * @version 1.0
+ * @version 3.2.0
  */
 
 if (!defined('ABSPATH')) {
@@ -147,6 +147,8 @@ class Directorist_Custom_Badge
     private function render_badge()
     {
         $badge_type = isset($this->atts['badge_type']) ? $this->atts['badge_type'] : 'custom';
+        $display_type = !empty($this->atts['display_type']) ? $this->atts['display_type'] : 'label';
+        $display_type = in_array($display_type, array('label', 'image'), true) ? $display_type : 'label';
 
         if (isset($this->atts['badge_data']['badge_type'])) {
             $badge_type = $this->atts['badge_data']['badge_type'];
@@ -155,7 +157,11 @@ class Directorist_Custom_Badge
         if ('tags' === $badge_type) {
             $this->render_tags();
         } else {
-            $this->render_custom_badge();
+            if ('image' === $display_type) {
+                $this->render_image_badge();
+            } else {
+                $this->render_custom_badge();
+            }
         }
     }
 
@@ -173,15 +179,18 @@ class Directorist_Custom_Badge
         $has_font_color = !empty($this->atts['font_color']);
         $font_color = $has_font_color ? sanitize_hex_color($this->atts['font_color']) : '#ffffff';
         $font_color = $font_color ?: '#ffffff';
+        $label_font_size = !empty($this->atts['label_font_size']) ? absint($this->atts['label_font_size']) : 14;
+        $label_font_size = $label_font_size > 0 ? $label_font_size : 14;
         $badge_padding = !empty($this->atts['badge_padding']) ? esc_attr($this->atts['badge_padding']) : '0 10px';
 
         // Build inline style for color
-        $style = '';
+        $style = ' style="font-size: ' . esc_attr($label_font_size) . 'px;';
         if (!empty($badge_color) || $has_font_color) {
-            $style = ' style="';
             $style .= !empty($badge_color) ? 'background-color: ' . esc_attr($badge_color) . ' !important;' : '';
             $style .= ' color: ' . esc_attr($font_color) . ' !important;';
             $style .= ' padding: ' . esc_attr($badge_padding) . ' !important;"';
+        } else {
+            $style .= '"';
         }
         ?>
         <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
@@ -190,6 +199,20 @@ class Directorist_Custom_Badge
             <?php endif; ?>
             <?php echo esc_html($badge_title); ?>
         </span>
+        <?php
+    }
+
+    private function render_image_badge()
+    {
+        $badge_image_url = $this->get_badge_image_url();
+        if (!$badge_image_url) {
+            return;
+        }
+
+        $image_width = !empty($this->atts['image_width']) ? absint($this->atts['image_width']) : 30;
+        $image_width = $image_width > 0 ? $image_width : 30;
+        ?>
+        <img src="<?php echo esc_url($badge_image_url); ?>" alt="<?php echo esc_attr($this->atts['title']); ?>" width="<?php echo esc_attr($image_width); ?>">
         <?php
     }
 
@@ -212,6 +235,8 @@ class Directorist_Custom_Badge
         $font_color = !empty($this->atts['font_color']) ? sanitize_hex_color($this->atts['font_color']) : '#000000';
         $badge_color = $badge_color ?: '#ffffff';
         $font_color = $font_color ?: '#000000';
+        $label_font_size = !empty($this->atts['label_font_size']) ? absint($this->atts['label_font_size']) : 14;
+        $label_font_size = $label_font_size > 0 ? $label_font_size : 14;
         $badge_padding = !empty($this->atts['badge_padding']) ? esc_attr($this->atts['badge_padding']) : '0 5px';
 
         // Build inline style for color
@@ -219,6 +244,7 @@ class Directorist_Custom_Badge
         if (!empty($badge_color)) {
             $style = ' style="background-color: ' . esc_attr($badge_color) . ' !important;';
             $style .= ' color: ' . esc_attr($font_color) . ' !important;';
+            $style .= ' font-size: ' . esc_attr($label_font_size) . 'px !important;';
             $style .= ' padding: ' . esc_attr($badge_padding) . ' !important;"';
         }
         ?>
@@ -246,6 +272,18 @@ class Directorist_Custom_Badge
             return $tags;
         }
         return [];
+    }
+
+    private function get_badge_image_url()
+    {
+        $image_url = !empty($this->atts['image_url']) ? esc_url_raw($this->atts['image_url']) : '';
+        $image_id = !empty($this->atts['image_id']) ? absint($this->atts['image_id']) : 0;
+
+        if (!$image_url && $image_id) {
+            $image_url = wp_get_attachment_image_url($image_id, 'full');
+        }
+
+        return $image_url;
     }
 
 }

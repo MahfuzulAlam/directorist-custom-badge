@@ -28,6 +28,7 @@
 			this.initExistingCompareStates();
 			this.initMetaKeySelect2();
 			this.handleBadgeTypeChange();
+			this.handleDisplayTypeChange();
 		},
 
 		// -----------------------------------------------------------------
@@ -102,6 +103,22 @@
 			// Badge type controls type-specific fields.
 			$( document ).on( 'change', '#dcb-badge-type', function () {
 				self.handleBadgeTypeChange();
+			} );
+
+			// Display type controls image upload field.
+			$( document ).on( 'change', '#dcb-display-type', function () {
+				self.handleDisplayTypeChange();
+			} );
+
+			// Badge image upload / removal.
+			$( document ).on( 'click', '.dcb-upload-badge-image', function ( e ) {
+				e.preventDefault();
+				self.openBadgeImageFrame();
+			} );
+
+			$( document ).on( 'click', '.dcb-remove-badge-image', function ( e ) {
+				e.preventDefault();
+				self.clearBadgeImage();
 			} );
 
 			// Export / import.
@@ -250,7 +267,76 @@
 
 		handleBadgeTypeChange: function () {
 			var badgeType = $( '#dcb-badge-type' ).val() || 'custom';
+			var isTags    = 'tags' === badgeType;
+
 			$( '.dcb-maximum-tags-row' ).toggle( 'tags' === badgeType );
+			$( '.dcb-display-type-row' ).toggle( ! isTags );
+			this.handleDisplayTypeChange();
+		},
+
+		handleDisplayTypeChange: function () {
+			var badgeType   = $( '#dcb-badge-type' ).val() || 'custom';
+			var displayType = $( '#dcb-display-type' ).val() || 'label';
+			var isTags      = 'tags' === badgeType;
+			var isImage     = 'image' === displayType;
+
+			$( '.dcb-badge-image-row' ).toggle( ! isTags && isImage );
+			$( '.dcb-label-display-row' ).toggle( ! isTags && ! isImage );
+			$( '.dcb-badge-label-font-size-row' ).toggle( isTags || ! isImage );
+			$( '.dcb-badge-icon-row, .dcb-badge-color-row, .dcb-badge-text-color-row' ).toggle( isTags || ! isImage );
+			$( '#dcb-badge-label' ).prop( 'required', ! isTags && ! isImage );
+		},
+
+		openBadgeImageFrame: function () {
+			var self = this;
+
+			if ( typeof wp === 'undefined' || typeof wp.media === 'undefined' ) {
+				this.showNotice( dcbAdmin.strings.error, 'error' );
+				return;
+			}
+
+			var frame = wp.media( {
+				title: dcbAdmin.strings.selectImage || 'Select Badge Image',
+				button: {
+					text: dcbAdmin.strings.useImage || 'Use this image'
+				},
+				multiple: false
+			} );
+
+			frame.on( 'select', function () {
+				var attachment = frame.state().get( 'selection' ).first().toJSON();
+				if ( ! attachment || ! attachment.url ) {
+					return;
+				}
+
+				$( '#dcb-badge-image-id' ).val( attachment.id || '' );
+				$( '#dcb-badge-image-url' ).val( attachment.url );
+				self.updateBadgeImagePreview( attachment.url );
+			} );
+
+			frame.open();
+		},
+
+		updateBadgeImagePreview: function ( url ) {
+			var $preview = $( '.dcb-badge-image-preview' );
+
+			$preview.empty();
+
+			if ( url ) {
+				$preview.append( $( '<img>' ).attr( {
+					src: url,
+					alt: ''
+				} ) );
+				$( '.dcb-remove-badge-image' ).show();
+			} else {
+				$( '.dcb-remove-badge-image' ).hide();
+			}
+		},
+
+		clearBadgeImage: function () {
+			$( '#dcb-badge-image-id' ).val( '' );
+			$( '#dcb-badge-image-url' ).val( '' );
+			this.updateBadgeImagePreview( '' );
 		},
 
 		// -----------------------------------------------------------------
@@ -390,7 +476,12 @@
 			$( '#dcb-badge-title' ).val( badge.badge_title || '' );
 			$( '#dcb-badge-icon' ).val( badge.badge_icon || '' );
 			$( '#dcb-badge-id-field' ).val( badge.badge_id || '' );
+			$( '#dcb-display-type' ).val( badge.display_type || 'label' );
+			$( '#dcb-badge-image-id' ).val( badge.badge_image_id || '' );
+			$( '#dcb-badge-image-url' ).val( badge.badge_image_url || '' );
+			$( '#dcb-badge-image-width' ).val( badge.badge_image_width || 30 );
 			$( '#dcb-badge-label' ).val( badge.badge_label || '' );
+			$( '#dcb-badge-label-font-size' ).val( badge.badge_label_font_size || 14 );
 			$( '#dcb-badge-class' ).val( badge.badge_class || '' );
 			$( '#dcb-badge-color' ).val( badge.badge_color || '' );
 			$( '#dcb-badge-text-color' ).val( badge.badge_text_color || '' );
@@ -405,6 +496,8 @@
 
 			$( '#dcb-condition-relation' ).val( badge.condition_relation || 'AND' );
 			this.handleBadgeTypeChange();
+			this.handleDisplayTypeChange();
+			this.updateBadgeImagePreview( badge.badge_image_url || '' );
 			$( '#dcb-badge-active' ).prop(
 				'checked',
 				true === badge.is_active || '1' === badge.is_active || 1 === badge.is_active
@@ -483,7 +576,12 @@
 				badge_title      : $( '#dcb-badge-title' ).val()           || '',
 				badge_icon       : $( '#dcb-badge-icon' ).val()            || '',
 				badge_id         : $( '#dcb-badge-id-field' ).val()        || '',
+				display_type     : $( '#dcb-display-type' ).val()          || 'label',
+				badge_image_id   : $( '#dcb-badge-image-id' ).val()        || '',
+				badge_image_url  : $( '#dcb-badge-image-url' ).val()       || '',
+				badge_image_width: $( '#dcb-badge-image-width' ).val()     || 30,
 				badge_label      : $( '#dcb-badge-label' ).val()           || '',
+				badge_label_font_size: $( '#dcb-badge-label-font-size' ).val() || 14,
 				badge_class      : $( '#dcb-badge-class' ).val()           || '',
 				maximum_tags     : $( '#dcb-maximum-tags' ).val()          || '',
 				badge_color      : $( '#dcb-badge-color' ).val()           || '',
@@ -532,7 +630,12 @@
 				'badge[badge_title]'       : badgeData.badge_title,
 				'badge[badge_icon]'        : badgeData.badge_icon,
 				'badge[badge_id]'          : badgeData.badge_id,
+				'badge[display_type]'      : badgeData.display_type,
+				'badge[badge_image_id]'    : badgeData.badge_image_id,
+				'badge[badge_image_url]'   : badgeData.badge_image_url,
+				'badge[badge_image_width]' : badgeData.badge_image_width,
 				'badge[badge_label]'       : badgeData.badge_label,
+				'badge[badge_label_font_size]': badgeData.badge_label_font_size,
 				'badge[badge_class]'       : badgeData.badge_class,
 				'badge[maximum_tags]'      : badgeData.maximum_tags,
 				'badge[badge_color]'       : badgeData.badge_color,
@@ -596,6 +699,8 @@
 			var $title   = $( '#dcb-badge-title' );
 			var $badgeId = $( '#dcb-badge-id-field' );
 			var $label   = $( '#dcb-badge-label' );
+			var badgeType = $( '#dcb-badge-type' ).val() || 'custom';
+			var displayType = $( '#dcb-display-type' ).val() || 'label';
 
 			$( '.dcb-field-error' ).text( '' );
 
@@ -619,7 +724,7 @@
 				$badgeId.removeClass( 'dcb-error' );
 			}
 
-			if ( ! $label.val().trim() ) {
+			if ( 'custom' === badgeType && 'label' === displayType && ! $label.val().trim() ) {
 				isValid = false;
 				$label.addClass( 'dcb-error' );
 			} else {

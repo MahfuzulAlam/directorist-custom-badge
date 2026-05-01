@@ -5,7 +5,7 @@
  * 
  * @author  wpwax
  * @since   3.0.0
- * @version 3.0.0
+ * @version 3.2.0
  */
 
 if (!defined('ABSPATH')) {
@@ -189,12 +189,17 @@ class Directorist_Custom_Badges_Helper
             $atts = array(
                 'id' => $badge['badge_id'],
                 'badge_type' => !empty($badge['badge_type']) ? $badge['badge_type'] : 'custom',
+                'display_type' => !empty($badge['display_type']) && in_array($badge['display_type'], array('label', 'image'), true) ? $badge['display_type'] : 'label',
                 'label' => $badge['badge_label'],
                 'icon' => !empty($badge['badge_icon']) ? $badge['badge_icon'] : '',
                 'hook' => 'atbdp-' . $badge['badge_id'],
                 'title' => $badge['badge_label'],
+                'label_font_size' => !empty($badge['badge_label_font_size']) ? absint($badge['badge_label_font_size']) : 14,
                 'class' => !empty($badge['badge_class']) ? $badge['badge_class'] : '',
                 'maximum_tags' => isset($badge['maximum_tags']) ? absint($badge['maximum_tags']) : 0,
+                'image_id' => isset($badge['badge_image_id']) ? absint($badge['badge_image_id']) : 0,
+                'image_url' => !empty($badge['badge_image_url']) ? $badge['badge_image_url'] : '',
+                'image_width' => !empty($badge['badge_image_width']) ? absint($badge['badge_image_width']) : 30,
                 'color' => !empty($badge['badge_color']) ? $badge['badge_color'] : '',
                 'font_color' => !empty($badge['badge_text_color']) ? $badge['badge_text_color'] : '',
                 'badge_data' => $badge, // Store full badge data for condition checking

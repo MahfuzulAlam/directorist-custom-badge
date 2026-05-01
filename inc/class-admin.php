@@ -5,7 +5,7 @@
  * 
  * @author  wpwax
  * @since   3.0.0
- * @version 3.0.0
+ * @version 3.2.0
  */
 
 if (!defined('ABSPATH')) {
@@ -75,6 +75,7 @@ class Directorist_Custom_Badges_Admin
         if ( $is_form_page ) {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'wp-color-picker' );
+            wp_enqueue_media();
 
             // Select2 for Meta Key combobox (tags = type custom value).
             $select2_handle = $this->enqueue_select2_for_form();
@@ -115,6 +116,8 @@ class Directorist_Custom_Badges_Admin
                 'minimize'         => __( 'Minimize', 'directorist-custom-badges' ),
                 'maximize'         => __( 'Maximize', 'directorist-custom-badges' ),
                 'metaKeyPlaceholder' => __( 'Select or type a meta key…', 'directorist-custom-badges' ),
+                'selectImage'      => __( 'Select Badge Image', 'directorist-custom-badges' ),
+                'useImage'         => __( 'Use this image', 'directorist-custom-badges' ),
             ),
         );
 
@@ -344,9 +347,11 @@ class Directorist_Custom_Badges_Admin
     public static function save_badge($badge_data)
     {
         $badges = self::get_badges();
+        $allowed_display_types = array('label', 'image');
+        $display_type = isset($badge_data['display_type']) && in_array($badge_data['display_type'], $allowed_display_types, true) ? $badge_data['display_type'] : 'label';
 
         // Validate required fields
-        if (empty($badge_data['badge_title']) || empty($badge_data['badge_id']) || empty($badge_data['badge_label'])) {
+        if (empty($badge_data['badge_title']) || empty($badge_data['badge_id']) || ('custom' === ($badge_data['badge_type'] ?? 'custom') && 'label' === $display_type && empty($badge_data['badge_label']))) {
             return new WP_Error('missing_fields', __('Required fields are missing.', 'directorist-custom-badges'));
         }
 
@@ -377,16 +382,22 @@ class Directorist_Custom_Badges_Admin
         // Prepare badge data
         $allowed_badge_types = array('custom', 'tags');
         $badge_type = isset($badge_data['badge_type']) && in_array($badge_data['badge_type'], $allowed_badge_types, true) ? $badge_data['badge_type'] : 'custom';
+        $badge_label = !empty($badge_data['badge_label']) ? $badge_data['badge_label'] : $badge_data['badge_title'];
 
         $badge = array(
             'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : Directorist_Custom_Badges_Helper::generate_unique_id(),
             'badge_type' => $badge_type,
+            'display_type' => $display_type,
             'badge_title' => sanitize_text_field($badge_data['badge_title']),
             'badge_icon' => sanitize_text_field($badge_data['badge_icon'] ?? ''),
             'badge_id' => $badge_id,
-            'badge_label' => sanitize_text_field($badge_data['badge_label']),
+            'badge_label' => sanitize_text_field($badge_label),
+            'badge_label_font_size' => !empty($badge_data['badge_label_font_size']) ? absint($badge_data['badge_label_font_size']) : 14,
             'badge_class' => sanitize_text_field($badge_data['badge_class'] ?? ''),
             'maximum_tags' => isset($badge_data['maximum_tags']) ? absint($badge_data['maximum_tags']) : 0,
+            'badge_image_id' => isset($badge_data['badge_image_id']) ? absint($badge_data['badge_image_id']) : 0,
+            'badge_image_url' => isset($badge_data['badge_image_url']) ? esc_url_raw($badge_data['badge_image_url']) : '',
+            'badge_image_width' => !empty($badge_data['badge_image_width']) ? absint($badge_data['badge_image_width']) : 30,
             'badge_color' => sanitize_hex_color($badge_data['badge_color'] ?? '') ?: '',
             'badge_text_color' => sanitize_hex_color($badge_data['badge_text_color'] ?? '') ?: '',
             'conditions' => Directorist_Custom_Badges_Helper::sanitize_conditions($badge_data['conditions'] ?? array()),
@@ -763,6 +774,12 @@ class Directorist_Custom_Badges_Admin
                     case 'badge_type':
                         $sanitized[$key] = in_array($value, array('custom', 'tags'), true) ? $value : 'custom';
                         break;
+                    case 'display_type':
+                        $sanitized[$key] = in_array($value, array('label', 'image'), true) ? $value : 'label';
+                        break;
+                    case 'badge_image_url':
+                        $sanitized[$key] = esc_url_raw($value);
+                        break;
                     case 'badge_color':
                     case 'badge_text_color':
                         $sanitized[$key] = sanitize_hex_color($value) ?: '';
@@ -772,6 +789,9 @@ class Directorist_Custom_Badges_Admin
                         break;
                     case 'order':
                     case 'maximum_tags':
+                    case 'badge_image_id':
+                    case 'badge_image_width':
+                    case 'badge_label_font_size':
                         $sanitized[$key] = absint($value);
                         break;
                     case 'condition_relation':
