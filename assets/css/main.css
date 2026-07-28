@@ -1,32 +1,32 @@
 /* Add you custom css here */
 
-.directorist-custom-badge,
-.directorist-custom-badge-single
+.directorist-smart-badge,
+.directorist-smart-badge-single
 {
     background-color: #47d6a5;
 
 }
 
 .directorist-badge .directorist-icon-mask:after,
-.directorist-custom-badge-single .directorist-icon-mask:after
+.directorist-smart-badge-single .directorist-icon-mask:after
 {
     background-color: #fff;
 }
 
-.directorist-custom-badge .directorist-icon-mask:after,
-.directorist-custom-badge-single .directorist-icon-mask:after
+.directorist-smart-badge .directorist-icon-mask:after,
+.directorist-smart-badge-single .directorist-icon-mask:after
 {
     background-color: currentColor;
 }
 
-.directorist-custom-badge-single
+.directorist-smart-badge-single
 {
     display: inline-flex;
     align-items: center;
     gap: 5px;
 }
 
-.directorist-custom-badge-single .directorist-icon-mask
+.directorist-smart-badge-single .directorist-icon-mask
 {
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
     width: 12px;
 }
 
-.directorist-custom-badge-single .directorist-icon-mask:after
+.directorist-smart-badge-single .directorist-icon-mask:after
 {
     display: inline-block;
     height: 12px;

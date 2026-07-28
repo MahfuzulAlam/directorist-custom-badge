@@ -3,14 +3,14 @@
 /**
  * @author  wpxplore
  * @since   1.0
- * @version 3.2.0
+ * @version 3.4.0
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Directorist_Custom_Single_Listing_Badge
+class Directorist_Smart_Single_Listing_Badge
 {
 
     public function __construct()
@@ -25,7 +25,7 @@ class Directorist_Custom_Single_Listing_Badge
      */
     public function get_badges_from_options()
     {
-        return Directorist_Custom_Badges_Helper::get_badges_from_options();
+        return Directorist_Smart_Badges_Helper::get_badges_from_options();
     }
 
     /**
@@ -36,7 +36,7 @@ class Directorist_Custom_Single_Listing_Badge
      */
     public function template_exists($template_file)
     {
-        return Directorist_Custom_Badges_Helper::template_exists($template_file);
+        return Directorist_Smart_Badges_Helper::template_exists($template_file);
     }
 
     /**
@@ -54,7 +54,7 @@ class Directorist_Custom_Single_Listing_Badge
 
         $custom_badges = $this->get_listing_badges($data);
 
-        $file = DIRECTORIST_CUSTOM_BADGE_DIR . '/templates/' . $template_file . '.php';
+        $file = DIRECTORIST_SMART_BADGE_DIR . '/templates/' . $template_file . '.php';
 
         if ($this->template_exists($template_file)) {
             include $file;
@@ -123,4 +123,4 @@ class Directorist_Custom_Single_Listing_Badge
     }
 }
 
-new Directorist_Custom_Single_Listing_Badge();
+new Directorist_Smart_Single_Listing_Badge();

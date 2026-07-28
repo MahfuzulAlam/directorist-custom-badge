@@ -1,14 +1,14 @@
 <?php
 /**
- * Conditions class for Directorist Custom Badges.
+ * Conditions class for Directorist Smart Badges.
  *
  * Evaluates whether a badge's conditions are satisfied for a given listing.
  * Supports meta-based and pricing-plan-based conditions with AND / OR relation.
  *
- * @package    Directorist_Custom_Badge
+ * @package    Directorist_Smart_Badge
  * @author     wpwax
  * @since      3.0.0
- * @version    3.2.0
+ * @version    3.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Directorist_Custom_Badges_Conditions
+ * Class Directorist_Smart_Badges_Conditions
  *
  * Provides static methods for evaluating badge visibility conditions.
  * All public entry points accept raw data and sanitize / validate internally.
  */
-class Directorist_Custom_Badges_Conditions {
+class Directorist_Smart_Badges_Conditions {
 
 	// =========================================================================
 	// Public API
@@ -195,8 +195,8 @@ class Directorist_Custom_Badges_Conditions {
 				break;
 
 			case 'BOOLEAN':
-				$meta_value    = Directorist_Custom_Badges_Helper::convert_to_boolean( $meta_value );
-				$compare_value = Directorist_Custom_Badges_Helper::convert_to_boolean( $compare_value );
+				$meta_value    = Directorist_Smart_Badges_Helper::convert_to_boolean( $meta_value );
+				$compare_value = Directorist_Smart_Badges_Helper::convert_to_boolean( $compare_value );
 				break;
 
 			default: // CHAR – string comparison.
@@ -427,7 +427,7 @@ class Directorist_Custom_Badges_Conditions {
 
 			// Is the listing itself assigned to the specified plan?
 			case 'listing_has_plan':
-				return Directorist_Custom_Badges_Helper::listing_has_plan( $listing_id, $plan_id, $compare_op );
+				return Directorist_Smart_Badges_Helper::listing_has_plan( $listing_id, $plan_id, $compare_op );
 
 			default:
 				return false;
@@ -448,7 +448,7 @@ class Directorist_Custom_Badges_Conditions {
 			return false;
 		}
 
-		return Directorist_Custom_Badges_Helper::user_has_active_plans(
+		return Directorist_Smart_Badges_Helper::user_has_active_plans(
 			(int) $listing->post_author,
 			$plan_id
 		);

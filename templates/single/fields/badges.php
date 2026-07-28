@@ -36,7 +36,7 @@ if ( ! $listing->has_badge( $data ) ) {
         <?php if ( ! empty( $custom_badges ) ) : ?>
             <?php foreach ( $custom_badges as $badge ) : ?>
                 <?php if( ! isset( $badge['data'] ) ) continue; ?>
-                <?php if (Directorist_Custom_Badges_Conditions::check_conditions( $badge['data']['badge_data'], get_the_ID()) ): ?>
+                <?php if (Directorist_Smart_Badges_Conditions::check_conditions( $badge['data']['badge_data'], get_the_ID()) ): ?>
                 <?php
                     $badge_id    = isset( $badge['data']['id'] ) ? $badge['data']['id'] : '';
                     $badge_label = isset( $badge['data']['label'] ) ? $badge['data']['label'] : '';
@@ -93,7 +93,7 @@ if ( ! $listing->has_badge( $data ) ) {
                     <img src="<?php echo esc_url( $badge_image_url ); ?>" alt="<?php echo esc_attr( $badge_label ); ?>" width="<?php echo esc_attr( $badge_image_width ); ?>">
                     <?php continue; ?>
                 <?php endif; ?>
-                <span class="directorist-badge directorist-custom-badge-single directorist-badge-single-<?php echo esc_attr( $badge_id ); ?> <?php echo esc_attr( $badge_class ); ?>"<?php echo $style_attr; ?>>
+                <span class="directorist-badge directorist-smart-badge-single directorist-badge-single-<?php echo esc_attr( $badge_id ); ?> <?php echo esc_attr( $badge_class ); ?>"<?php echo $style_attr; ?>>
                     <?php if ( $badge_icon ) : ?>
                         <?php echo function_exists( 'directorist_icon' ) ? directorist_icon( $badge_icon ) : '<i class="' . esc_attr( $badge_icon ) . '"></i>'; ?>
                     <?php endif; ?>

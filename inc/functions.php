@@ -15,17 +15,17 @@ add_filter('directorist_custom_field_meta_key_field_args', function ($args) {
  */
 add_action('init', function() {
     // Initialize badges from wp_options table
-    if (class_exists('Directorist_Custom_Badges_Admin') && class_exists('Directorist_Custom_Badge')) {
-        Directorist_Custom_Badge::init_badges_from_options();
+    if (class_exists('Directorist_Smart_Badges_Admin') && class_exists('Directorist_Smart_Badge')) {
+        Directorist_Smart_Badge::init_badges_from_options();
     }
 });
 
 add_filter('atbdp_listing_type_settings_field_list', function ($fields) {
     $fields['enable_field_key'] = array(
-        'label'       => __('Field Key', 'directorist-custom-badges'),
+        'label'       => __('Field Key', 'directorist-smart-badges'),
         'type'        => 'toggle',
         'default'     => false,
-        'description' => __('Enable field meta key in the directory builder.', 'directorist-custom-badges'),
+        'description' => __('Enable field meta key in the directory builder.', 'directorist-smart-badges'),
     );
     return $fields;
 });

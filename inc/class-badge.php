@@ -3,14 +3,14 @@
 /**
  * @author  wpxplore
  * @since   1.0
- * @version 3.2.0
+ * @version 3.4.0
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Directorist_Custom_Badge
+class Directorist_Smart_Badge
 {
     public $atts;
     private static $badges_initialized = false;
@@ -31,7 +31,7 @@ class Directorist_Custom_Badge
         }
 
         // Get badges from options
-        $badges_data = Directorist_Custom_Badges_Helper::get_badges_from_options();
+        $badges_data = Directorist_Smart_Badges_Helper::get_badges_from_options();
 
         if (empty($badges_data)) {
             self::$badges_initialized = true;
@@ -40,7 +40,7 @@ class Directorist_Custom_Badge
 
         // Initialize each active badge
         foreach ($badges_data as $atts) {
-            new Directorist_Custom_Badge($atts);
+            new Directorist_Smart_Badge($atts);
         }
 
         self::$badges_initialized = true;
@@ -139,7 +139,7 @@ class Directorist_Custom_Badge
         }
 
         // Check conditions
-        if (Directorist_Custom_Badges_Conditions::check_conditions($badge_data, get_the_ID())) {
+        if (Directorist_Smart_Badges_Conditions::check_conditions($badge_data, get_the_ID())) {
             $this->render_badge();
         }
     }
@@ -193,7 +193,7 @@ class Directorist_Custom_Badge
             $style .= '"';
         }
         ?>
-        <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-custom-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
+        <span id="<?php echo esc_attr($badge_id); ?>" class="directorist-badge directorist-info-item directorist-badge--only-text directorist-smart-badge <?php echo esc_attr($badge_class); ?>"<?php echo $style; ?>>
             <?php if ($badge_icon): ?>
                 <?php echo directorist_icon($badge_icon); ?>
             <?php endif; ?>

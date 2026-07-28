@@ -1,23 +1,23 @@
 <?php
 
 /**
- * Admin class for Directorist Custom Badges
+ * Admin class for Directorist Smart Badges
  * 
  * @author  wpwax
  * @since   3.0.0
- * @version 3.2.0
+ * @version 3.4.0
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Directorist_Custom_Badges_Admin
+class Directorist_Smart_Badges_Admin
 {
     /**
      * Option name for storing badges
      */
-    const OPTION_NAME = 'directorist_custom_badges';
+    const OPTION_NAME = 'directorist_smart_badges';
 
     /**
      * Constructor
@@ -34,14 +34,14 @@ class Directorist_Custom_Badges_Admin
     {
         add_action('admin_menu', array($this, 'add_admin_submenu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
-        add_action('wp_ajax_dcb_get_badge', array($this, 'ajax_get_badge'));
-        add_action('wp_ajax_dcb_save_badge', array($this, 'ajax_save_badge'));
-        add_action('wp_ajax_dcb_delete_badge', array($this, 'ajax_delete_badge'));
-        add_action('wp_ajax_dcb_toggle_badge', array($this, 'ajax_toggle_badge'));
-        add_action('wp_ajax_dcb_reorder_badges', array($this, 'ajax_reorder_badges'));
-        add_action('wp_ajax_dcb_duplicate_badge', array($this, 'ajax_duplicate_badge'));
-        add_action('wp_ajax_dcb_export_badges', array($this, 'ajax_export_badges'));
-        add_action('wp_ajax_dcb_import_badges', array($this, 'ajax_import_badges'));
+        add_action('wp_ajax_dsb_get_badge', array($this, 'ajax_get_badge'));
+        add_action('wp_ajax_dsb_save_badge', array($this, 'ajax_save_badge'));
+        add_action('wp_ajax_dsb_delete_badge', array($this, 'ajax_delete_badge'));
+        add_action('wp_ajax_dsb_toggle_badge', array($this, 'ajax_toggle_badge'));
+        add_action('wp_ajax_dsb_reorder_badges', array($this, 'ajax_reorder_badges'));
+        add_action('wp_ajax_dsb_duplicate_badge', array($this, 'ajax_duplicate_badge'));
+        add_action('wp_ajax_dsb_export_badges', array($this, 'ajax_export_badges'));
+        add_action('wp_ajax_dsb_import_badges', array($this, 'ajax_import_badges'));
     }
 
     /**
@@ -50,15 +50,15 @@ class Directorist_Custom_Badges_Admin
     public function enqueue_admin_assets($hook)
     {
         // Check if we're on our admin pages using hook or page parameter
-        $is_list_page = ($hook === 'at_biz_dir_page_directorist-custom-badges');
-        $is_form_page = ($hook === 'at_biz_dir_page_directorist-custom-badges-form');
+        $is_list_page = ($hook === 'at_biz_dir_page_directorist-smart-badges');
+        $is_form_page = ($hook === 'at_biz_dir_page_directorist-smart-badges-form');
         
         // Also check page parameter for hidden pages
         if (!$is_list_page && !$is_form_page) {
             $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-            if ($page === 'directorist-custom-badges' || $page === 'directorist-custom-badges-form') {
-                $is_list_page = ($page === 'directorist-custom-badges');
-                $is_form_page = ($page === 'directorist-custom-badges-form');
+            if ($page === 'directorist-smart-badges' || $page === 'directorist-smart-badges-form') {
+                $is_list_page = ($page === 'directorist-smart-badges');
+                $is_form_page = ($page === 'directorist-smart-badges-form');
             } else {
                 return;
             }
@@ -68,98 +68,53 @@ class Directorist_Custom_Badges_Admin
             return;
         }
 
-        wp_enqueue_script('jquery-ui-sortable');
-        
-        // Enqueue WordPress color picker (only on form page)
-        $select2_handle = null;
+        // Media frame for the badge image picker (form page only).
         if ( $is_form_page ) {
-            wp_enqueue_style( 'wp-color-picker' );
-            wp_enqueue_script( 'wp-color-picker' );
             wp_enqueue_media();
-
-            // Select2 for Meta Key combobox (tags = type custom value).
-            $select2_handle = $this->enqueue_select2_for_form();
-        }
-
-        $admin_script_deps = array( 'jquery', 'jquery-ui-sortable' );
-        if ( $is_form_page && $select2_handle ) {
-            $admin_script_deps[] = $select2_handle;
         }
 
         wp_enqueue_script(
-            'directorist-custom-badges-admin',
-            DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/admin.js',
-            $admin_script_deps,
-            DIRECTORIST_CUSTOM_BADGE_VERSION,
-            true
+            'directorist-smart-badges-admin',
+            DIRECTORIST_SMART_BADGE_URI . 'assets/js/admin.js',
+            array(),
+            DIRECTORIST_SMART_BADGE_VERSION,
+            array(
+                'in_footer' => true,
+                'strategy'  => 'defer',
+            )
         );
 
         wp_enqueue_style(
-            'directorist-custom-badges-admin',
-            DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/admin.css',
+            'directorist-smart-badges-admin',
+            DIRECTORIST_SMART_BADGE_URI . 'assets/css/admin.css',
             array(),
-            DIRECTORIST_CUSTOM_BADGE_VERSION
+            DIRECTORIST_SMART_BADGE_VERSION
         );
 
         $localize = array(
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'nonce'   => wp_create_nonce( 'directorist_custom_badges_nonce' ),
+            'nonce'   => wp_create_nonce( 'directorist_smart_badges_nonce' ),
             'strings' => array(
-                'confirmDelete'    => __( 'Are you sure you want to delete this badge?', 'directorist-custom-badges' ),
-                'saving'           => __( 'Saving…', 'directorist-custom-badges' ),
-                'saved'            => __( 'Saved successfully!', 'directorist-custom-badges' ),
-                'error'            => __( 'An error occurred. Please try again.', 'directorist-custom-badges' ),
-                'requiredField'    => __( 'This field is required.', 'directorist-custom-badges' ),
-                'uniqueBadgeId'    => __( 'Badge ID must be unique.', 'directorist-custom-badges' ),
-                'invalidBadgeId'   => __( 'Badge ID must be lowercase with hyphens only.', 'directorist-custom-badges' ),
-                'condition'        => __( 'Condition', 'directorist-custom-badges' ),
-                'minimize'         => __( 'Minimize', 'directorist-custom-badges' ),
-                'maximize'         => __( 'Maximize', 'directorist-custom-badges' ),
-                'metaKeyPlaceholder' => __( 'Select or type a meta key…', 'directorist-custom-badges' ),
-                'selectImage'      => __( 'Select Badge Image', 'directorist-custom-badges' ),
-                'useImage'         => __( 'Use this image', 'directorist-custom-badges' ),
+                'confirmDelete'    => __( 'Are you sure you want to delete this badge?', 'directorist-smart-badges' ),
+                'saving'           => __( 'Saving…', 'directorist-smart-badges' ),
+                'saved'            => __( 'Saved successfully!', 'directorist-smart-badges' ),
+                'error'            => __( 'An error occurred. Please try again.', 'directorist-smart-badges' ),
+                'requiredField'    => __( 'This field is required.', 'directorist-smart-badges' ),
+                'uniqueBadgeId'    => __( 'Badge ID must be unique.', 'directorist-smart-badges' ),
+                'invalidBadgeId'   => __( 'Badge ID must be lowercase with hyphens only.', 'directorist-smart-badges' ),
+                'condition'        => __( 'Condition', 'directorist-smart-badges' ),
+                'minimize'         => __( 'Minimize', 'directorist-smart-badges' ),
+                'maximize'         => __( 'Maximize', 'directorist-smart-badges' ),
+                'metaKeyPlaceholder' => __( 'Select or type a meta key…', 'directorist-smart-badges' ),
+                'selectImage'      => __( 'Select Badge Image', 'directorist-smart-badges' ),
+                'useImage'         => __( 'Use this image', 'directorist-smart-badges' ),
+                'importConfirm'    => __( 'Import %d badge(s)?', 'directorist-smart-badges' ),
+                'invalidFile'      => __( 'Invalid file format.', 'directorist-smart-badges' ),
+                'parseError'       => __( 'Error parsing JSON file.', 'directorist-smart-badges' ),
             ),
         );
 
-        if ( $is_form_page ) {
-            $localize['metaKeys'] = self::get_listing_meta_keys();
-        }
-
-        wp_localize_script( 'directorist-custom-badges-admin', 'dcbAdmin', $localize );
-    }
-
-    /**
-     * Enqueue Select2 (prefer Directorist's bundled copy; CDN fallback).
-     */
-    /**
-     * @return string|null Script handle enqueued, or null.
-     */
-    private function enqueue_select2_for_form() {
-        if ( wp_script_is( 'directorist-select2-script', 'registered' ) ) {
-            wp_enqueue_style( 'directorist-select2-style' );
-            wp_enqueue_script( 'directorist-select2-script' );
-            return 'directorist-select2-script';
-        }
-
-        // CDN fallback when Directorist asset loader has not registered handles.
-        if ( ! wp_script_is( 'dcb-select2', 'registered' ) ) {
-            wp_register_style(
-                'dcb-select2',
-                'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
-                array(),
-                '4.1.0-rc.0'
-            );
-            wp_register_script(
-                'dcb-select2',
-                'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
-                array( 'jquery' ),
-                '4.1.0-rc.0',
-                true
-            );
-        }
-        wp_enqueue_style( 'dcb-select2' );
-        wp_enqueue_script( 'dcb-select2' );
-        return 'dcb-select2';
+        wp_localize_script( 'directorist-smart-badges-admin', 'dsbAdmin', $localize );
     }
 
     /**
@@ -237,20 +192,20 @@ class Directorist_Custom_Badges_Admin
         // Main badges list page
         add_submenu_page(
             $parent_slug,
-            __('Custom Badges', 'directorist-custom-badges'),
-            __('Custom Badges', 'directorist-custom-badges'),
+            __('Smart Badges', 'directorist-smart-badges'),
+            __('Smart Badges', 'directorist-smart-badges'),
             'manage_options',
-            'directorist-custom-badges',
+            'directorist-smart-badges',
             array($this, 'render_admin_page')
         );
 
         // Add/Edit badge form page (will be hidden from menu using CSS)
         add_submenu_page(
             $parent_slug,
-            __('Badge Configuration', 'directorist-custom-badges'),
-            __('Badge Configuration', 'directorist-custom-badges'),
+            __('Badge Configuration', 'directorist-smart-badges'),
+            __('Badge Configuration', 'directorist-smart-badges'),
             'manage_options',
-            'directorist-custom-badges-form',
+            'directorist-smart-badges-form',
             array($this, 'render_form_page')
         );
 
@@ -266,10 +221,10 @@ class Directorist_Custom_Badges_Admin
         ?>
         <style type="text/css">
             /* Hide the form page from submenu - multiple selectors for compatibility */
-            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li a[href*="directorist-custom-badges-form"],
-            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li:has(a[href*="directorist-custom-badges-form"]),
-            #toplevel_page_edit-post_type-at_biz_dir .wp-submenu li a[href*="directorist-custom-badges-form"],
-            .wp-submenu li a[href*="page=directorist-custom-badges-form"] {
+            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li a[href*="directorist-smart-badges-form"],
+            #toplevel_page_edit-post_type-at_biz_dir ul.wp-submenu li:has(a[href*="directorist-smart-badges-form"]),
+            #toplevel_page_edit-post_type-at_biz_dir .wp-submenu li a[href*="directorist-smart-badges-form"],
+            .wp-submenu li a[href*="page=directorist-smart-badges-form"] {
                 display: none !important;
             }
         </style>
@@ -281,12 +236,12 @@ class Directorist_Custom_Badges_Admin
      */
     public function render_admin_page()
     {
-        $template_path = DIRECTORIST_CUSTOM_BADGE_DIR . 'templates/admin-page.php';
+        $template_path = DIRECTORIST_SMART_BADGE_DIR . 'templates/admin-page.php';
         
         if (file_exists($template_path)) {
             include $template_path;
         } else {
-            echo '<div class="wrap"><h1>' . esc_html__('Custom Badges', 'directorist-custom-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-custom-badges') . '</p></div>';
+            echo '<div class="wrap"><h1>' . esc_html__('Smart Badges', 'directorist-smart-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-smart-badges') . '</p></div>';
         }
     }
 
@@ -295,12 +250,12 @@ class Directorist_Custom_Badges_Admin
      */
     public function render_form_page()
     {
-        $template_path = DIRECTORIST_CUSTOM_BADGE_DIR . 'templates/admin-form-page.php';
+        $template_path = DIRECTORIST_SMART_BADGE_DIR . 'templates/admin-form-page.php';
         
         if (file_exists($template_path)) {
             include $template_path;
         } else {
-            echo '<div class="wrap"><h1>' . esc_html__('Badge Configuration', 'directorist-custom-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-custom-badges') . '</p></div>';
+            echo '<div class="wrap"><h1>' . esc_html__('Badge Configuration', 'directorist-smart-badges') . '</h1><p>' . esc_html__('Template file not found.', 'directorist-smart-badges') . '</p></div>';
         }
     }
 
@@ -352,7 +307,7 @@ class Directorist_Custom_Badges_Admin
 
         // Validate required fields
         if (empty($badge_data['badge_title']) || empty($badge_data['badge_id']) || ('custom' === ($badge_data['badge_type'] ?? 'custom') && 'label' === $display_type && empty($badge_data['badge_label']))) {
-            return new WP_Error('missing_fields', __('Required fields are missing.', 'directorist-custom-badges'));
+            return new WP_Error('missing_fields', __('Required fields are missing.', 'directorist-smart-badges'));
         }
 
         // Sanitize badge_id
@@ -360,7 +315,7 @@ class Directorist_Custom_Badges_Admin
         
         // Validate badge_id format (lowercase with hyphens only)
         if (!preg_match('/^[a-z0-9-]+$/', $badge_id)) {
-            return new WP_Error('invalid_badge_id', __('Badge ID must be lowercase with hyphens only.', 'directorist-custom-badges'));
+            return new WP_Error('invalid_badge_id', __('Badge ID must be lowercase with hyphens only.', 'directorist-smart-badges'));
         }
 
         // Check if badge_id is unique (if updating, exclude current badge)
@@ -375,7 +330,7 @@ class Directorist_Custom_Badges_Admin
                 if ($existing_badge && isset($badge['id']) && $badge['id'] === $badge_data['id']) {
                     continue;
                 }
-                return new WP_Error('duplicate_badge_id', __('Badge ID must be unique.', 'directorist-custom-badges'));
+                return new WP_Error('duplicate_badge_id', __('Badge ID must be unique.', 'directorist-smart-badges'));
             }
         }
 
@@ -385,7 +340,7 @@ class Directorist_Custom_Badges_Admin
         $badge_label = !empty($badge_data['badge_label']) ? $badge_data['badge_label'] : $badge_data['badge_title'];
 
         $badge = array(
-            'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : Directorist_Custom_Badges_Helper::generate_unique_id(),
+            'id' => !empty($badge_data['id']) ? sanitize_text_field($badge_data['id']) : Directorist_Smart_Badges_Helper::generate_unique_id(),
             'badge_type' => $badge_type,
             'display_type' => $display_type,
             'badge_title' => sanitize_text_field($badge_data['badge_title']),
@@ -400,7 +355,7 @@ class Directorist_Custom_Badges_Admin
             'badge_image_width' => !empty($badge_data['badge_image_width']) ? absint($badge_data['badge_image_width']) : 30,
             'badge_color' => sanitize_hex_color($badge_data['badge_color'] ?? '') ?: '',
             'badge_text_color' => sanitize_hex_color($badge_data['badge_text_color'] ?? '') ?: '',
-            'conditions' => Directorist_Custom_Badges_Helper::sanitize_conditions($badge_data['conditions'] ?? array()),
+            'conditions' => Directorist_Smart_Badges_Helper::sanitize_conditions($badge_data['conditions'] ?? array()),
             'condition_relation' => in_array($badge_data['condition_relation'] ?? 'AND', array('AND', 'OR')) ? $badge_data['condition_relation'] : 'AND',
             'is_active' => isset($badge_data['is_active']) ? (bool) $badge_data['is_active'] : true,
             'order' => isset($badge_data['order']) ? intval($badge_data['order']) : count($badges),
@@ -505,16 +460,16 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_get_badge()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
 
         if (empty($id)) {
-            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
         }
 
         $badge = self::get_badge($id);
@@ -522,7 +477,7 @@ class Directorist_Custom_Badges_Admin
         if ($badge) {
             wp_send_json_success(array('badge' => $badge));
         } else {
-            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-smart-badges')));
         }
     }
 
@@ -531,17 +486,17 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_save_badge()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         // Get badge data from POST and sanitize
         $badge_data = isset($_POST['badge']) ? $_POST['badge'] : array();
         
         if (!is_array($badge_data)) {
-            wp_send_json_error(array('message' => __('Invalid badge data.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Invalid badge data.', 'directorist-smart-badges')));
         }
         
         // Sanitize badge data
@@ -563,7 +518,7 @@ class Directorist_Custom_Badges_Admin
             wp_send_json_error(array('message' => $result->get_error_message()));
         }
 
-        wp_send_json_success(array('badge' => $result, 'message' => __('Badge saved successfully.', 'directorist-custom-badges')));
+        wp_send_json_success(array('badge' => $result, 'message' => __('Badge saved successfully.', 'directorist-smart-badges')));
     }
 
     /**
@@ -571,24 +526,24 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_delete_badge()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
 
         if (empty($id)) {
-            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
         }
 
         $result = self::delete_badge($id);
 
         if ($result) {
-            wp_send_json_success(array('message' => __('Badge deleted successfully.', 'directorist-custom-badges')));
+            wp_send_json_success(array('message' => __('Badge deleted successfully.', 'directorist-smart-badges')));
         } else {
-            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-smart-badges')));
         }
     }
 
@@ -597,24 +552,24 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_toggle_badge()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
 
         if (empty($id)) {
-            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
         }
 
         $result = self::toggle_badge($id);
 
         if ($result) {
-            wp_send_json_success(array('badge' => $result, 'message' => __('Badge status updated.', 'directorist-custom-badges')));
+            wp_send_json_success(array('badge' => $result, 'message' => __('Badge status updated.', 'directorist-smart-badges')));
         } else {
-            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-smart-badges')));
         }
     }
 
@@ -623,16 +578,16 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_reorder_badges()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $order = isset($_POST['order']) ? $_POST['order'] : array();
 
         if (empty($order) || !is_array($order)) {
-            wp_send_json_error(array('message' => __('Invalid order data.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Invalid order data.', 'directorist-smart-badges')));
         }
 
         // Sanitize order array
@@ -641,9 +596,9 @@ class Directorist_Custom_Badges_Admin
         $result = self::reorder_badges($order);
 
         if ($result) {
-            wp_send_json_success(array('message' => __('Badges reordered successfully.', 'directorist-custom-badges')));
+            wp_send_json_success(array('message' => __('Badges reordered successfully.', 'directorist-smart-badges')));
         } else {
-            wp_send_json_error(array('message' => __('Failed to reorder badges.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Failed to reorder badges.', 'directorist-smart-badges')));
         }
     }
 
@@ -652,24 +607,24 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_duplicate_badge()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
 
         if (empty($id)) {
-            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
         }
 
         $result = self::duplicate_badge($id);
 
         if ($result) {
-            wp_send_json_success(array('badge' => $result, 'message' => __('Badge duplicated successfully.', 'directorist-custom-badges')));
+            wp_send_json_success(array('badge' => $result, 'message' => __('Badge duplicated successfully.', 'directorist-smart-badges')));
         } else {
-            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Badge not found.', 'directorist-smart-badges')));
         }
     }
 
@@ -678,10 +633,10 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_export_badges()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $badges = self::get_badges();
@@ -693,16 +648,16 @@ class Directorist_Custom_Badges_Admin
      */
     public function ajax_import_badges()
     {
-        check_ajax_referer('directorist_custom_badges_nonce', 'nonce');
+        check_ajax_referer('directorist_smart_badges_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
         $badges_data = isset($_POST['badges']) ? $_POST['badges'] : array();
 
         if (empty($badges_data) || !is_array($badges_data)) {
-            wp_send_json_error(array('message' => __('Invalid badges data.', 'directorist-custom-badges')));
+            wp_send_json_error(array('message' => __('Invalid badges data.', 'directorist-smart-badges')));
         }
 
         // Sanitize badges data
@@ -731,12 +686,12 @@ class Directorist_Custom_Badges_Admin
 
         if ($imported > 0) {
             wp_send_json_success(array(
-                'message' => sprintf(__('%d badge(s) imported successfully.', 'directorist-custom-badges'), $imported),
+                'message' => sprintf(__('%d badge(s) imported successfully.', 'directorist-smart-badges'), $imported),
                 'imported' => $imported,
                 'errors' => $errors
             ));
         } else {
-            wp_send_json_error(array('message' => __('No badges were imported.', 'directorist-custom-badges'), 'errors' => $errors));
+            wp_send_json_error(array('message' => __('No badges were imported.', 'directorist-smart-badges'), 'errors' => $errors));
         }
     }
 
@@ -760,7 +715,7 @@ class Directorist_Custom_Badges_Admin
             if (is_array($value)) {
                 // Recursively sanitize nested arrays
                 if ($key === 'conditions') {
-                    $sanitized[$key] = Directorist_Custom_Badges_Helper::sanitize_conditions($value);
+                    $sanitized[$key] = Directorist_Smart_Badges_Helper::sanitize_conditions($value);
                 } else {
                     $sanitized[$key] = self::sanitize_badge_post_data($value);
                 }

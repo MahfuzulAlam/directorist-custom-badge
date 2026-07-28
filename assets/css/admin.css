@@ -1,1093 +1,812 @@
 /**
- * Directorist Custom Badges – Admin Styles
+ * Directorist Smart Badges – Admin UI.
  *
- * Table of contents:
- *  1. Variables & reset
- *  2. Layout wrapper
- *  3. Notices
- *  4. Page-header toolbar
- *  5. Empty state
- *  6. Badges list table
- *  7. Toggle switch
- *  8. Action buttons
- *  9. Badge form wrapper
- * 10. Form sections & fields
- * 11. Color picker
- * 12. Condition repeater
- * 13. Condition item (card)
- * 14. Condition header (drag, toggle, remove)
- * 15. Condition fields grid
- * 16. Form actions bar
- * 17. Animations
- * 18. Responsive
+ * Card-based layout, neutral grays + one accent, 8px spacing scale,
+ * system fonts, inline SVG icons, CSS-only vertical tabs, RTL-safe
+ * logical properties. Transitions on hover/focus only (150ms).
  */
 
-/* =========================================================================
-   1. Variables & reset
-   ========================================================================= */
+/* Design tokens */
+.dsb-admin-wrap {
+	--dsb-accent:        #6c39f0;
+	--dsb-accent-hover:  #5a2bd8;
+	--dsb-accent-soft:   rgba(108, 57, 240, 0.10);
+	--dsb-accent-ring:   rgba(108, 57, 240, 0.35);
 
-.dcb-admin-wrap {
-	--dcb-blue    : #2271b1;
-	--dcb-blue-dk : #135e96;
-	--dcb-red     : #d63638;
-	--dcb-green   : #00a32a;
-	--dcb-border  : #dcdcde;
-	--dcb-bg      : #f6f7f7;
-	--dcb-bg-card : #ffffff;
-	--dcb-text    : #1d2327;
-	--dcb-muted   : #646970;
-	--dcb-radius  : 6px;
-	--dcb-shadow  : 0 1px 3px rgba(0,0,0,.08);
-	max-width: 1400px;
+	--dsb-gray-50:  #fafbfc;
+	--dsb-gray-100: #f4f5f7;
+	--dsb-gray-200: #e9ebee;
+	--dsb-gray-300: #d7dade;
+	--dsb-gray-400: #b0b5bd;
+	--dsb-gray-500: #858c96;
+	--dsb-gray-600: #5f6672;
+	--dsb-gray-700: #434a56;
+	--dsb-gray-900: #1e232c;
+
+	--dsb-danger:      #d63638;
+	--dsb-danger-soft: #fcecec;
+	--dsb-success:     #1a7f37;
+	--dsb-success-soft:#e9f5ec;
+
+	--dsb-s1: 8px;
+	--dsb-s2: 16px;
+	--dsb-s3: 24px;
+	--dsb-s4: 32px;
+	--dsb-s5: 40px;
+
+	--dsb-radius:    8px;
+	--dsb-radius-lg: 12px;
+	--dsb-shadow:    0 1px 2px rgba(30, 35, 44, 0.06);
+	--dsb-shadow-lg: 0 8px 24px rgba(30, 35, 44, 0.12);
+	--dsb-t: 150ms ease;
+
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: var(--dsb-gray-900);
+	margin-block-start: var(--dsb-s2);
 }
 
-/* =========================================================================
-   2. Layout wrapper
-   ========================================================================= */
-
-.dcb-admin-content {
-	margin-top: 20px;
+.dsb-admin-wrap svg {
+	display: block;
+	flex: none;
 }
 
-/* =========================================================================
-   3. Notices
-   ========================================================================= */
-
-.dcb-notices {
-	margin: 16px 0 0;
-}
-
-.dcb-notices .notice {
-	margin: 0;
-	border-radius: var(--dcb-radius);
-}
-
-/* =========================================================================
-   4. Page-header toolbar
-   ========================================================================= */
-
-.dcb-admin-wrap h1.wp-heading-inline {
-	margin-right: 8px;
-}
-
-.dcb-toolbar {
-	display: inline-flex;
+/* Sticky header */
+.dsb-header {
+	position: sticky;
+	top: 32px;
+	z-index: 100;
+	display: flex;
 	align-items: center;
-	gap: 6px;
-	vertical-align: middle;
+	gap: var(--dsb-s2);
+	padding: var(--dsb-s2) var(--dsb-s3);
+	margin-block-end: var(--dsb-s3);
+	background: #fff;
+	border: 1px solid var(--dsb-gray-200);
+	border-radius: var(--dsb-radius-lg);
+	box-shadow: var(--dsb-shadow);
 }
 
-/* =========================================================================
-   5. Empty state
-   ========================================================================= */
-
-.dcb-empty-state {
-	text-align: center;
-	padding: 64px 24px;
-	background: var(--dcb-bg-card);
-	border: 1px dashed var(--dcb-border);
-	border-radius: var(--dcb-radius);
-	margin-top: 20px;
-}
-
-.dcb-empty-state p {
-	font-size: 15px;
-	color: var(--dcb-muted);
-	margin-bottom: 20px;
-}
-
-/* =========================================================================
-   6. Badges list table
-   ========================================================================= */
-
-.dcb-badges-table-wrapper {
-	margin-top: 20px;
-}
-
-.dcb-badges-table {
-	margin-top: 0;
-	border-radius: var(--dcb-radius);
-	overflow: hidden;
-	box-shadow: var(--dcb-shadow);
-}
-
-/* Column widths */
-.dcb-badges-table .column-order      { width: 48px;  text-align: center; }
-.dcb-badges-table .column-preview    { width: 200px;  text-align: center; padding-right: 0; }
-.dcb-badges-table .column-title      { min-width: 160px; padding-left: 20px; }
-.dcb-badges-table .column-label      { width: 140px; }
-.dcb-badges-table .column-id         { width: 160px; }
-.dcb-badges-table .column-conditions { width: 120px; text-align: center; }
-.dcb-badges-table .column-status     { width: 80px;  text-align: center; }
-.dcb-badges-table .column-actions    { width: 180px; }
-
-/* Header row */
-.dcb-badges-table thead th {
-	background: var(--dcb-bg);
-	font-size: 12px;
-	letter-spacing: .04em;
-	text-transform: uppercase;
-	color: var(--dcb-muted);
-	padding: 10px 12px;
-	border-bottom: 2px solid var(--dcb-border);
-}
-
-/* Body rows */
-.dcb-badges-table tbody td {
-	padding: 12px;
-	vertical-align: middle;
-	border-bottom: 1px solid #f0f0f1;
-}
-
-.dcb-badge-row:hover td {
-	background: #f9f9fa;
-}
-
-/* Badge preview swatch */
-.dcb-badge-preview {
-	display: inline-flex;
+.dsb-header-brand {
+	display: flex;
 	align-items: center;
-	justify-content: center;
-	gap: 4px;
-	padding: 3px 10px;
-	border-radius: 20px;
-	font-size: 12px;
+	gap: calc(var(--dsb-s1) + 4px);
+	min-inline-size: 0;
+}
+
+.dsb-header-brand svg {
+	color: var(--dsb-accent);
+}
+
+.dsb-admin-wrap .dsb-header h1 {
+	font-size: 18px;
 	font-weight: 600;
-	line-height: 1.4;
-	background: #e0e0e0;
-	color: #333;
+	line-height: 1.2;
+	margin: 0;
+	padding: 0;
+	color: var(--dsb-gray-900);
 	white-space: nowrap;
-	max-width: 140px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.dcb-badge-icon-preview {
-	font-size: 13px;
-}
-
-.dcb-badge-preview-image {
-	display: block;
-	max-width: 90px;
-	max-height: 28px;
-	width: auto;
-	height: auto;
-}
-
-/* Badge ID code tag */
-.dcb-badges-table code {
-	background: #eef2f7;
-	color: #2271b1;
-	padding: 2px 7px;
-	border-radius: 3px;
-	font-size: 12px;
-	font-family: monospace;
-}
-
-/* Condition count pill */
-.dcb-condition-count {
-	display: inline-block;
-	background: #e5f0fb;
-	color: #1a5f9e;
-	border-radius: 20px;
-	padding: 2px 10px;
-	font-size: 12px;
-	font-weight: 600;
-}
-
-.dcb-condition-count.is-zero {
-	background: #f0f0f1;
-	color: var(--dcb-muted);
-}
-
-/* Drag handle */
-.dcb-drag-handle {
-	cursor: grab;
-	color: #bbb;
-	font-size: 18px;
-	display: block;
-	text-align: center;
-	line-height: 1;
-}
-
-.dcb-drag-handle:hover {
-	color: var(--dcb-blue);
-}
-
-.dcb-badge-row.ui-sortable-helper {
-	background: #f0f6fb;
-	box-shadow: 0 4px 12px rgba(0,0,0,.12);
-	outline: 2px solid var(--dcb-blue);
-	border-radius: var(--dcb-radius);
-}
-
-/* =========================================================================
-   7. Toggle switch
-   ========================================================================= */
-
-.dcb-toggle-switch {
-	position: relative;
-	display: inline-block;
-	width: 44px;
-	height: 22px;
-	margin: 0;
-}
-
-.dcb-toggle-switch input {
-	opacity: 0;
-	width: 0;
-	height: 0;
-}
-
-.dcb-toggle-slider {
-	position: absolute;
-	inset: 0;
-	cursor: pointer;
-	background: #ccc;
-	border-radius: 22px;
-	transition: background .25s;
-}
-
-.dcb-toggle-slider::before {
-	content: '';
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	left: 3px;
-	top: 3px;
-	background: #fff;
-	border-radius: 50%;
-	transition: transform .25s;
-	box-shadow: 0 1px 3px rgba(0,0,0,.2);
-}
-
-.dcb-toggle-switch input:checked + .dcb-toggle-slider {
-	background: var(--dcb-green);
-}
-
-.dcb-toggle-switch input:checked + .dcb-toggle-slider::before {
-	transform: translateX(22px);
-}
-
-.dcb-toggle-switch input:focus + .dcb-toggle-slider {
-	box-shadow: 0 0 0 2px rgba(34,113,177,.35);
-}
-
-/* =========================================================================
-   8. Action buttons
-   ========================================================================= */
-
-.dcb-row-actions {
+.dsb-header-actions {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	flex-wrap: nowrap;
+	gap: var(--dsb-s1);
+	margin-inline-start: auto;
 }
 
-.dcb-btn-icon {
+.dsb-back-link {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	width: 30px;
-	height: 30px;
-	padding: 0;
-	border: 1px solid var(--dcb-border);
-	border-radius: 4px;
-	background: #fff;
-	color: var(--dcb-muted);
-	cursor: pointer;
-	transition: border-color .2s, color .2s, background .2s;
+	gap: 6px;
+	font-size: 13px;
 	text-decoration: none;
+	color: var(--dsb-gray-600);
+	transition: color var(--dsb-t);
 }
 
-.dcb-btn-icon:hover {
-	border-color: var(--dcb-blue);
-	color: var(--dcb-blue);
-	background: #e8f2fb;
+.dsb-back-link:hover,
+.dsb-back-link:focus {
+	color: var(--dsb-accent);
 }
 
-.dcb-btn-icon.is-delete:hover {
-	border-color: var(--dcb-red);
-	color: var(--dcb-red);
-	background: #fde8e8;
+[dir="rtl"] .dsb-back-link svg {
+	transform: scaleX(-1);
 }
 
-.dcb-btn-icon .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-}
-
-/* =========================================================================
-   9. Badge form wrapper
-   ========================================================================= */
-
-.dcb-badge-form-wrapper {
-	margin-top: 24px;
-	background: var(--dcb-bg-card);
-	border: 1px solid var(--dcb-border);
-	border-radius: var(--dcb-radius);
-	box-shadow: var(--dcb-shadow);
-	animation: dcbFadeIn .25s ease-out;
-}
-
-.dcb-badge-form-container {
-	padding: 28px 32px;
-}
-
-/* =========================================================================
-   10. Form sections & fields
-   ========================================================================= */
-
-.dcb-badge-form {
-	padding: 0;
-}
-
-.dcb-form-section {
-	margin-bottom: 32px;
-	padding-bottom: 32px;
-	border-bottom: 1px solid #f0f0f1;
-}
-
-.dcb-form-section:last-child {
-	border-bottom: none;
-	margin-bottom: 0;
-	padding-bottom: 0;
-}
-
-.dcb-form-section h3 {
-	margin: 0 0 20px;
-	font-size: 14px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: .06em;
-	color: var(--dcb-muted);
-	padding-bottom: 10px;
-	border-bottom: 2px solid #f0f0f1;
-}
-
-.dcb-form-row {
-	margin-bottom: 18px;
-}
-
-.dcb-form-row:last-child {
-	margin-bottom: 0;
-}
-
-/* Two-column grid row */
-.dcb-form-row--grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 16px;
-}
-
-.dcb-form-field {
-	width: 100%;
-}
-
-.dcb-form-field label {
-	display: block;
-	font-weight: 600;
-	font-size: 13px;
-	margin-bottom: 6px;
-	color: var(--dcb-text);
-}
-
-.dcb-required {
-	color: var(--dcb-red);
-	margin-left: 2px;
-}
-
-.dcb-input,
-.dcb-select {
-	display: block;
-	width: 100%;
-	max-width: 520px;
-	padding: 7px 11px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
-	font-size: 14px;
-	color: var(--dcb-text);
-	background: #fff;
-	box-sizing: border-box;
-	transition: border-color .15s, box-shadow .15s;
-}
-
-/* Inside condition grids, inputs fill the cell */
-.dcb-condition-body .dcb-input,
-.dcb-condition-body .dcb-select {
-	max-width: 100%;
-}
-
-.dcb-input:focus,
-.dcb-select:focus {
-	border-color: var(--dcb-blue);
-	box-shadow: 0 0 0 2px rgba(34,113,177,.2);
-	outline: none;
-}
-
-.dcb-input.dcb-error,
-.dcb-select.dcb-error {
-	border-color: var(--dcb-red);
-	box-shadow: 0 0 0 2px rgba(214,54,56,.15);
-}
-
-.dcb-field-error {
-	display: block;
-	color: var(--dcb-red);
-	font-size: 12px;
-	margin-top: 4px;
-}
-
-.dcb-form-field .description {
-	margin: 6px 0 0;
-	font-size: 12px;
-	color: var(--dcb-muted);
-	font-style: normal;
-	line-height: 1.5;
-}
-
-.dcb-image-upload-control {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-
-.dcb-badge-image-preview {
-	display: inline-flex;
-	align-items: center;
-	min-height: 32px;
-}
-
-.dcb-badge-image-preview img {
-	display: block;
-	max-width: 120px;
-	max-height: 44px;
-	width: auto;
-	height: auto;
-	border: 1px solid var(--dcb-border);
-	border-radius: 4px;
-	background: #fff;
-	padding: 2px;
-}
-
-.dcb-checkbox-label {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	font-size: 14px;
-	font-weight: normal;
-	cursor: pointer;
-}
-
-/* =========================================================================
-   11. Color picker
-   ========================================================================= */
-
-.dcb-color-picker {
-	max-width: 110px !important;
-}
-
-.wp-picker-container {
-	display: inline-block;
-}
-
-.wp-picker-container .wp-color-picker {
-	width: 110px;
-	padding: 5px 8px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
-	font-size: 14px;
-}
-
-.wp-picker-container .wp-color-picker:focus {
-	border-color: var(--dcb-blue);
-	box-shadow: 0 0 0 2px rgba(34,113,177,.2);
-	outline: none;
-}
-
-/* =========================================================================
-   12. Condition repeater
-   ========================================================================= */
-
-.dcb-conditions-repeater {
-	margin-top: 16px;
-}
-
-.dcb-conditions-list {
-	margin-bottom: 12px;
-	min-height: 4px; /* So sortable placeholder shows when list is empty */
-}
-
-/* Sortable drag placeholder */
-.dcb-condition-placeholder {
-	border: 2px dashed var(--dcb-blue);
-	border-radius: var(--dcb-radius);
-	background: #e8f2fb;
-	margin-bottom: 12px;
-}
-
-.dcb-add-condition {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-}
-
-.dcb-add-condition::before {
-	content: '+';
-	font-size: 18px;
-	line-height: 1;
-	font-weight: 300;
-}
-
-/* =========================================================================
-   13. Condition item (card)
-   ========================================================================= */
-
-.dcb-condition-item {
-	background: var(--dcb-bg-card);
-	border: 1px solid var(--dcb-border);
-	border-left: 3px solid var(--dcb-blue);
-	border-radius: var(--dcb-radius);
-	margin-bottom: 12px;
-	overflow: hidden;
-	box-shadow: var(--dcb-shadow);
-	transition: box-shadow .2s;
-}
-
-.dcb-condition-item:hover {
-	box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-
-.dcb-condition-item.ui-sortable-helper {
-	box-shadow: 0 6px 20px rgba(0,0,0,.15);
-	outline: 2px solid var(--dcb-blue);
-}
-
-/* Collapsed state – body is hidden, left border turns grey */
-.dcb-condition-item.dcb-collapsed {
-	border-left-color: #c3c4c7;
-}
-
-.dcb-condition-item.dcb-collapsed .dcb-condition-body {
-	display: none;
-}
-
-.dcb-condition-body {
-	padding: 16px 16px 12px;
-	border-top: 1px solid #f0f0f1;
-}
-
-/* =========================================================================
-   14. Condition header
-   ========================================================================= */
-
-.dcb-condition-header {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 10px 12px;
-	background: var(--dcb-bg);
-	user-select: none;
-}
-
-/* Drag handle */
-.dcb-condition-drag {
-	color: #bbb;
-	font-size: 18px;
-	cursor: grab;
-	flex-shrink: 0;
-	line-height: 1;
-	width: 20px;
-	height: 20px;
-}
-
-.dcb-condition-drag:hover {
-	color: var(--dcb-blue);
-}
-
-.dcb-condition-drag:active {
-	cursor: grabbing;
-}
-
-/* Condition title */
-.dcb-condition-title {
-	font-weight: 600;
-	font-size: 13px;
-	color: var(--dcb-text);
-	flex-shrink: 0;
-}
-
-/* One-line summary shown when collapsed */
-.dcb-condition-summary {
-	flex: 1 1 auto;
-	font-size: 12px;
-	color: var(--dcb-muted);
-	font-family: monospace;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	padding: 0 8px;
-	/* Hidden when expanded; JS adds/removes dcb-collapsed to trigger visibility */
-	opacity: 0;
-	transition: opacity .15s;
-}
-
-.dcb-condition-item.dcb-collapsed .dcb-condition-summary {
-	opacity: 1;
-}
-
-/* Right-side header action buttons */
-.dcb-condition-header-actions {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	flex-shrink: 0;
-	margin-left: auto;
-}
-
-/* Toggle (minimize/maximize) button */
-.dcb-toggle-condition {
+/* Buttons */
+.dsb-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 26px;
-	height: 26px;
-	padding: 0;
-	border: 1px solid var(--dcb-border);
-	border-radius: 4px;
+	gap: 6px;
+	padding: 0 var(--dsb-s2);
+	block-size: 36px;
+	border: 1px solid var(--dsb-gray-300);
+	border-radius: var(--dsb-radius);
 	background: #fff;
-	color: var(--dcb-muted);
+	color: var(--dsb-gray-700);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1;
+	text-decoration: none;
 	cursor: pointer;
-	transition: border-color .15s, color .15s;
+	transition: background var(--dsb-t), border-color var(--dsb-t),
+		color var(--dsb-t), box-shadow var(--dsb-t);
 }
 
-.dcb-toggle-condition:hover {
-	border-color: var(--dcb-blue);
-	color: var(--dcb-blue);
+.dsb-btn:hover,
+.dsb-btn:focus {
+	border-color: var(--dsb-gray-400);
+	background: var(--dsb-gray-50);
+	color: var(--dsb-gray-900);
 }
 
-.dcb-toggle-condition .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
+.dsb-btn--primary {
+	background: var(--dsb-accent);
+	border-color: var(--dsb-accent);
+	color: #fff;
 }
 
-/* Remove button – icon-only, same size as the toggle button */
-.dcb-remove-condition {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 26px;
-	height: 26px;
-	padding: 0;
-	border: 1px solid var(--dcb-border);
-	border-radius: 4px;
-	background: #fff;
-	color: var(--dcb-red);
-	cursor: pointer;
-	transition: background .15s, border-color .15s, color .15s;
+.dsb-btn--primary:hover,
+.dsb-btn--primary:focus {
+	background: var(--dsb-accent-hover);
+	border-color: var(--dsb-accent-hover);
+	color: #fff;
 }
 
-.dcb-remove-condition:hover {
-	background: #fde8e8;
-	border-color: #f5b0b1;
-	color: #b32d2e;
-}
-
-.dcb-remove-condition .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-}
-
-/* Select2 – Meta Key combobox full width */
-.dcb-form-field--meta-key .select2-container {
-	width: 100% !important;
-	max-width: 100%;
-}
-
-.dcb-form-field--meta-key .select2-container .select2-selection--single {
-	min-height: 38px;
-	padding: 4px 8px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
-}
-
-.dcb-form-field--meta-key .select2-container--default .select2-selection--single .select2-selection__rendered {
-	line-height: 28px;
-	padding-left: 4px;
-}
-
-.dcb-form-field--meta-key .select2-container--default .select2-selection--single .select2-selection__arrow {
-	height: 36px;
-}
-
-/* =========================================================================
-   15. Condition fields grid
-   ========================================================================= */
-
-.dcb-condition-fields {
-	margin-top: 0;
-}
-
-/* Type selector row (full width) */
-.dcb-condition-body .dcb-form-row:first-child .dcb-input,
-.dcb-condition-body .dcb-form-row:first-child .dcb-select {
-	max-width: 280px;
-}
-
-/* =========================================================================
-   16. Form actions bar
-   ========================================================================= */
-
-.dcb-form-actions {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-top: 28px;
-}
-
-.dcb-form-actions .button {
-	min-width: 120px;
-}
-
-/* =========================================================================
-   17. Animations
-   ========================================================================= */
-
-@keyframes dcbFadeIn {
-	from { opacity: 0; transform: translateY(-6px); }
-	to   { opacity: 1; transform: translateY(0);    }
-}
-
-.dcb-saving {
-	opacity: .6;
+.dsb-btn:disabled {
+	opacity: 0.6;
+	cursor: default;
 	pointer-events: none;
 }
 
-/* =========================================================================
-   18. Responsive – tablet & mobile
-   ========================================================================= */
+/* Busy spinner (shown while saving). */
+.dsb-btn.is-busy::before {
+	content: "";
+	inline-size: 14px;
+	block-size: 14px;
+	border: 2px solid rgba(255, 255, 255, 0.4);
+	border-block-start-color: #fff;
+	border-radius: 50%;
+	animation: dsb-spin 0.7s linear infinite;
+}
 
-/* ----- Tablet: condition grid already single column at 1100px ----- */
-@media screen and (max-width: 1100px) {
-	.dcb-form-row--grid {
+@keyframes dsb-spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Icon-only buttons (row actions). */
+.dsb-btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 32px;
+	block-size: 32px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: var(--dsb-radius);
+	background: transparent;
+	color: var(--dsb-gray-500);
+	cursor: pointer;
+	transition: background var(--dsb-t), color var(--dsb-t);
+}
+
+.dsb-btn-icon:hover,
+.dsb-btn-icon:focus {
+	background: var(--dsb-accent-soft);
+	color: var(--dsb-accent);
+}
+
+.dsb-btn-icon.is-delete:hover,
+.dsb-btn-icon.is-delete:focus {
+	background: var(--dsb-danger-soft);
+	color: var(--dsb-danger);
+}
+
+/* Visible focus for keyboard users. */
+.dsb-admin-wrap :is(a, button, input, select, [tabindex]):focus-visible {
+	outline: 2px solid var(--dsb-accent);
+	outline-offset: 1px;
+	border-radius: var(--dsb-radius);
+}
+
+/* Cards */
+.dsb-card {
+	background: #fff;
+	border: 1px solid var(--dsb-gray-200);
+	border-radius: var(--dsb-radius-lg);
+	box-shadow: var(--dsb-shadow);
+	overflow: hidden;
+}
+
+/* Badges table (list page) */
+.dsb-table-scroll {
+	overflow-x: auto;
+}
+
+.dsb-table {
+	inline-size: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.dsb-table th {
+	padding: var(--dsb-s2);
+	text-align: start;
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--dsb-gray-500);
+	background: var(--dsb-gray-50);
+	border-block-end: 1px solid var(--dsb-gray-200);
+	white-space: nowrap;
+}
+
+.dsb-table td {
+	padding: calc(var(--dsb-s1) + 4px) var(--dsb-s2);
+	border-block-end: 1px solid var(--dsb-gray-100);
+	vertical-align: middle;
+}
+
+.dsb-table tbody tr {
+	transition: background var(--dsb-t);
+}
+
+.dsb-table tbody tr:hover {
+	background: var(--dsb-gray-50);
+}
+
+.dsb-table tbody tr:last-child td {
+	border-block-end: 0;
+}
+
+.dsb-table .column-order  { inline-size: 40px; }
+.dsb-table .column-status { inline-size: 70px; }
+.dsb-table .column-actions{ inline-size: 120px; }
+
+.dsb-table .column-title a {
+	color: var(--dsb-gray-900);
+	text-decoration: none;
+	font-weight: 600;
+	transition: color var(--dsb-t);
+}
+
+.dsb-table .column-title a:hover,
+.dsb-table .column-title a:focus {
+	color: var(--dsb-accent);
+}
+
+.dsb-table code {
+	background: var(--dsb-gray-100);
+	border-radius: 4px;
+	padding: 2px 6px;
+	font-size: 12px;
+	color: var(--dsb-gray-600);
+}
+
+/* Row being dragged. */
+.dsb-table tr.is-dragging {
+	opacity: 0.5;
+	background: var(--dsb-accent-soft);
+}
+
+.dsb-drag-handle {
+	display: inline-flex;
+	color: var(--dsb-gray-400);
+	cursor: grab;
+	transition: color var(--dsb-t);
+}
+
+.dsb-drag-handle:hover { color: var(--dsb-gray-600); }
+.dsb-drag-handle:active { cursor: grabbing; }
+
+.dsb-row-actions {
+	display: flex;
+	gap: 4px;
+}
+
+/* Badge preview swatch. */
+.dsb-badge-preview {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	max-inline-size: 160px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	background: var(--dsb-gray-100);
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dsb-badge-preview-image {
+	max-block-size: 24px;
+	max-inline-size: 100%;
+}
+
+/* Condition count pill. */
+.dsb-condition-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-inline-size: 24px;
+	block-size: 24px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--dsb-accent-soft);
+	color: var(--dsb-accent);
+	font-weight: 600;
+	font-size: 12px;
+}
+
+.dsb-condition-count.is-zero {
+	background: var(--dsb-gray-100);
+	color: var(--dsb-gray-500);
+}
+
+/* Empty state */
+.dsb-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--dsb-s2);
+	padding: var(--dsb-s5) var(--dsb-s3);
+	text-align: center;
+}
+
+.dsb-empty-state svg {
+	color: var(--dsb-gray-300);
+}
+
+.dsb-empty-state p {
+	margin: 0;
+	color: var(--dsb-gray-600);
+	font-size: 14px;
+}
+
+/* Toggle switch */
+.dsb-toggle-switch {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--dsb-s1);
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--dsb-gray-700);
+}
+
+.dsb-toggle-switch input {
+	position: absolute;
+	opacity: 0;
+	inline-size: 40px;
+	block-size: 22px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.dsb-toggle-slider {
+	display: inline-block;
+	inline-size: 40px;
+	block-size: 22px;
+	border-radius: 999px;
+	background: var(--dsb-gray-300);
+	transition: background var(--dsb-t);
+	flex: none;
+}
+
+.dsb-toggle-slider::before {
+	content: "";
+	display: block;
+	inline-size: 16px;
+	block-size: 16px;
+	margin-block-start: 3px;
+	margin-inline-start: 3px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(30, 35, 44, 0.25);
+	transition: transform var(--dsb-t);
+}
+
+.dsb-toggle-switch input:checked + .dsb-toggle-slider {
+	background: var(--dsb-accent);
+}
+
+.dsb-toggle-switch input:checked + .dsb-toggle-slider::before {
+	transform: translateX(18px);
+}
+
+[dir="rtl"] .dsb-toggle-switch input:checked + .dsb-toggle-slider::before {
+	transform: translateX(-18px);
+}
+
+.dsb-toggle-switch input:focus-visible + .dsb-toggle-slider {
+	outline: 2px solid var(--dsb-accent);
+	outline-offset: 2px;
+}
+
+/* Form controls */
+.dsb-admin-wrap .dsb-input,
+.dsb-admin-wrap .dsb-select {
+	inline-size: 100%;
+	max-inline-size: 420px;
+	block-size: 36px;
+	padding: 0 var(--dsb-s2);
+	border: 1px solid var(--dsb-gray-300);
+	border-radius: var(--dsb-radius);
+	background-color: #fff;
+	color: var(--dsb-gray-900);
+	font-family: inherit;
+	font-size: 13px;
+	line-height: normal;
+	box-shadow: none;
+	transition: border-color var(--dsb-t), box-shadow var(--dsb-t);
+}
+
+.dsb-admin-wrap .dsb-input:hover,
+.dsb-admin-wrap .dsb-select:hover {
+	border-color: var(--dsb-gray-400);
+}
+
+.dsb-admin-wrap .dsb-input:focus,
+.dsb-admin-wrap .dsb-select:focus {
+	border-color: var(--dsb-accent);
+	box-shadow: 0 0 0 3px var(--dsb-accent-ring);
+	outline: none;
+}
+
+/* Styled select: custom chevron (inline SVG data URI, not external). */
+.dsb-admin-wrap .dsb-select {
+	appearance: none;
+	-webkit-appearance: none;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235f6672' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	padding-inline-end: var(--dsb-s4);
+}
+
+[dir="rtl"] .dsb-admin-wrap .dsb-select {
+	background-position: left 12px center;
+}
+
+.dsb-admin-wrap .dsb-input.dsb-error {
+	border-color: var(--dsb-danger);
+}
+
+.dsb-field-error {
+	display: block;
+	margin-block-start: 4px;
+	color: var(--dsb-danger);
+	font-size: 12px;
+}
+
+.dsb-form-field label {
+	display: block;
+	margin-block-end: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--dsb-gray-700);
+}
+
+.dsb-required { color: var(--dsb-danger); }
+
+.dsb-admin-wrap .dsb-form-field .description {
+	margin: 6px 0 0;
+	font-size: 12px;
+	color: var(--dsb-gray-500);
+}
+
+.dsb-form-row {
+	margin-block-end: var(--dsb-s3);
+}
+
+.dsb-form-row:last-child {
+	margin-block-end: 0;
+}
+
+.dsb-form-row--grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--dsb-s2);
+	max-inline-size: 640px;
+}
+
+.dsb-form-row--grid .dsb-form-field { min-inline-size: 0; }
+
+/* Native color field: swatch + hex text + clear. */
+.dsb-color-field {
+	display: flex;
+	align-items: center;
+	gap: var(--dsb-s1);
+	max-inline-size: 420px;
+}
+
+.dsb-color-field input[type="color"] {
+	inline-size: 36px;
+	block-size: 36px;
+	padding: 2px;
+	border: 1px solid var(--dsb-gray-300);
+	border-radius: var(--dsb-radius);
+	background: #fff;
+	cursor: pointer;
+	flex: none;
+	transition: border-color var(--dsb-t);
+}
+
+.dsb-color-field input[type="color"]:hover {
+	border-color: var(--dsb-gray-400);
+}
+
+/* Image upload control. */
+.dsb-image-upload-control {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--dsb-s1);
+}
+
+.dsb-badge-image-preview img {
+	max-block-size: 40px;
+	border-radius: var(--dsb-radius);
+	border: 1px solid var(--dsb-gray-200);
+}
+
+/* CSS-only vertical tabs (form page) */
+.dsb-tab-radio {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.dsb-form-layout {
+	display: grid;
+	grid-template-columns: 200px minmax(0, 1fr);
+	gap: var(--dsb-s3);
+	align-items: start;
+}
+
+.dsb-tabs {
+	position: sticky;
+	top: 108px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.dsb-tab-label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px var(--dsb-s2);
+	border-radius: var(--dsb-radius);
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--dsb-gray-600);
+	cursor: pointer;
+	transition: background var(--dsb-t), color var(--dsb-t);
+}
+
+.dsb-tab-label:hover {
+	background: var(--dsb-gray-100);
+	color: var(--dsb-gray-900);
+}
+
+.dsb-tab-label svg { color: currentColor; }
+
+.dsb-tab-panel {
+	display: none;
+	padding: var(--dsb-s3);
+}
+
+/* Active tab highlight + panel visibility. */
+#dsb-tab-general:checked  ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-general"],
+#dsb-tab-appearance:checked ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-appearance"],
+#dsb-tab-conditions:checked ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-conditions"] {
+	background: var(--dsb-accent-soft);
+	color: var(--dsb-accent);
+}
+
+#dsb-tab-general:checked  ~ .dsb-form-layout .dsb-tab-panel--general,
+#dsb-tab-appearance:checked ~ .dsb-form-layout .dsb-tab-panel--appearance,
+#dsb-tab-conditions:checked ~ .dsb-form-layout .dsb-tab-panel--conditions {
+	display: block;
+}
+
+/* Keyboard focus on the hidden radio highlights its label. */
+#dsb-tab-general:focus-visible  ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-general"],
+#dsb-tab-appearance:focus-visible ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-appearance"],
+#dsb-tab-conditions:focus-visible ~ .dsb-form-layout .dsb-tab-label[for="dsb-tab-conditions"] {
+	outline: 2px solid var(--dsb-accent);
+	outline-offset: 1px;
+}
+
+.dsb-tab-panel h3 {
+	margin: 0 0 var(--dsb-s3);
+	padding-block-end: var(--dsb-s2);
+	border-block-end: 1px solid var(--dsb-gray-100);
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--dsb-gray-900);
+}
+
+/* Condition repeater */
+.dsb-condition-item {
+	border: 1px solid var(--dsb-gray-200);
+	border-radius: var(--dsb-radius-lg);
+	background: var(--dsb-gray-50);
+	margin-block-end: var(--dsb-s2);
+	overflow: hidden;
+}
+
+.dsb-condition-item.is-dragging {
+	opacity: 0.5;
+}
+
+.dsb-condition-header {
+	display: flex;
+	align-items: center;
+	gap: var(--dsb-s1);
+	padding: var(--dsb-s1) var(--dsb-s2);
+	background: #fff;
+	border-block-end: 1px solid var(--dsb-gray-200);
+}
+
+.dsb-condition-item.dsb-collapsed .dsb-condition-header {
+	border-block-end: 0;
+}
+
+.dsb-condition-drag {
+	display: inline-flex;
+	color: var(--dsb-gray-400);
+	cursor: grab;
+	transition: color var(--dsb-t);
+}
+
+.dsb-condition-drag:hover { color: var(--dsb-gray-600); }
+
+.dsb-condition-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--dsb-gray-700);
+	white-space: nowrap;
+}
+
+.dsb-condition-summary {
+	font-size: 12px;
+	color: var(--dsb-gray-500);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-inline-size: 0;
+}
+
+.dsb-condition-header-actions {
+	display: flex;
+	gap: 2px;
+	margin-inline-start: auto;
+}
+
+.dsb-toggle-condition svg {
+	transition: transform var(--dsb-t);
+}
+
+.dsb-condition-item.dsb-collapsed .dsb-toggle-condition svg {
+	transform: rotate(180deg);
+}
+
+.dsb-condition-body {
+	padding: var(--dsb-s2);
+}
+
+.dsb-condition-item.dsb-collapsed .dsb-condition-body {
+	display: none;
+}
+
+.dsb-add-condition {
+	margin-block-start: var(--dsb-s1);
+}
+
+/* Toasts + notices */
+.dsb-toast-region {
+	position: fixed;
+	inset-block-end: var(--dsb-s3, 24px);
+	inset-inline-end: var(--dsb-s3, 24px);
+	z-index: 99999;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.dsb-toast {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	max-inline-size: 360px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: #1e232c;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	box-shadow: 0 8px 24px rgba(30, 35, 44, 0.12);
+	opacity: 0;
+	transform: translateY(8px);
+}
+
+.dsb-toast.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+	transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.dsb-toast::before {
+	content: "";
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 50%;
+	flex: none;
+}
+
+.dsb-toast--success::before { background: #4ade80; }
+.dsb-toast--error::before   { background: #f87171; }
+
+/* WordPress notices inside our wrap, restyled to match. */
+.dsb-admin-wrap .notice {
+	border: 1px solid var(--dsb-gray-200);
+	border-inline-start: 4px solid var(--dsb-accent);
+	border-radius: var(--dsb-radius);
+	box-shadow: var(--dsb-shadow);
+	margin: 0 0 var(--dsb-s2);
+}
+
+.dsb-admin-wrap .notice-success { border-inline-start-color: var(--dsb-success); }
+.dsb-admin-wrap .notice-error   { border-inline-start-color: var(--dsb-danger); }
+
+.directorist-deprecated-item-notice { display:none }
+
+/* Responsive */
+@media (max-width: 782px) {
+	.dsb-header {
+		top: 46px;
+		flex-wrap: wrap;
+	}
+
+	.dsb-header-actions {
+		inline-size: 100%;
+		margin-inline-start: 0;
+		flex-wrap: wrap;
+	}
+
+	.dsb-form-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.dsb-tabs {
+		position: static;
+		flex-direction: row;
+		overflow-x: auto;
+	}
+
+	.dsb-form-row--grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-/* ----- Mobile landscape / small tablet ----- */
-@media screen and (max-width: 782px) {
-
-	/* ---- Global wrap: breathing room, no horizontal bleed ---- */
-	.wrap.dcb-admin-wrap {
-		margin-left: 0;
-		margin-right: 0;
-		padding-left: 12px;
-		padding-right: 12px;
-		box-sizing: border-box;
-	}
-
-	.dcb-admin-wrap h1.wp-heading-inline {
-		display: block;
-		width: 100%;
-		margin-bottom: 12px;
-		padding-right: 0;
-	}
-
-	/* Toolbar: stack actions, full-width tap targets */
-	.dcb-toolbar {
-		display: flex;
-		flex-wrap: wrap;
-		width: 100%;
-		gap: 8px;
-		margin-top: 8px;
-		margin-bottom: 8px;
-	}
-
-	.dcb-toolbar .page-title-action {
-		flex: 1 1 auto;
-		min-height: 40px;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-		box-sizing: border-box;
-	}
-
-	.dcb-notices {
-		margin-top: 12px;
-	}
-
-	.dcb-admin-content {
-		margin-top: 12px;
-	}
-
-	/* ---- Badges list: card layout instead of cramped table ---- */
-	.dcb-badges-table-wrapper {
-		margin-left: -12px;
-		margin-right: -12px;
-		padding: 0 12px;
-		overflow: visible;
-	}
-
-	.dcb-badges-table--responsive {
-		display: block;
-		box-shadow: none;
-		background: transparent;
-		border: none;
-	}
-
-	.dcb-badges-table--responsive thead {
-		display: none;
-	}
-
-	.dcb-badges-table--responsive tbody {
-		display: block;
-	}
-
-	.dcb-badges-table--responsive tbody tr.dcb-badge-row {
-		display: block;
-		background: var(--dcb-bg-card);
-		border: 1px solid var(--dcb-border);
-		border-radius: var(--dcb-radius);
-		box-shadow: var(--dcb-shadow);
-		margin-bottom: 14px;
-		padding: 0;
-		overflow: hidden;
-	}
-
-	.dcb-badges-table--responsive tbody tr.dcb-badge-row:hover td {
-		background: transparent;
-	}
-
-	.dcb-badges-table--responsive tbody td {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		padding: 12px 14px;
-		border-bottom: 1px solid #f0f0f1;
-		text-align: right;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.dcb-badges-table--responsive tbody td:last-child {
-		border-bottom: none;
-	}
-
-	/* Label column (data-label) */
-	.dcb-badges-table--responsive tbody td[data-label]:not([data-label=""])::before {
-		content: attr(data-label);
-		flex: 0 0 auto;
-		font-size: 11px;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: .04em;
-		color: var(--dcb-muted);
-		text-align: left;
-		max-width: 38%;
-	}
-
-	.dcb-badges-table--responsive tbody td .dcb-badge-preview,
-	.dcb-badges-table--responsive tbody td .dcb-row-actions,
-	.dcb-badges-table--responsive tbody td strong,
-	.dcb-badges-table--responsive tbody td code {
-		text-align: left;
-	}
-
-	/* Drag row: label + handle */
-	.dcb-badges-table--responsive tbody td.column-order {
-		justify-content: space-between;
-		background: var(--dcb-bg);
-		padding: 10px 14px;
-	}
-
-	/* Preview: allow swatch to shrink */
-	.dcb-badges-table--responsive .dcb-badge-preview {
-		max-width: 100%;
-	}
-
-	/* Actions row: horizontal icon bar */
-	.dcb-badges-table--responsive .dcb-row-actions {
-		flex-direction: row;
-		justify-content: flex-end;
-		flex-wrap: wrap;
-		gap: 8px;
-		width: auto;
-	}
-
-	.dcb-badges-table--responsive .dcb-btn-icon {
-		width: 40px;
-		height: 40px;
-		min-width: 40px;
-		min-height: 40px;
-	}
-
-	/* Toggle: larger touch target */
-	.dcb-badges-table--responsive .dcb-toggle-switch {
-		width: 48px;
-		height: 26px;
-	}
-
-	/* Empty state */
-	.dcb-empty-state {
-		padding: 40px 16px;
-		margin-left: 0;
-		margin-right: 0;
-	}
-}
-
-/* ----- Phone portrait: tighter padding, full-bleed inputs ----- */
-@media screen and (max-width: 600px) {
-
-	.wrap.dcb-admin-wrap {
-		padding-left: 10px;
-		padding-right: 10px;
-	}
-
-	/* ---- Badge editor form ---- */
-	.dcb-admin-wrap--form .dcb-badge-form-wrapper {
-		margin-left: -10px;
-		margin-right: -10px;
-		border-left: none;
-		border-right: none;
-		border-radius: 0;
-	}
-
-	.dcb-badge-form-container {
-		padding: 16px 14px;
-	}
-
-	.dcb-form-section {
-		margin-bottom: 24px;
-		padding-bottom: 24px;
-	}
-
-	.dcb-form-section h3 {
-		font-size: 13px;
-		margin-bottom: 14px;
-	}
-
-	/* Inputs full width on small screens */
-	.dcb-input,
-	.dcb-select {
-		max-width: 100%;
-		min-height: 44px;
-		padding: 10px 12px;
-		font-size: 16px; /* prevents iOS zoom on focus */
-	}
-
-	.dcb-form-field .description {
-		font-size: 12px;
-	}
-
-	/* Color picker row */
-	.wp-picker-container {
-		display: block;
-		margin-bottom: 8px;
-	}
-
-	.wp-picker-container .wp-color-picker {
-		width: 100%;
-		max-width: 100%;
-		min-height: 44px;
-	}
-
-	/* Condition repeater: cards edge-to-edge */
-	.dcb-conditions-repeater {
-		margin-left: -14px;
-		margin-right: -14px;
-		padding-left: 14px;
-		padding-right: 14px;
-	}
-
-	.dcb-condition-item {
-		margin-bottom: 10px;
-		border-radius: 8px;
-	}
-
-	.dcb-condition-header {
-		padding: 10px;
-		gap: 8px;
-	}
-
-	.dcb-condition-title {
-		font-size: 12px;
-	}
-
-	.dcb-condition-summary {
-		display: none; /* avoid clutter on very narrow */
-	}
-
-	.dcb-condition-body {
-		padding: 12px;
-	}
-
-	.dcb-condition-drag,
-	.dcb-toggle-condition,
-	.dcb-remove-condition {
-		min-width: 44px;
-		min-height: 44px;
-		width: 44px;
-		height: 44px;
-	}
-
-	.dcb-add-condition {
-		width: 100%;
-		min-height: 44px;
-		justify-content: center;
-		margin-top: 8px;
-	}
-
-	/* Form actions sticky-friendly */
-	.dcb-form-actions {
-		flex-direction: column;
-		gap: 12px;
-		margin-top: 24px;
-		padding-top: 16px;
-	}
-
-	.dcb-form-actions .button {
-		width: 100%;
-		min-height: 48px;
-		line-height: 1.3;
-		padding-top: 12px;
-		padding-bottom: 12px;
-		text-align: center;
-	}
-
-	/* Back link on form page */
-	.dcb-admin-wrap--form .page-title-action {
-		display: inline-block;
-		margin-top: 8px;
-		margin-bottom: 8px;
-	}
-}
-
-/* ----- Very small screens ----- */
-@media screen and (max-width: 400px) {
-	.dcb-badges-table--responsive tbody td[data-label]:not([data-label=""])::before {
-		max-width: 42%;
-		font-size: 10px;
-	}
-
-	.dcb-badge-preview {
-		font-size: 11px;
-		padding: 4px 8px;
-	}
-}
-
-/* ----- Reduced motion ----- */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-	.dcb-badge-form-wrapper,
-	.dcb-condition-item,
-	.dcb-toggle-slider,
-	.dcb-toggle-slider::before {
-		animation: none;
-		transition: none;
+	.dsb-admin-wrap *,
+	.dsb-toast {
+		transition: none !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
 	}
 }

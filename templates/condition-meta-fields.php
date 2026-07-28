@@ -8,7 +8,7 @@
  * Meta Value and Type Cast are hidden automatically when the operator is
  * EXISTS or NOT EXISTS (handled in admin.js via handleCompareChange).
  *
- * @package Directorist_Custom_Badge
+ * @package Directorist_Smart_Badge
  *
  * @var int|string $index     Condition index or '{{index}}' placeholder.
  * @var array      $condition Saved condition data (empty array for new / template).
@@ -24,48 +24,39 @@ $condition     = isset( $condition ) ? $condition : array();
 $saved_compare = ! $is_template && isset( $condition['compare'] ) ? $condition['compare'] : '=';
 $hide_value    = ! $is_template && in_array( $saved_compare, array( 'EXISTS', 'NOT EXISTS' ), true );
 
-// Meta key dropdown options: distinct keys from listings + common keys.
-$meta_keys     = Directorist_Custom_Badges_Admin::get_listing_meta_keys();
 $saved_meta_key = ( ! $is_template && isset( $condition['meta_key'] ) ) ? (string) $condition['meta_key'] : '';
-if ( $saved_meta_key && ! in_array( $saved_meta_key, $meta_keys, true ) ) {
-	array_unshift( $meta_keys, $saved_meta_key );
-	$meta_keys = array_values( array_unique( $meta_keys ) );
-	sort( $meta_keys, SORT_STRING );
-}
 ?>
 
 
 <!-- Meta Condition Fields -->
-<div class="dcb-condition-fields dcb-meta-fields"<?php
+<div class="dsb-condition-fields dsb-meta-fields"<?php
 	if ( ! $is_template && isset( $condition['type'] ) && 'pricing_plan' === $condition['type'] ) {
 		echo ' style="display:none;"';
 	}
 ?>>
 
 	<!-- Row 1: Meta Key + Compare (always visible) -->
-	<div class="dcb-form-row dcb-form-row--grid">
+	<div class="dsb-form-row dsb-form-row--grid">
 
-		<div class="dcb-form-field dcb-form-field--meta-key">
-			<label for="dcb-meta-key-<?php echo esc_attr( $index ); ?>"><?php esc_html_e( 'Meta Key', 'directorist-custom-badges' ); ?></label>
-			<select
-				id="dcb-meta-key-<?php echo esc_attr( $index ); ?>"
+		<div class="dsb-form-field dsb-form-field--meta-key">
+			<label for="dsb-meta-key-<?php echo esc_attr( $index ); ?>"><?php esc_html_e( 'Meta Key', 'directorist-smart-badges' ); ?></label>
+			<input
+				type="text"
+				id="dsb-meta-key-<?php echo esc_attr( $index ); ?>"
 				name="badge[conditions][<?php echo esc_attr( $index ); ?>][meta_key]"
-				class="dcb-input dcb-meta-key-select"
-				data-placeholder="<?php esc_attr_e( 'Select or type a meta key…', 'directorist-custom-badges' ); ?>"
+				class="dsb-input dsb-meta-key-input"
+				list="dsb-meta-keys"
+				placeholder="<?php esc_attr_e( 'Select or type a meta key…', 'directorist-smart-badges' ); ?>"
+				value="<?php echo esc_attr( $saved_meta_key ); ?>"
 			>
-				<option value=""><?php esc_html_e( '— Select or type —', 'directorist-custom-badges' ); ?></option>
-				<?php foreach ( $meta_keys as $mk ) : ?>
-					<option value="<?php echo esc_attr( $mk ); ?>"<?php echo ( $saved_meta_key === $mk ) ? ' selected' : ''; ?>><?php echo esc_html( $mk ); ?></option>
-				<?php endforeach; ?>
-			</select>
-			<p class="description"><?php esc_html_e( 'Choose from keys already used on listings, or type a custom key.', 'directorist-custom-badges' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Choose from keys already used on listings, or type a custom key.', 'directorist-smart-badges' ); ?></p>
 		</div>
 
-		<div class="dcb-form-field">
-			<label><?php esc_html_e( 'Compare', 'directorist-custom-badges' ); ?></label>
+		<div class="dsb-form-field">
+			<label><?php esc_html_e( 'Compare', 'directorist-smart-badges' ); ?></label>
 			<select
 				name="badge[conditions][<?php echo esc_attr( $index ); ?>][compare]"
-				class="dcb-select dcb-compare-select"
+				class="dsb-select dsb-compare-select"
 			>
 				<?php
 				$operators = array(
@@ -95,27 +86,27 @@ if ( $saved_meta_key && ! in_array( $saved_meta_key, $meta_keys, true ) ) {
 			</select>
 		</div>
 
-	</div><!-- /.dcb-form-row--grid (row 1) -->
+	</div><!-- /.dsb-form-row--grid (row 1) -->
 
 	<!-- Row 2: Meta Value + Type Cast (hidden for EXISTS / NOT EXISTS) -->
-	<div class="dcb-form-row dcb-form-row--grid dcb-meta-value-row"<?php echo $hide_value ? ' style="display:none;"' : ''; ?>>
+	<div class="dsb-form-row dsb-form-row--grid dsb-meta-value-row"<?php echo $hide_value ? ' style="display:none;"' : ''; ?>>
 
-		<div class="dcb-form-field">
-			<label><?php esc_html_e( 'Meta Value', 'directorist-custom-badges' ); ?></label>
+		<div class="dsb-form-field">
+			<label><?php esc_html_e( 'Meta Value', 'directorist-smart-badges' ); ?></label>
 			<input
 				type="text"
 				name="badge[conditions][<?php echo esc_attr( $index ); ?>][meta_value]"
-				class="dcb-input"
-				placeholder="<?php esc_attr_e( 'expected value', 'directorist-custom-badges' ); ?>"
+				class="dsb-input"
+				placeholder="<?php esc_attr_e( 'expected value', 'directorist-smart-badges' ); ?>"
 				value="<?php echo ( ! $is_template && isset( $condition['meta_value'] ) ) ? esc_attr( $condition['meta_value'] ) : ''; ?>"
 			>
 		</div>
 
-		<div class="dcb-form-field">
-			<label><?php esc_html_e( 'Type Cast', 'directorist-custom-badges' ); ?></label>
+		<div class="dsb-form-field">
+			<label><?php esc_html_e( 'Type Cast', 'directorist-smart-badges' ); ?></label>
 			<select
 				name="badge[conditions][<?php echo esc_attr( $index ); ?>][type_cast]"
-				class="dcb-select"
+				class="dsb-select"
 			>
 				<?php
 				$types = array(
@@ -140,6 +131,6 @@ if ( $saved_meta_key && ! in_array( $saved_meta_key, $meta_keys, true ) ) {
 			</select>
 		</div>
 
-	</div><!-- /.dcb-form-row--grid (row 2) -->
+	</div><!-- /.dsb-form-row--grid (row 2) -->
 
-</div><!-- /.dcb-meta-fields -->
+</div><!-- /.dsb-meta-fields -->

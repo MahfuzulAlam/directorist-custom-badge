@@ -1,20 +1,20 @@
 <?php
 
 /** 
- * @package  Directorist - Custom Badges
+ * @package  Directorist - Smart Badges
  */
 
 /**
- * Plugin Name:       Directorist - Custom Badges
- * Plugin URI:        https://wpxplore.com/tools/directorist-custom-badges/
- * Description:       Best way to create custom badges for Directorist with advanced condition-based display rules
- * Version:           3.2.0
+ * Plugin Name:       Directorist - Smart Badges
+ * Plugin URI:        https://wpxplore.com/tools/directorist-smart-badges/
+ * Description:       Best way to create smart badges for Directorist with advanced condition-based display rules
+ * Version:           3.4.0
  * Requires at least: 5.2
  * Author:            wpWax
  * Author URI:        https://wpxplore.com
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       directorist-custom-badges
+ * Text Domain:       directorist-smart-badges
  * Domain Path:       /languages
  */
 
@@ -27,9 +27,9 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-if (!class_exists('Directorist_Custom_Badges')) {
+if (!class_exists('Directorist_Smart_Badges')) {
 
-    final class Directorist_Custom_Badges
+    final class Directorist_Smart_Badges
     {
         /**
          * Instance
@@ -41,8 +41,8 @@ if (!class_exists('Directorist_Custom_Badges')) {
          */
         public static function instance()
         {
-            if (!isset(self::$instance) && !(self::$instance instanceof Directorist_Custom_Badges)) {
-                self::$instance = new Directorist_Custom_Badges;
+            if (!isset(self::$instance) && !(self::$instance instanceof Directorist_Smart_Badges)) {
+                self::$instance = new Directorist_Smart_Badges;
                 self::$instance->init();
             }
             return self::$instance;
@@ -54,9 +54,27 @@ if (!class_exists('Directorist_Custom_Badges')) {
         public function init()
         {
             $this->define_constant();
+            $this->migrate_legacy_option();
             $this->includes();
             $this->enqueues();
             $this->hooks();
+        }
+
+        /**
+         * One-time copy of badges saved under the pre-rename
+         * "directorist_custom_badges" option so existing badges
+         * survive the rename to Smart Badges.
+         */
+        public function migrate_legacy_option()
+        {
+            if (false !== get_option('directorist_smart_badges', false)) {
+                return;
+            }
+
+            $legacy = get_option('directorist_custom_badges', false);
+            if (false !== $legacy) {
+                update_option('directorist_smart_badges', $legacy, 'no');
+            }
         }
 
         /**
@@ -67,16 +85,16 @@ if (!class_exists('Directorist_Custom_Badges')) {
             /**
              * Plugin version
              */
-            if (!defined('DIRECTORIST_CUSTOM_BADGE_VERSION')) {
-                define('DIRECTORIST_CUSTOM_BADGE_VERSION', '3.2.0');
+            if (!defined('DIRECTORIST_SMART_BADGE_VERSION')) {
+                define('DIRECTORIST_SMART_BADGE_VERSION', '3.4.0');
             }
 
-            if (!defined('DIRECTORIST_CUSTOM_BADGE_URI')) {
-                define('DIRECTORIST_CUSTOM_BADGE_URI', plugin_dir_url(__FILE__));
+            if (!defined('DIRECTORIST_SMART_BADGE_URI')) {
+                define('DIRECTORIST_SMART_BADGE_URI', plugin_dir_url(__FILE__));
             }
 
-            if (!defined('DIRECTORIST_CUSTOM_BADGE_DIR')) {
-                define('DIRECTORIST_CUSTOM_BADGE_DIR', plugin_dir_path(__FILE__));
+            if (!defined('DIRECTORIST_SMART_BADGE_DIR')) {
+                define('DIRECTORIST_SMART_BADGE_DIR', plugin_dir_path(__FILE__));
             }
         }
 
@@ -85,12 +103,12 @@ if (!class_exists('Directorist_Custom_Badges')) {
          */
         public function includes()
         {
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-helper.php' );
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-conditions.php' );
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-badge.php' );
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-single.php' );
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/class-admin.php' );
-            include_once( DIRECTORIST_CUSTOM_BADGE_DIR . '/inc/functions.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/class-helper.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/class-conditions.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/class-badge.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/class-single.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/class-admin.php' );
+            include_once( DIRECTORIST_SMART_BADGE_DIR . '/inc/functions.php' );
         }
 
         /**
@@ -108,10 +126,10 @@ if (!class_exists('Directorist_Custom_Badges')) {
         public function enqueue_scripts()
         {
             wp_enqueue_script(
-                'directorist-custom-script',
-                DIRECTORIST_CUSTOM_BADGE_URI . 'assets/js/main.js',
+                'directorist-smart-badges-script',
+                DIRECTORIST_SMART_BADGE_URI . 'assets/js/main.js',
                 array('jquery'),
-                DIRECTORIST_CUSTOM_BADGE_VERSION,
+                DIRECTORIST_SMART_BADGE_VERSION,
                 true
             );
         }
@@ -122,10 +140,10 @@ if (!class_exists('Directorist_Custom_Badges')) {
         public function enqueue_styles()
         {
             wp_enqueue_style(
-                'directorist-custom-style',
-                DIRECTORIST_CUSTOM_BADGE_URI . 'assets/css/main.css',
+                'directorist-smart-badges-style',
+                DIRECTORIST_SMART_BADGE_URI . 'assets/css/main.css',
                 array(),
-                DIRECTORIST_CUSTOM_BADGE_VERSION
+                DIRECTORIST_SMART_BADGE_VERSION
             );
         }
 
@@ -136,7 +154,7 @@ if (!class_exists('Directorist_Custom_Badges')) {
         {
             // Initialize admin class
             if (is_admin()) {
-                new Directorist_Custom_Badges_Admin();
+                new Directorist_Smart_Badges_Admin();
             }
         }
 
@@ -168,15 +186,15 @@ if (!class_exists('Directorist_Custom_Badges')) {
     /**
      * Main plugin function
      *
-     * @return Directorist_Custom_Badges
+     * @return Directorist_Smart_Badges
      */
-    function directorist_custom_badges()
+    function directorist_smart_badges()
     {
-        return Directorist_Custom_Badges::instance();
+        return Directorist_Smart_Badges::instance();
     }
 
     // Initialize plugin if Directorist is active
     if (directorist_is_plugin_active('directorist/directorist-base.php')) {
-        directorist_custom_badges();
+        directorist_smart_badges();
     }
 }

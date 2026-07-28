@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Helper class for Directorist Custom Badges
+ * Helper class for Directorist Smart Badges
  * 
  * @author  wpwax
  * @since   3.0.0
- * @version 3.2.0
+ * @version 3.4.0
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Directorist_Custom_Badges_Helper
+class Directorist_Smart_Badges_Helper
 {
     /**
      * Convert value to boolean
@@ -154,7 +154,7 @@ class Directorist_Custom_Badges_Helper
      */
     public static function template_exists($template_file)
     {
-        $file = DIRECTORIST_CUSTOM_BADGE_DIR . '/templates/' . $template_file . '.php';
+        $file = DIRECTORIST_SMART_BADGE_DIR . '/templates/' . $template_file . '.php';
 
         if (file_exists($file)) {
             return true;
@@ -171,7 +171,7 @@ class Directorist_Custom_Badges_Helper
     public static function get_badges_from_options()
     {
         // Get badges from options
-        $badges = Directorist_Custom_Badges_Admin::get_badges();
+        $badges = Directorist_Smart_Badges_Admin::get_badges();
         
         if (empty($badges)) {
             return [];
