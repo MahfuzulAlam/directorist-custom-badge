@@ -41,23 +41,18 @@ class Directorist_Smart_Single_Listing_Badge
 
     /**
      * Get Template
+     *
+     * Exposes $listing, $data, and $custom_badges to the included template.
      */
     public function get_template($template_file, $args = array())
     {
-        if (is_array($args)) {
-            extract($args);
-        }
-
-        // Extract variables safely
         $listing = isset($args['listing']) ? $args['listing'] : null;
         $data = isset($args['data']) ? $args['data'] : $args;
 
         $custom_badges = $this->get_listing_badges($data);
 
-        $file = DIRECTORIST_SMART_BADGE_DIR . '/templates/' . $template_file . '.php';
-
         if ($this->template_exists($template_file)) {
-            include $file;
+            include DIRECTORIST_SMART_BADGE_DIR . '/templates/' . $template_file . '.php';
         }
     }
 

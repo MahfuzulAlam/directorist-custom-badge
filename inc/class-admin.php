@@ -55,7 +55,7 @@ class Directorist_Smart_Badges_Admin
         
         // Also check page parameter for hidden pages
         if (!$is_list_page && !$is_form_page) {
-            $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+            $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
             if ($page === 'directorist-smart-badges' || $page === 'directorist-smart-badges-form') {
                 $is_list_page = ($page === 'directorist-smart-badges');
                 $is_form_page = ($page === 'directorist-smart-badges-form');
@@ -97,17 +97,15 @@ class Directorist_Smart_Badges_Admin
             'strings' => array(
                 'confirmDelete'    => __( 'Are you sure you want to delete this badge?', 'directorist-smart-badges' ),
                 'saving'           => __( 'Saving…', 'directorist-smart-badges' ),
-                'saved'            => __( 'Saved successfully!', 'directorist-smart-badges' ),
                 'error'            => __( 'An error occurred. Please try again.', 'directorist-smart-badges' ),
                 'requiredField'    => __( 'This field is required.', 'directorist-smart-badges' ),
-                'uniqueBadgeId'    => __( 'Badge ID must be unique.', 'directorist-smart-badges' ),
                 'invalidBadgeId'   => __( 'Badge ID must be lowercase with hyphens only.', 'directorist-smart-badges' ),
                 'condition'        => __( 'Condition', 'directorist-smart-badges' ),
                 'minimize'         => __( 'Minimize', 'directorist-smart-badges' ),
                 'maximize'         => __( 'Maximize', 'directorist-smart-badges' ),
-                'metaKeyPlaceholder' => __( 'Select or type a meta key…', 'directorist-smart-badges' ),
                 'selectImage'      => __( 'Select Badge Image', 'directorist-smart-badges' ),
                 'useImage'         => __( 'Use this image', 'directorist-smart-badges' ),
+                /* translators: %d: number of badges in the import file. */
                 'importConfirm'    => __( 'Import %d badge(s)?', 'directorist-smart-badges' ),
                 'invalidFile'      => __( 'Invalid file format.', 'directorist-smart-badges' ),
                 'parseError'       => __( 'Error parsing JSON file.', 'directorist-smart-badges' ),
@@ -466,7 +464,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+        $id = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
 
         if (empty($id)) {
             wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
@@ -493,7 +491,7 @@ class Directorist_Smart_Badges_Admin
         }
 
         // Get badge data from POST and sanitize
-        $badge_data = isset($_POST['badge']) ? $_POST['badge'] : array();
+        $badge_data = isset($_POST['badge']) ? wp_unslash($_POST['badge']) : array();
         
         if (!is_array($badge_data)) {
             wp_send_json_error(array('message' => __('Invalid badge data.', 'directorist-smart-badges')));
@@ -532,7 +530,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+        $id = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
 
         if (empty($id)) {
             wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
@@ -558,7 +556,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+        $id = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
 
         if (empty($id)) {
             wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
@@ -584,7 +582,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $order = isset($_POST['order']) ? $_POST['order'] : array();
+        $order = isset($_POST['order']) ? wp_unslash($_POST['order']) : array();
 
         if (empty($order) || !is_array($order)) {
             wp_send_json_error(array('message' => __('Invalid order data.', 'directorist-smart-badges')));
@@ -613,7 +611,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+        $id = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
 
         if (empty($id)) {
             wp_send_json_error(array('message' => __('Badge ID is required.', 'directorist-smart-badges')));
@@ -654,7 +652,7 @@ class Directorist_Smart_Badges_Admin
             wp_send_json_error(array('message' => __('Permission denied.', 'directorist-smart-badges')));
         }
 
-        $badges_data = isset($_POST['badges']) ? $_POST['badges'] : array();
+        $badges_data = isset($_POST['badges']) ? wp_unslash($_POST['badges']) : array();
 
         if (empty($badges_data) || !is_array($badges_data)) {
             wp_send_json_error(array('message' => __('Invalid badges data.', 'directorist-smart-badges')));
@@ -686,6 +684,7 @@ class Directorist_Smart_Badges_Admin
 
         if ($imported > 0) {
             wp_send_json_success(array(
+                /* translators: %d: number of badges imported. */
                 'message' => sprintf(__('%d badge(s) imported successfully.', 'directorist-smart-badges'), $imported),
                 'imported' => $imported,
                 'errors' => $errors

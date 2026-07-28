@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Get badge ID from URL if editing
-$badge_id = isset($_GET['badge_id']) ? sanitize_text_field($_GET['badge_id']) : '';
+$badge_id = isset($_GET['badge_id']) ? sanitize_text_field(wp_unslash($_GET['badge_id'])) : '';
 $badge = null;
 $is_edit = false;
 

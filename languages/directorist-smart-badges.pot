@@ -1,0 +1,575 @@
+# Copyright (C) 2026 wpWax
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Directorist - Smart Badges 3.4.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/directorist-smart-badges\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-28T02:20:09+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: directorist-smart-badges\n"
+
+#. Plugin Name of the plugin
+#: directorist-smart-badges.php
+msgid "Directorist - Smart Badges"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: directorist-smart-badges.php
+msgid "https://wpxplore.com/tools/directorist-smart-badges/"
+msgstr ""
+
+#. Description of the plugin
+#: directorist-smart-badges.php
+msgid "Best way to create smart badges for Directorist with advanced condition-based display rules"
+msgstr ""
+
+#. Author of the plugin
+#: directorist-smart-badges.php
+msgid "wpWax"
+msgstr ""
+
+#. Author URI of the plugin
+#: directorist-smart-badges.php
+msgid "https://wpxplore.com"
+msgstr ""
+
+#: inc/class-admin.php:98
+msgid "Are you sure you want to delete this badge?"
+msgstr ""
+
+#: inc/class-admin.php:99
+msgid "Saving…"
+msgstr ""
+
+#: inc/class-admin.php:100
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: inc/class-admin.php:101
+msgid "This field is required."
+msgstr ""
+
+#: inc/class-admin.php:102
+#: inc/class-admin.php:316
+msgid "Badge ID must be lowercase with hyphens only."
+msgstr ""
+
+#: inc/class-admin.php:103
+#: templates/condition-item.php:51
+msgid "Condition"
+msgstr ""
+
+#: inc/class-admin.php:104
+#: templates/condition-item.php:61
+msgid "Minimize"
+msgstr ""
+
+#: inc/class-admin.php:105
+msgid "Maximize"
+msgstr ""
+
+#: inc/class-admin.php:106
+msgid "Select Badge Image"
+msgstr ""
+
+#: inc/class-admin.php:107
+msgid "Use this image"
+msgstr ""
+
+#. translators: %d: number of badges in the import file.
+#: inc/class-admin.php:109
+#, php-format
+msgid "Import %d badge(s)?"
+msgstr ""
+
+#: inc/class-admin.php:110
+msgid "Invalid file format."
+msgstr ""
+
+#: inc/class-admin.php:111
+msgid "Error parsing JSON file."
+msgstr ""
+
+#: inc/class-admin.php:193
+#: inc/class-admin.php:194
+#: inc/class-admin.php:242
+#: templates/admin-page.php:20
+msgid "Smart Badges"
+msgstr ""
+
+#: inc/class-admin.php:203
+#: inc/class-admin.php:204
+#: inc/class-admin.php:256
+msgid "Badge Configuration"
+msgstr ""
+
+#: inc/class-admin.php:242
+#: inc/class-admin.php:256
+msgid "Template file not found."
+msgstr ""
+
+#: inc/class-admin.php:308
+msgid "Required fields are missing."
+msgstr ""
+
+#: inc/class-admin.php:331
+msgid "Badge ID must be unique."
+msgstr ""
+
+#: inc/class-admin.php:464
+#: inc/class-admin.php:490
+#: inc/class-admin.php:530
+#: inc/class-admin.php:556
+#: inc/class-admin.php:582
+#: inc/class-admin.php:611
+#: inc/class-admin.php:637
+#: inc/class-admin.php:652
+msgid "Permission denied."
+msgstr ""
+
+#: inc/class-admin.php:470
+#: inc/class-admin.php:536
+#: inc/class-admin.php:562
+#: inc/class-admin.php:617
+msgid "Badge ID is required."
+msgstr ""
+
+#: inc/class-admin.php:478
+#: inc/class-admin.php:544
+#: inc/class-admin.php:570
+#: inc/class-admin.php:625
+msgid "Badge not found."
+msgstr ""
+
+#: inc/class-admin.php:497
+msgid "Invalid badge data."
+msgstr ""
+
+#: inc/class-admin.php:519
+msgid "Badge saved successfully."
+msgstr ""
+
+#: inc/class-admin.php:542
+msgid "Badge deleted successfully."
+msgstr ""
+
+#: inc/class-admin.php:568
+msgid "Badge status updated."
+msgstr ""
+
+#: inc/class-admin.php:588
+msgid "Invalid order data."
+msgstr ""
+
+#: inc/class-admin.php:597
+msgid "Badges reordered successfully."
+msgstr ""
+
+#: inc/class-admin.php:599
+msgid "Failed to reorder badges."
+msgstr ""
+
+#: inc/class-admin.php:623
+msgid "Badge duplicated successfully."
+msgstr ""
+
+#: inc/class-admin.php:658
+msgid "Invalid badges data."
+msgstr ""
+
+#. translators: %d: number of badges imported.
+#: inc/class-admin.php:688
+#, php-format
+msgid "%d badge(s) imported successfully."
+msgstr ""
+
+#: inc/class-admin.php:693
+msgid "No badges were imported."
+msgstr ""
+
+#: inc/functions.php:25
+msgid "Field Key"
+msgstr ""
+
+#: inc/functions.php:28
+msgid "Enable field meta key in the directory builder."
+msgstr ""
+
+#: templates/admin-form-page.php:22
+msgid "Edit Badge"
+msgstr ""
+
+#: templates/admin-form-page.php:22
+#: templates/admin-page.php:34
+msgid "Add New Badge"
+msgstr ""
+
+#: templates/admin-form-page.php:36
+msgid "Badges"
+msgstr ""
+
+#: templates/admin-form-page.php:41
+msgid "Enable or disable this badge."
+msgstr ""
+
+#: templates/admin-form-page.php:44
+#: templates/admin-page.php:66
+#: templates/admin-page.php:146
+msgid "Active"
+msgstr ""
+
+#: templates/admin-form-page.php:46
+msgid "Save Badge"
+msgstr ""
+
+#: templates/admin-form-page.php:63
+msgid "Badge settings sections"
+msgstr ""
+
+#: templates/admin-form-page.php:66
+#: templates/admin-form-page.php:81
+msgid "General"
+msgstr ""
+
+#: templates/admin-form-page.php:70
+#: templates/admin-form-page.php:125
+msgid "Appearance"
+msgstr ""
+
+#: templates/admin-form-page.php:74
+#: templates/admin-form-page.php:261
+#: templates/admin-page.php:65
+#: templates/admin-page.php:139
+msgid "Conditions"
+msgstr ""
+
+#: templates/admin-form-page.php:86
+msgid "Badge Type"
+msgstr ""
+
+#: templates/admin-form-page.php:90
+msgid "Custom"
+msgstr ""
+
+#: templates/admin-form-page.php:93
+msgid "Tags"
+msgstr ""
+
+#: templates/admin-form-page.php:96
+msgid "Choose whether this badge displays custom label text or listing tags."
+msgstr ""
+
+#: templates/admin-form-page.php:103
+msgid "Badge Title"
+msgstr ""
+
+#: templates/admin-form-page.php:106
+msgid "Features"
+msgstr ""
+
+#: templates/admin-form-page.php:107
+msgid "Internal name for this badge."
+msgstr ""
+
+#: templates/admin-form-page.php:114
+#: templates/admin-page.php:64
+#: templates/admin-page.php:134
+msgid "Badge ID"
+msgstr ""
+
+#: templates/admin-form-page.php:117
+msgid "featured-badge"
+msgstr ""
+
+#: templates/admin-form-page.php:118
+msgid "Unique identifier (lowercase with hyphens only)."
+msgstr ""
+
+#: templates/admin-form-page.php:130
+msgid "Display Type"
+msgstr ""
+
+#: templates/admin-form-page.php:134
+msgid "Label"
+msgstr ""
+
+#: templates/admin-form-page.php:137
+msgid "Image"
+msgstr ""
+
+#: templates/admin-form-page.php:140
+msgid "Choose whether the badge displays its text label or an uploaded image on the frontend."
+msgstr ""
+
+#: templates/admin-form-page.php:153
+msgid "Badge Image"
+msgstr ""
+
+#: templates/admin-form-page.php:158
+msgid "Select Image"
+msgstr ""
+
+#: templates/admin-form-page.php:159
+msgid "Remove Image"
+msgstr ""
+
+#: templates/admin-form-page.php:166
+msgid "Upload or select the image to display instead of the badge label."
+msgstr ""
+
+#: templates/admin-form-page.php:173
+msgid "Badge Image Width"
+msgstr ""
+
+#: templates/admin-form-page.php:176
+msgid "Width of the uploaded badge image in pixels."
+msgstr ""
+
+#: templates/admin-form-page.php:183
+msgid "Badge Label"
+msgstr ""
+
+#: templates/admin-form-page.php:186
+msgid "Featured"
+msgstr ""
+
+#: templates/admin-form-page.php:187
+msgid "Display text for the badge."
+msgstr ""
+
+#: templates/admin-form-page.php:194
+msgid "Badge Label Font Size"
+msgstr ""
+
+#: templates/admin-form-page.php:197
+msgid "Font size for badge label or tag text in pixels."
+msgstr ""
+
+#: templates/admin-form-page.php:204
+msgid "Badge Icon"
+msgstr ""
+
+#: templates/admin-form-page.php:206
+msgid "las la-check-circle"
+msgstr ""
+
+#: templates/admin-form-page.php:207
+msgid "Icon class name (e.g., las la-check-circle)."
+msgstr ""
+
+#: templates/admin-form-page.php:214
+msgid "Badge Class"
+msgstr ""
+
+#: templates/admin-form-page.php:216
+msgid "features-custom-badge"
+msgstr ""
+
+#: templates/admin-form-page.php:217
+msgid "CSS class for styling."
+msgstr ""
+
+#: templates/admin-form-page.php:224
+msgid "Maximum Tags"
+msgstr ""
+
+#: templates/admin-form-page.php:226
+msgid "3"
+msgstr ""
+
+#: templates/admin-form-page.php:227
+msgid "Maximum number of listing tags to show on the frontend. Leave empty or use 0 to show all tags."
+msgstr ""
+
+#: templates/admin-form-page.php:234
+msgid "Badge Background Color"
+msgstr ""
+
+#: templates/admin-form-page.php:237
+msgid "Pick a background color"
+msgstr ""
+
+#: templates/admin-form-page.php:239
+#: templates/admin-form-page.php:253
+msgid "Clear"
+msgstr ""
+
+#: templates/admin-form-page.php:241
+msgid "Choose a background color for the badge."
+msgstr ""
+
+#: templates/admin-form-page.php:248
+msgid "Badge Text Color"
+msgstr ""
+
+#: templates/admin-form-page.php:251
+msgid "Pick a text color"
+msgstr ""
+
+#: templates/admin-form-page.php:255
+msgid "Choose a text color for the badge."
+msgstr ""
+
+#: templates/admin-form-page.php:266
+msgid "Condition Relation"
+msgstr ""
+
+#: templates/admin-form-page.php:269
+msgid "AND"
+msgstr ""
+
+#: templates/admin-form-page.php:270
+msgid "OR"
+msgstr ""
+
+#: templates/admin-form-page.php:272
+msgid "How conditions should be evaluated."
+msgstr ""
+
+#: templates/admin-form-page.php:291
+msgid "Add Condition"
+msgstr ""
+
+#: templates/admin-page.php:25
+msgid "Export"
+msgstr ""
+
+#: templates/admin-page.php:29
+msgid "Import"
+msgstr ""
+
+#: templates/admin-page.php:46
+msgid "No badges configured yet. Create your first badge to get started."
+msgstr ""
+
+#: templates/admin-page.php:48
+msgid "Add Your First Badge"
+msgstr ""
+
+#: templates/admin-page.php:60
+#: templates/admin-page.php:104
+msgid "Reorder"
+msgstr ""
+
+#: templates/admin-page.php:62
+#: templates/admin-page.php:111
+msgid "Preview"
+msgstr ""
+
+#: templates/admin-page.php:63
+#: templates/admin-page.php:125
+msgid "Title"
+msgstr ""
+
+#: templates/admin-page.php:67
+#: templates/admin-page.php:159
+msgid "Actions"
+msgstr ""
+
+#: templates/admin-page.php:105
+#: templates/condition-item.php:45
+msgid "Drag to reorder"
+msgstr ""
+
+#: templates/admin-page.php:147
+msgid "Active – click to disable"
+msgstr ""
+
+#: templates/admin-page.php:147
+msgid "Inactive – click to enable"
+msgstr ""
+
+#: templates/admin-page.php:164
+#: templates/admin-page.php:165
+msgid "Edit"
+msgstr ""
+
+#: templates/admin-page.php:172
+#: templates/admin-page.php:173
+msgid "Duplicate"
+msgstr ""
+
+#: templates/admin-page.php:180
+#: templates/admin-page.php:181
+msgid "Delete"
+msgstr ""
+
+#: templates/condition-item.php:68
+#: templates/condition-item.php:69
+msgid "Remove condition"
+msgstr ""
+
+#: templates/condition-item.php:80
+msgid "Condition Type"
+msgstr ""
+
+#: templates/condition-item.php:83
+msgid "Meta Field"
+msgstr ""
+
+#: templates/condition-item.php:86
+msgid "Pricing Plan"
+msgstr ""
+
+#: templates/condition-meta-fields.php:42
+msgid "Meta Key"
+msgstr ""
+
+#: templates/condition-meta-fields.php:49
+msgid "Select or type a meta key…"
+msgstr ""
+
+#: templates/condition-meta-fields.php:52
+msgid "Choose from keys already used on listings, or type a custom key."
+msgstr ""
+
+#: templates/condition-meta-fields.php:56
+#: templates/condition-pricing-plan-fields.php:45
+msgid "Compare"
+msgstr ""
+
+#: templates/condition-meta-fields.php:95
+msgid "Meta Value"
+msgstr ""
+
+#: templates/condition-meta-fields.php:100
+msgid "expected value"
+msgstr ""
+
+#: templates/condition-meta-fields.php:106
+msgid "Type Cast"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:25
+msgid "Plan Status Condition"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:28
+msgid "User has an active subscription"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:29
+msgid "Listing is assigned to a plan"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:32
+msgid "Choose how plan status should be checked for this badge. \"User has an active subscription\" applies the badge only if the listing owner currently has an active pricing plan. \"Listing is assigned to a plan\" applies the badge only if this specific listing is linked to a pricing plan."
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:38
+msgid "Plan ID"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:39
+msgid "897"
+msgstr ""
+
+#: templates/condition-pricing-plan-fields.php:40
+msgid "Leave empty when using Plan Status Condition."
+msgstr ""

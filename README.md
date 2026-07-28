@@ -158,9 +158,17 @@ When `badge_data` is not supplied, the badge falls back to a simple `meta_key ==
 
 - Lint: `php -l` every changed file (on Local, PHP is not in PATH — use Local's bundled binary)
 - No build step: plain PHP/JS/CSS, edit and reload
+- i18n: POT at `languages/directorist-smart-badges.pot`; regenerate after string changes with `wp i18n make-pot . languages/directorist-smart-badges.pot --domain=directorist-smart-badges`
+- Input handling: always `wp_unslash()` superglobals before sanitizing
 - Keep `README.md` (this file), `PRD.md`, and `DOCUMENTATION.md` in sync with code changes
 
 ## Changelog
+
+### 3.4.0 (code quality)
+- All `$_POST`/`$_GET` reads now `wp_unslash()`ed before sanitization (fixes stray backslashes being stored when badge fields contain quotes)
+- Translations wired up: `load_plugin_textdomain()` on `init` + POT file at `languages/directorist-smart-badges.pot` (regenerate with `wp i18n make-pot . languages/directorist-smart-badges.pot --domain=directorist-smart-badges`)
+- Dead code removed: unused localized JS strings, leftover jQuery-UI `sortable` class, `extract()` in the single-listing template loader, empty `templates/readme.txt`
+- Badge preview swatch style attribute now passed through `esc_attr()`
 
 ### 3.4.0
 - Redesigned admin UI: card layout, Directorist-purple accent, sticky header with always-visible Save, CSS-only vertical tabs (General / Appearance / Conditions), toggle switches, inline SVG icons, RTL-safe logical properties, reduced-motion support

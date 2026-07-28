@@ -152,10 +152,25 @@ if (!class_exists('Directorist_Smart_Badges')) {
          */
         public function hooks()
         {
+            add_action('init', array($this, 'load_textdomain'));
+
             // Initialize admin class
             if (is_admin()) {
                 new Directorist_Smart_Badges_Admin();
             }
+        }
+
+        /**
+         * Load translations from the /languages directory
+         * (the Domain Path declared in the plugin header).
+         */
+        public function load_textdomain()
+        {
+            load_plugin_textdomain(
+                'directorist-smart-badges',
+                false,
+                dirname(plugin_basename(__FILE__)) . '/languages'
+            );
         }
 
     }

@@ -67,7 +67,7 @@ $badges = Directorist_Smart_Badges_Admin::get_badges();
 							<th class="column-actions" scope="col"><?php esc_html_e( 'Actions', 'directorist-smart-badges' ); ?></th>
 						</tr>
 					</thead>
-					<tbody class="dsb-badges-list sortable">
+					<tbody class="dsb-badges-list">
 						<?php foreach ( $badges as $badge ) : ?>
 							<?php
 							$badge_color      = ! empty( $badge['badge_color'] ) ? esc_attr( $badge['badge_color'] ) : '';
@@ -109,7 +109,7 @@ $badges = Directorist_Smart_Badges_Admin::get_badges();
 
 								<!-- Badge preview swatch -->
 								<td class="column-preview" data-label="<?php esc_attr_e( 'Preview', 'directorist-smart-badges' ); ?>">
-									<span class="dsb-badge-preview" style="<?php echo $swatch_style; ?>">
+									<span class="dsb-badge-preview" style="<?php echo esc_attr( $swatch_style ); ?>">
 										<?php if ( 'custom' === $badge_type && 'image' === $display_type && $badge_image_url ) : ?>
 											<img src="<?php echo esc_url( $badge_image_url ); ?>" alt="<?php echo esc_attr( $badge['badge_label'] ); ?>" class="dsb-badge-preview-image">
 										<?php else : ?>
